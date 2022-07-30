@@ -1,0 +1,15 @@
+<div id="main"></div>
+<script type="module">
+  import { h } from "/lib/index.ts";
+  window.h = h;
+</script>
+
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script type="text/babel">
+  // @jsx h
+  console.log(
+    <div class="red">
+      <h1>Hello</h1> world
+    </div>
+  );
+</script>
