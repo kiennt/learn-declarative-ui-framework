@@ -183,8 +183,12 @@ function isComponentNode(vnode: VNode | undefined): Boolean {
 }
 
 function patch(n1: VNode | undefined, n2: VNode | undefined): void {
-  if (isComponentNode(n1)) return;
-  if (isComponentNode(n2)) return;
+  if (isComponentNode(n1)) {
+    // your turn to implement this
+  }
+  if (isComponentNode(n2)) {
+    // your turn to implement this
+  }
 
   const isChangeType =
     (n1 === undefined && n1 !== n2) ||
