@@ -5,6 +5,10 @@ type VNode = {
   };
 };
 
+type Instance = {
+  render: () => VNode;
+};
+
 const TEXT_NODE = "TEXT_NODE";
 
 function isVNode(node: VNode | string): boolean {
@@ -44,11 +48,61 @@ export function render(vnode: VNode, container: Element | Text): void {
   mountComponentNode(vnode, container);
 }
 
-function mountDOMNode(vnode: VNode, container: Element | Text): void {
-  // your turn to implement this function
-  // please review render.spec.ts to understand more about the spec
+function isEventProp(value: string): Boolean {
+  return value.startsWith("on");
 }
 
-function mountComponentNode(_vnode: VNode, _container: Element | Text): void {
-  // we do not implement this function yet
+function createDOMNode(type: string, props: VNode["props"]): Element | Text {
+  if (type === TEXT_NODE) {
+    return document.createTextNode(String(props.nodeValue));
+  }
+
+  let dom = document.createElement(type);
+  Object.keys(props).forEach((key) => {
+    // skip if key is children
+    if (key === "children") return;
+
+    const value = props[key];
+    if (isEventProp(key)) {
+      dom.addEventListener(key.slice(2).toLocaleLowerCase(), value);
+    } else {
+      dom.setAttribute(key, value);
+    }
+  });
+
+  return dom;
+}
+
+function mountDOMNode(vnode: VNode, container: Element | Text): void {
+  const dom = createDOMNode(vnode.type as string, vnode.props);
+  container.appendChild(dom);
+  const children = vnode.props.children;
+  if (children) {
+    children.forEach((child) => render(child, dom));
+  }
+}
+
+function mountComponentNode(vnode: VNode, container: Element | Text): void {
+  const instance = initiateComponent(vnode);
+  const newVNode = instance.render();
+  render(newVNode, container);
+}
+
+function isClassComponent(fn: Function) {
+  return typeof fn === "function" && (fn as any).render !== undefined;
+}
+
+export class Component {
+  // implement this code
+}
+
+function initiateComponent(vnode: VNode): Instance {
+  let instance;
+  if (isClassComponent(vnode.type as Function)) {
+    // implement this code
+  } else {
+    // implement this code
+  }
+
+  return instance;
 }

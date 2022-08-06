@@ -1,15 +1,17 @@
 <div id="main"></div>
 <script type="module">
-  import { h } from "/lib/index.ts";
+  import { h, render } from "/lib/index.ts";
   window.h = h;
+  window.render = render;
 </script>
 
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 <script type="text/babel">
   // @jsx h
-  console.log(
+  render(
     <div class="red">
       <h1>Hello</h1> world
-    </div>
+    </div>,
+    document.getElementById("main")
   );
 </script>
