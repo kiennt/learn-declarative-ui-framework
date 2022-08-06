@@ -2,8 +2,11 @@ import { describe, it, beforeEach, expect, vi } from "vitest";
 import { fireEvent, getByText } from "@testing-library/dom";
 import { h, render, Component } from "../lib/index";
 
+// we need to add this because when debugging,
+// vscode does not load vitest.config.js
 // @vitest-environment jsdom
 
+// trick babel jsx plugin to use `h` instead of React.createElement
 const React = {
   createElement: h,
 };
@@ -64,8 +67,24 @@ describe("render", () => {
       expect(container.innerHTML).toEqual(`<div>10</div>`);
     });
 
+    it("render class component call componentDidMount", () => {
+      const fn = vi.fn();
+      class Counter extends Component {
+        componentDidMount() {
+          fn();
+        }
+
+        render() {
+          return <div>{this.props.value}</div>;
+        }
+      }
+      render(<Counter value={10} />, container);
+      expect(container.innerHTML).toEqual(`<div>10</div>`);
+      expect(fn).toBeCalledTimes(1);
+    });
+
     it("render simple function component", () => {
-      function Counter(props) {
+      function Counter(props: any) {
         return <div>{props.value}</div>;
       }
       render(<Counter value={10} />, container);

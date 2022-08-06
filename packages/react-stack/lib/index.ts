@@ -86,6 +86,17 @@ function mountComponentNode(vnode: VNode, container: Element | Text): void {
   const instance = initiateComponent(vnode);
   const newVNode = instance.render();
   render(newVNode, container);
+  callInstanceLifeCycle(instance, "componentDidMount");
+}
+
+function callInstanceLifeCycle(
+  instance: Instance,
+  name: string,
+  ...params: Array<any>
+) {
+  // skip if the life cycle is not defined
+  if ((instance as any)[name] === undefined) return;
+  (instance as any)[name].call(instance, ...params);
 }
 
 function isClassComponent(fn: Function) {
