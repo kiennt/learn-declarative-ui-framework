@@ -236,7 +236,7 @@ describe("render", () => {
       expect(container.innerHTML).toEqual(
         `<button>press<span class="green">0</span>hello</button>`
       );
-      fireEvent.click(getByText(container, "press"));
+      fireEvent.click(getByText(container, /press/));
       expect(container.innerHTML).toEqual(
         `<button>press<span class="red">1</span>hello</button>`
       );

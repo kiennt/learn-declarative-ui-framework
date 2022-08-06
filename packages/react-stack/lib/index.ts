@@ -251,9 +251,61 @@ function updateDOMAttributes(
   newProps: VNode["props"],
   oldProps: VNode["props"]
 ): void {
-  // your turn to implement this function
+  // handle text node in a special case
+  if (dom.nodeType === Node.TEXT_NODE) {
+    const oldValue = oldProps.nodeValue;
+    const newValue = newProps.nodeValue;
+    if (oldValue !== newValue) {
+      dom.nodeValue = newValue;
+    }
+    return;
+  }
+
+  // set new props
+  Object.keys(newProps).forEach((key) => {
+    if (key === "children") return;
+    const newValue = newProps[key];
+    const oldValue = oldProps[key];
+    if (newValue === oldValue) return;
+    if (isEventProp(key)) {
+      const event = key.slice(2).toLocaleLowerCase();
+      dom.removeEventListener(event, oldValue);
+      dom.addEventListener(event, newValue);
+    } else {
+      (dom as Element).setAttribute(key, newValue);
+    }
+  });
+
+  // delete old props
+  Object.keys(oldProps).forEach((key) => {
+    // skip children key
+    if (key === "children") return;
+    // skip if we already set it
+    if (newProps[key] !== undefined) return;
+    const value = oldProps[key];
+    if (isEventProp(key)) {
+      const event = key.slice(2).toLocaleLowerCase();
+      (dom as Element).removeEventListener(event, value);
+    } else {
+      (dom as Element).removeAttribute(key);
+    }
+  });
 }
 
 function patchChildren(n1: VNode, n2: VNode, container: Element | Text): void {
-  // your turn to implement this function
+  const oldChildren = n1.props.children || [];
+  const newChildren = n2.props.children || [];
+  const minLength = Math.min(oldChildren.length, newChildren.length);
+  for (let i = 0; i < minLength; i++) {
+    patch(oldChildren[i], newChildren[i]);
+  }
+  if (oldChildren.length > newChildren.length) {
+    oldChildren.slice(minLength).forEach((child) => {
+      unmount(child);
+    });
+  } else if (newChildren.length > oldChildren.length) {
+    newChildren.slice(minLength).forEach((child) => {
+      render(child, container);
+    });
+  }
 }
