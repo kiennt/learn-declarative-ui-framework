@@ -115,7 +115,7 @@ describe("render", () => {
   });
 
   describe("update class component", () => {
-    it.only("rerender for ", () => {
+    it("rerender when dom node change type", () => {
       class Counter extends Component<{}, { value: number }> {
         constructor(props: any) {
           super(props);

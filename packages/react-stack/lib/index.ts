@@ -88,7 +88,11 @@ function mountDOMNode(
 ): void {
   const dom = createDOMNode(vnode.type as string, vnode.props);
   vnode._dom = dom;
-  container.appendChild(dom);
+  if (!sibling) {
+    container.appendChild(dom);
+  } else {
+    container.insertBefore(dom, sibling);
+  }
   const children = vnode.props.children;
   if (children) {
     children.forEach((child) => render(child, dom));
@@ -196,4 +200,14 @@ function patch(n1: VNode | undefined, n2: VNode | undefined): void {
   // we will do it in next lessons
 }
 
-function unmount(vnode: VNode): void {}
+function unmount(vnode: VNode): void {
+  if (!vnode._dom) return;
+  const parent = vnode._dom.parentNode;
+  if (parent) {
+    parent.removeChild(vnode._dom);
+  }
+
+  if (vnode.props.children) {
+    vnode.props.children.forEach((child) => unmount(child));
+  }
+}
