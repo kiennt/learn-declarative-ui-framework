@@ -149,58 +149,97 @@ describe("render", () => {
       fireEvent.click(getByText(container, "press"));
       expect(container.innerHTML).toEqual("<h1>hello</h1>");
     });
-  });
 
-  it("rerender when update component node", () => {
-    const fn1 = vi.fn();
-    const fn2 = vi.fn();
+    it("rerender when update component node", () => {
+      const fn1 = vi.fn();
+      const fn2 = vi.fn();
 
-    class Counter extends Component<any, any> {
-      componentWillUnmount() {
-        fn1();
-      }
-      componentDidUnmount() {
-        fn2();
-      }
-      render() {
-        return this.props.value === 0 ? (
-          <button onClick={this.props.onClick}>
-            press
-            <Counter value={this.props.value - 1} />
-          </button>
-        ) : (
-          <span>hello</span>
-        );
-      }
-    }
-
-    class App extends Component<{}, { value: number }> {
-      constructor(props: any) {
-        super(props);
-        this.state = {
-          value: 0,
-        };
+      class Counter extends Component<any, any> {
+        componentWillUnmount() {
+          fn1();
+        }
+        componentDidUnmount() {
+          fn2();
+        }
+        render() {
+          return this.props.value === 0 ? (
+            <button onClick={this.props.onClick}>
+              press
+              <Counter value={this.props.value - 1} />
+            </button>
+          ) : (
+            <span>hello</span>
+          );
+        }
       }
 
-      onClick() {
-        this.setState({
-          value: this.state.value + 1,
-        });
-      }
-      render() {
-        return (
-          <Counter value={this.state.value} onClick={this.onClick.bind(this)} />
-        );
-      }
-    }
+      class App extends Component<{}, { value: number }> {
+        constructor(props: any) {
+          super(props);
+          this.state = {
+            value: 0,
+          };
+        }
 
-    render(<App />, container);
-    expect(container.innerHTML).toEqual(
-      `<button>press<span>hello</span></button>`
-    );
-    fireEvent.click(getByText(container, "press"));
-    expect(container.innerHTML).toEqual(`<span>hello</span>`);
-    expect(fn1).toBeCalledTimes(2);
-    expect(fn2).toBeCalledTimes(2);
+        onClick() {
+          this.setState({
+            value: this.state.value + 1,
+          });
+        }
+        render() {
+          return (
+            <Counter
+              value={this.state.value}
+              onClick={this.onClick.bind(this)}
+            />
+          );
+        }
+      }
+
+      render(<App />, container);
+      expect(container.innerHTML).toEqual(
+        `<button>press<span>hello</span></button>`
+      );
+      fireEvent.click(getByText(container, "press"));
+      expect(container.innerHTML).toEqual(`<span>hello</span>`);
+      expect(fn1).toBeCalledTimes(2);
+      expect(fn2).toBeCalledTimes(2);
+    });
+
+    it("rerender class component update child node", () => {
+      class App extends Component<{}, { value: number }> {
+        constructor(props: any) {
+          super(props);
+          this.state = {
+            value: 0,
+          };
+        }
+
+        onClick() {
+          this.setState({
+            value: this.state.value + 1,
+          });
+        }
+        render() {
+          const value = this.state.value;
+          return (
+            <button onClick={this.onClick.bind(this)}>
+              press
+              <span class={value > 0 ? "red" : "green"}>{value}</span>
+              hello
+            </button>
+          );
+        }
+      }
+
+      render(<App />, container);
+      expect(container.innerHTML).toEqual(
+        `<button>press<span class="green">0</span>hello</button>`
+      );
+      fireEvent.click(getByText(container, "press"));
+      expect(container.innerHTML).toEqual(
+        `<button>press<span class="red">1</span>hello</button>`
+      );
+    });
   });
 });

@@ -213,7 +213,14 @@ function patch(n1: VNode | undefined, n2: VNode | undefined): void {
     return;
   }
 
-  // we will do it in next lessons
+  n1 = n1 as VNode;
+  n2 = n2 as VNode;
+  // patch current dom node
+  updateDOMAttributes(n1._dom as Element | Text, n2.props, n1.props);
+  n2._dom = n1._dom;
+
+  // patch children
+  patchChildren(n1, n2 as VNode, n1._dom as Element | Text);
 }
 
 function unmount(vnode: VNode): void {
@@ -237,4 +244,16 @@ function unmount(vnode: VNode): void {
   if (vnode.props.children) {
     vnode.props.children.forEach((child) => unmount(child));
   }
+}
+
+function updateDOMAttributes(
+  dom: Element | Text,
+  newProps: VNode["props"],
+  oldProps: VNode["props"]
+): void {
+  // your turn to implement this function
+}
+
+function patchChildren(n1: VNode, n2: VNode, container: Element | Text): void {
+  // your turn to implement this function
 }
