@@ -113,4 +113,41 @@ describe("render", () => {
       );
     });
   });
+
+  describe("update class component", () => {
+    it.only("rerender for ", () => {
+      class Counter extends Component<{}, { value: number }> {
+        constructor(props: any) {
+          super(props);
+          this.state = {
+            value: 0,
+          };
+        }
+
+        onClick() {
+          this.setState({
+            value: this.state.value + 1,
+          });
+        }
+
+        render() {
+          return this.state.value === 0 ? (
+            <div>
+              <button id="button" onClick={this.onClick.bind(this)}>
+                press
+              </button>
+            </div>
+          ) : (
+            <h1>hello</h1>
+          );
+        }
+      }
+      render(<Counter />, container);
+      expect(container.innerHTML).toEqual(
+        '<div><button id="button">press</button></div>'
+      );
+      fireEvent.click(getByText(container, "press"));
+      expect(container.innerHTML).toEqual("<h1>hello</h1>");
+    });
+  });
 });
