@@ -1,6 +1,8 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, beforeEach, expect, vi } from "vitest";
 import { fireEvent, getByText } from "@testing-library/dom";
 import { h, render, Component } from "../lib/index";
+
+// @vitest-environment jsdom
 
 const React = {
   createElement: h,

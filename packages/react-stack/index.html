@@ -1,17 +1,27 @@
 <div id="main"></div>
 <script type="module">
-  import { h, render } from "/lib/index.ts";
+  import { h, render, Component } from "/lib/index.ts";
   window.h = h;
   window.render = render;
+  window.Component = Component;
 </script>
 
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 <script type="text/babel">
+  class Counter extends Component {
+    render() {
+      return <div>{this.props.value}</div>;
+    }
+  }
+
+  function App() {
+    return (
+      <div>
+        <Counter value={"hello"} />
+        <span>world </span>
+      </div>
+    );
+  }
   // @jsx h
-  render(
-    <div class="red">
-      <h1>Hello</h1> world
-    </div>,
-    document.getElementById("main")
-  );
+  render(<App />, document.getElementById("main"));
 </script>

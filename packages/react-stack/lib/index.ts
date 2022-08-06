@@ -89,20 +89,36 @@ function mountComponentNode(vnode: VNode, container: Element | Text): void {
 }
 
 function isClassComponent(fn: Function) {
-  return typeof fn === "function" && (fn as any).render !== undefined;
+  return (
+    typeof fn === "function" &&
+    ((fn as any).render !== undefined || fn.prototype.render !== undefined)
+  );
 }
 
 export class Component {
-  // implement this code
+  props: Record<string, any>;
+
+  constructor(props: Record<string, any>) {
+    this.props = props;
+  }
+
+  render(): VNode | undefined {
+    return;
+  }
 }
 
 function initiateComponent(vnode: VNode): Instance {
   let instance;
+  const fn = vnode.type as any;
   if (isClassComponent(vnode.type as Function)) {
-    // implement this code
+    instance = new fn(vnode.props);
   } else {
-    // implement this code
+    instance = {
+      props: vnode.props,
+      render() {
+        return fn(this.props);
+      },
+    };
   }
-
   return instance;
 }
