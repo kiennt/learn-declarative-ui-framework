@@ -183,11 +183,23 @@ function isComponentNode(vnode: VNode | undefined): Boolean {
 }
 
 function patch(n1: VNode | undefined, n2: VNode | undefined): void {
+  // convert n1 to dom node
   if (isComponentNode(n1)) {
-    // your turn to implement this
+    const instance = (n1 as VNode)._instance;
+    if (!instance) return;
+    callInstanceLifeCycle(instance, "componentWillUnmount");
+    patch(instance._vnode, n2);
+    callInstanceLifeCycle(instance, "componentDidUnmount");
+    return;
   }
+
+  // convert n2 to dom node
   if (isComponentNode(n2)) {
-    // your turn to implement this
+    const instance = initiateComponent(n2 as VNode);
+    instance._vnode = instance.render();
+    patch(n1, instance._vnode);
+    callInstanceLifeCycle(instance, "componentDidMount");
+    return;
   }
 
   const isChangeType =
@@ -205,6 +217,17 @@ function patch(n1: VNode | undefined, n2: VNode | undefined): void {
 }
 
 function unmount(vnode: VNode): void {
+  if (isComponentNode(vnode)) {
+    const instance = vnode._instance;
+    if (!instance) return;
+    callInstanceLifeCycle(instance, "componentWillUnmount");
+    if (instance._vnode) {
+      unmount(instance._vnode);
+    }
+    callInstanceLifeCycle(instance, "componentDidUnmount");
+    return;
+  }
+
   if (!vnode._dom) return;
   const parent = vnode._dom.parentNode;
   if (parent) {
