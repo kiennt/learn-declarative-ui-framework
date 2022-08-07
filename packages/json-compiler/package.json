@@ -1,0 +1,18 @@
+{
+  "name": "json-compiler",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "build": "yarn jison src/grammar/json.y src/grammar/json.l -o src/grammar/parser.js",
+    "test": "yarn build && yarn vitest --ui"
+  },
+  "devDependencies": {
+    "@vitest/ui": "^0.21.0",
+    "jison": "^0.4.18",
+    "json": "^11.0.0",
+    "typescript": "^4.7.4",
+    "vite": "^3.0.4",
+    "vitest": "^0.21.0"
+  }
+}
