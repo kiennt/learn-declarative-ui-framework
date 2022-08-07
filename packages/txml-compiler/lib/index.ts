@@ -1,11 +1,11 @@
-type Value = string | number;
+import { Parser } from "./grammar/parser";
 
-type Node = {
-  type: string;
-  props: Record<string, Value>;
-  children: Node[];
-};
-
-export function parse(content: string): TXMLNode | undefined {
-  return;
+export function getAutoComplete(content: string, position: number): string[] {
+  const parser = new Parser();
+  try {
+    parser.parse(content);
+  } catch (err) {
+    console.log("ahihi");
+  }
+  return [];
 }
