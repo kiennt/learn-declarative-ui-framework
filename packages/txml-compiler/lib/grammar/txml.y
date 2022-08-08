@@ -13,6 +13,7 @@ node
   : node_start '/>'
     {
       $$ = {
+        type: 'NODE',
         tag: $1.tag,
         props: $1.props,
         children: [],
@@ -24,6 +25,7 @@ node
         throw new Error("invalid close tag")
       }
       $$ = {
+        type: 'NODE',
         tag: $1.tag,
         props: $1.props,
         children: $3,
@@ -47,17 +49,12 @@ node_start
 
 
 node_attribute
-  : attribute_name '=' attribute_value -> [$1, $3]
+  : attribute_name '=' STRING -> [$1, $3]
   ;
 
 attribute_name
   : IDENT
   | DIRECTIVE
-  ;
-
-attribute_value
-  : SQUOTE value+ SQUOTE -> $2
-  | DQUOTE value+ DQUOTE -> $2
   ;
 
 node_child
@@ -72,12 +69,11 @@ value
 
 expr
   : variable -> $1
-  | SQUOTE IDENT SQUOTE -> $2
-  | DQUOTE IDENT DQUOTE -> $2
   ;
 
 variable
   : IDENT -> $1
+  | STRING -> $1
   | NUMBER -> Number($1)
   | TRUE -> true
   | FALSE -> false

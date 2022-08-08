@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { parse } from "./lib/grammar/parser";
+import { parse } from "../lib";
 
 describe("parse", () => {
   describe("node", () => {
@@ -9,6 +9,7 @@ describe("parse", () => {
         input: `<view></view>`,
         output: [
           {
+            type: "NODE",
             tag: "view",
             props: {},
             children: [],
@@ -20,6 +21,7 @@ describe("parse", () => {
         input: `<view />`,
         output: [
           {
+            type: "NODE",
             tag: "view",
             props: {},
             children: [],
@@ -31,6 +33,7 @@ describe("parse", () => {
         input: `<view class="blue"></view>`,
         output: [
           {
+            type: "NODE",
             tag: "view",
             props: {
               class: "blue",
@@ -44,6 +47,7 @@ describe("parse", () => {
         input: `<view tk:class="blue"></view>`,
         output: [
           {
+            type: "NODE",
             tag: "view",
             props: {
               "tk:class": "blue",
@@ -57,6 +61,7 @@ describe("parse", () => {
         input: `<view class="blue" />`,
         output: [
           {
+            type: "NODE",
             tag: "view",
             props: {
               class: "blue",
@@ -70,6 +75,7 @@ describe("parse", () => {
         input: `<view class="blue">hello</view>`,
         output: [
           {
+            type: "NODE",
             tag: "view",
             props: {
               class: "blue",
@@ -83,6 +89,7 @@ describe("parse", () => {
         input: `<view class="blue">hello world</view>`,
         output: [
           {
+            type: "NODE",
             tag: "view",
             props: {
               class: "blue",
@@ -96,6 +103,7 @@ describe("parse", () => {
         input: `<view class="blue">hello<span>world</span></view>`,
         output: [
           {
+            type: "NODE",
             tag: "view",
             props: {
               class: "blue",
@@ -103,6 +111,7 @@ describe("parse", () => {
             children: [
               "hello",
               {
+                type: "NODE",
                 tag: "span",
                 props: {},
                 children: ["world"],
@@ -197,7 +206,7 @@ describe("parse", () => {
         it(tc.name, () => {
           const nodes = parse(`<view>{{${tc.input}}}</view>`);
           const value = nodes[0].children[0];
-          expect(value).toEqual(tc.output);
+          expect(value).toEqual({ type: "EXPR", expr: tc.output });
         });
       });
     });
