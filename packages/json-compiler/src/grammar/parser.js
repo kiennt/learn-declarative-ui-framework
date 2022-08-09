@@ -75,7 +75,7 @@ var parser = (function(){
 var o=function(k,v,o,l){for(o=o||{},l=k.length;l--;o[k[l]]=v);return o},$V0=[1,9],$V1=[1,10],$V2=[1,11],$V3=[1,12],$V4=[1,13],$V5=[1,14],$V6=[1,15],$V7=[5,18,21,23],$V8=[21,23],$V9=[18,21];
 var parser = {trace: function trace () { },
 yy: {},
-symbols_: {"error":2,"JSONText":3,"JSONValue":4,"EOF":5,"JSONNumber":6,"JSONString":7,"JSONBooleanLiteral":8,"JSONNullLiteral":9,"JSONObject":10,"JSONArray":11,"NUMBER":12,"STRING":13,"TRUE":14,"FALSE":15,"NULL":16,"{":17,"}":18,"JSONObjectMember":19,":":20,",":21,"[":22,"]":23,"JSONArrayMember":24,"$accept":0,"$end":1},
+symbols_: {"error":2,"document":3,"value":4,"EOF":5,"number":6,"string":7,"boolean_literal":8,"null_liternal":9,"object":10,"array":11,"NUMBER":12,"STRING":13,"TRUE":14,"FALSE":15,"NULL":16,"{":17,"}":18,"object_member":19,":":20,",":21,"[":22,"]":23,"array_member":24,"$accept":0,"$end":1},
 terminals_: {2:"error",5:"EOF",12:"NUMBER",13:"STRING",14:"TRUE",15:"FALSE",16:"NULL",17:"{",18:"}",20:":",21:",",22:"[",23:"]"},
 productions_: [0,[3,2],[4,1],[4,1],[4,1],[4,1],[4,1],[4,1],[6,1],[7,1],[8,1],[8,1],[9,1],[10,2],[10,3],[19,3],[19,5],[11,2],[11,3],[24,1],[24,3]],
 performAction: function anonymous(yytext, yyleng, yylineno, yy, yystate /* action[1] */, $$ /* vstack */, _$ /* lstack */) {

@@ -1,67 +1,67 @@
-%start JSONText
+%start document
 
 %%
 
-JSONText 
-  : JSONValue EOF
+document
+  : value EOF
     { return $1; }
   ;
 
-JSONValue
-  : JSONNumber
-  | JSONString
-  | JSONBooleanLiteral
-  | JSONNullLiteral
-  | JSONObject
-  | JSONArray
+value
+  : number
+  | string
+  | boolean_literal
+  | null_liternal
+  | object
+  | array
   ;
 
-JSONNumber
+number
   : NUMBER
     { $$ = Number($1); }
   ;
 
-JSONString 
+string
   : STRING
     { $$ = $1.slice(1, -1); }
   ;
 
-JSONBooleanLiteral
+boolean_literal
   : TRUE
     { $$ = true; }
   | FALSE
     { $$ = false; }
   ;
 
-JSONNullLiteral 
+null_liternal
   : NULL
     { $$ = null; }
   ;
 
-JSONObject
+object
   : '{' '}'
     { $$ = {}; }
-  | '{' JSONObjectMember '}'
+  | '{' object_member '}'
     { $$ = $2; }
   ;
 
-JSONObjectMember
-  : JSONString ':' JSONValue
+object_member
+  : string ':' value
     { $$ = {}; $$[$1] = $3; }
-  | JSONObjectMember ',' JSONString ':' JSONValue
+  | object_member ',' string ':' value
     { $$ = $1; $$[$3] = $5; }
   ;
 
-JSONArray
+array
   : '[' ']'
     { $$ = []; }
-  | '[' JSONArrayMember ']'
+  | '[' array_member ']'
     { $$ = $2; }
   ;
 
-JSONArrayMember
-  : JSONValue
+array_member
+  : value
     { $$ = [$1]; }
-  | JSONArrayMember ',' JSONValue
+  | array_member ',' value
     { $$ = $1; $$.push($3); }
   ;
