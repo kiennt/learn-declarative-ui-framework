@@ -1,6 +1,14 @@
 import { describe, it, beforeEach, expect, vi } from "vitest";
 import { fireEvent, getByText } from "@testing-library/dom";
-import { h, render, Component, useState } from "../lib/index";
+import { h, render, Component, useState, useEffect } from "../lib/index";
+
+async function sleep(timeout: number): Promise<void> {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve();
+    }, timeout * 1000);
+  });
+}
 
 // we need to add this because when debugging,
 // vscode does not load vitest.config.js
@@ -267,6 +275,65 @@ describe("render", () => {
       expect(container.innerHTML).toEqual(
         `<div>2,4<button>click</button></div>`
       );
+    });
+
+    it("pass useEffect hook", async () => {
+      const fn = vi.fn();
+      function Counter() {
+        const [value, setValue] = useState(0);
+        useEffect(() => {
+          const interval = setInterval(() => {
+            setValue(value + 1);
+          }, 1000);
+          return () => {
+            fn();
+            clearInterval(interval);
+          };
+        }, []);
+
+        return <div>{value}</div>;
+      }
+
+      render(<Counter />, container);
+      expect(container.innerHTML).toEqual("<div>0</div>");
+      await sleep(1);
+      expect(container.innerHTML).toEqual("<div>1</div>");
+      await sleep(1);
+      expect(container.innerHTML).toEqual("<div>2</div>");
+      await sleep(1);
+      expect(container.innerHTML).toEqual("<div>3</div>");
+      expect(fn).toBeCalledTimes(3);
+    });
+
+    it("useEffect hook call when instance unmount", () => {
+      const fn = vi.fn();
+      function Counter({ value, onClick }: { value: number; onClick: any }) {
+        useEffect(() => {
+          return () => {
+            fn();
+          };
+        }, []);
+        return (
+          <div>
+            {value}
+            <button onClick={onClick}>click</button>
+          </div>
+        );
+      }
+
+      function App() {
+        const [value, setValue] = useState(0);
+        const onClick = () => {
+          setValue(value + 1);
+        };
+        return <Counter value={value} onClick={onClick} />;
+      }
+
+      render(<App />, container);
+      expect(container.innerHTML).toEqual(`<div>0<button>click</button></div>`);
+      fireEvent.click(getByText(container, "click"));
+      expect(container.innerHTML).toEqual(`<div>1<button>click</button></div>`);
+      expect(fn).toBeCalledTimes(1);
     });
   });
 });
