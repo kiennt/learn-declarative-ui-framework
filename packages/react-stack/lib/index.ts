@@ -340,7 +340,9 @@ export function useState(initialValue: any): any {
   const instance = currentInstance as FCInstance;
   const state = getHookState(instance, { value: initialValue });
   const setter = (value: any) => {
-    // your turn to implement this function
+    if (value === state.value) return;
+    state.value = value;
+    rerenderInstance(instance, instance._vnode);
   };
 
   return [state.value, setter];
