@@ -153,6 +153,13 @@ function initiateComponent(vnode: VNode): Instance {
         currentInstance = null;
         return result;
       },
+      componentDidUnmount() {
+        this.__hooks.forEach((hook: any) => {
+          if (hook.cleanUp) {
+            hook.cleanUp();
+          }
+        });
+      },
     };
   }
 
@@ -349,5 +356,18 @@ export function useState(initialValue: any): any {
 }
 
 export function useEffect(callback: any, deps: any[]): void {
-  // your turn to implement this function
+  const instance = currentInstance as FCInstance;
+  const state = getHookState(instance, { deps });
+  const isChange =
+    deps.length === 0 ||
+    state.deps.length === 0 ||
+    deps.length !== state.deps.length ||
+    deps.some((item, i) => item !== state.deps[i]);
+  if (isChange) {
+    if (state.cleanUp && typeof state.cleanUp === "function") {
+      state.cleanUp();
+    }
+
+    state.cleanUp = callback();
+  }
 }
