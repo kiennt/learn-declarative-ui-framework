@@ -1,6 +1,6 @@
 import { describe, it, beforeEach, expect, vi } from "vitest";
 import { fireEvent, getByText } from "@testing-library/dom";
-import { h, render, Component } from "../lib/index";
+import { h, render, Component, useState } from "../lib/index";
 
 // we need to add this because when debugging,
 // vscode does not load vitest.config.js
@@ -239,6 +239,33 @@ describe("render", () => {
       fireEvent.click(getByText(container, /press/));
       expect(container.innerHTML).toEqual(
         `<button>press<span class="red">1</span>hello</button>`
+      );
+    });
+  });
+
+  describe("update function component", () => {
+    it("pass useState hook", () => {
+      function Counter() {
+        const [state1, setState1] = useState(1);
+        const [state2, setState2] = useState(2);
+        const onClick = () => {
+          setState1(state1 + 1);
+          setState2(state2 + 2);
+        };
+        return (
+          <div>
+            {state1},{state2}
+            <button onClick={onClick}>click</button>
+          </div>
+        );
+      }
+      render(<Counter />, container);
+      expect(container.innerHTML).toEqual(
+        `<div>1,2<button>click</button></div>`
+      );
+      fireEvent.click(getByText(container, "click"));
+      expect(container.innerHTML).toEqual(
+        `<div>2,4<button>click</button></div>`
       );
     });
   });
