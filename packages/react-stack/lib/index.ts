@@ -347,3 +347,7 @@ export function useState(initialValue: any): any {
 
   return [state.value, setter];
 }
+
+export function useEffect(callback: any, deps: any[]): void {
+  // your turn to implement this function
+}
