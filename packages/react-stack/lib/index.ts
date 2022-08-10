@@ -13,6 +13,11 @@ type Instance = {
   _vnode: VNode | undefined;
 };
 
+type FCInstance = Instance & {
+  __hooks: Array<any>;
+  __hooksPointer: number;
+};
+
 const TEXT_NODE = "TEXT_NODE";
 
 function isVNode(node: VNode | string): boolean {
@@ -108,7 +113,7 @@ function mountComponentNode(
   const newVNode = instance.render();
   instance._vnode = newVNode;
   if (!newVNode) return;
-  render(newVNode, container);
+  render(newVNode, container, sibling);
   callInstanceLifeCycle(instance, "componentDidMount");
 }
 
@@ -129,6 +134,8 @@ function isClassComponent(fn: Function) {
   );
 }
 
+let currentInstance: FCInstance | null;
+
 function initiateComponent(vnode: VNode): Instance {
   let instance;
   const fn = vnode.type as any;
@@ -137,8 +144,14 @@ function initiateComponent(vnode: VNode): Instance {
   } else {
     instance = {
       props: vnode.props,
+      __hooksPointer: 0,
+      __hooks: [],
       render() {
-        return fn(this.props);
+        currentInstance = this;
+        this.__hooksPointer = 0;
+        const result = fn(this.props);
+        currentInstance = null;
+        return result;
       },
     };
   }
@@ -308,4 +321,27 @@ function patchChildren(n1: VNode, n2: VNode, container: Element | Text): void {
       render(child, container);
     });
   }
+}
+
+function getHookState(instance: FCInstance, initialState: any): any {
+  const hooks = instance.__hooks;
+  const idx = instance.__hooksPointer;
+  instance.__hooksPointer++;
+  if (idx < hooks.length) {
+    return hooks[idx];
+  }
+
+  const state = initialState;
+  hooks.push(state);
+  return state;
+}
+
+export function useState(initialValue: any): any {
+  const instance = currentInstance as FCInstance;
+  const state = getHookState(instance, { value: initialValue });
+  const setter = (value: any) => {
+    // your turn to implement this function
+  };
+
+  return [state.value, setter];
 }
