@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "build": "yarn jison src/grammar/json.y src/grammar/json.l -o src/grammar/parser.js",
-    "test": "yarn build && yarn vitest --ui"
+    "test": "yarn build && yarn vitest"
   },
   "devDependencies": {
     "@vitest/ui": "^0.21.0",

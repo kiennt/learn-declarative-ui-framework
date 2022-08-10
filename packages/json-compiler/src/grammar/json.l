@@ -5,7 +5,7 @@ frac  "."[0-9]+
 \s+                     /* skip whitespace */
 
 {int}{frac}?\b          return 'NUMBER'
-\"[a-zA-Z0-9]+\"        return 'STRING'
+\"(?:'\\'[\\"bfnrt/]|'\\u'[a-fA-F0-9]{4}|[^\\\0-\x09\x0a-\x1f"])*\" return 'STRING'
 
 "{"                     return '{'
 "}"                     return '}'

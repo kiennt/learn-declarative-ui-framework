@@ -55,6 +55,12 @@ class Parser {
         this.i++;
       }
     }
+    if (this.c[this.i] === ".") {
+      this.i++;
+      while (this.c[this.i] >= "0" && this.c[this.i] <= "9") {
+        this.i++;
+      }
+    }
     if (this.i > start) {
       return Number(this.c.slice(start, this.i));
     }
@@ -64,9 +70,11 @@ class Parser {
     if (this.c[this.i] !== '"') return;
     this.i++;
     let result = "";
-    while (this.c[this.i] !== '"') {
+    let isEndString = false;
+    while (!isEndString) {
       result += this.c[this.i];
       this.i++;
+      isEndString = this.c[this.i] === '"' && this.c[this.i - 1] !== "\\";
     }
     this.i++;
     return result;
