@@ -43,6 +43,34 @@ describe("parse", () => {
         ],
       },
       {
+        name: "tag with props unicode",
+        input: `<view message="đây là tiếng \\" việt nhé"></view>`,
+        output: [
+          {
+            type: "NODE",
+            tag: "view",
+            props: {
+              message: 'đây là tiếng \\" việt nhé',
+            },
+            children: [],
+          },
+        ],
+      },
+      {
+        name: "tag with prop value has single quote in double quote",
+        input: `<view message="đây là tiếng ' việt nhé"></view>`,
+        output: [
+          {
+            type: "NODE",
+            tag: "view",
+            props: {
+              message: "đây là tiếng ' việt nhé",
+            },
+            children: [],
+          },
+        ],
+      },
+      {
         name: "tag with props is directive",
         input: `<view tk:class="blue"></view>`,
         output: [
@@ -85,6 +113,18 @@ describe("parse", () => {
         ],
       },
       {
+        name: "tag with children unicode",
+        input: `<view>một đoạn văn tiếng việt rất ngầu</view>`,
+        output: [
+          {
+            type: "NODE",
+            tag: "view",
+            props: {},
+            children: ["một đoạn văn tiếng việt rất ngầu"],
+          },
+        ],
+      },
+      {
         name: "tag with props and with children with many text",
         input: `<view class="blue">hello world</view>`,
         output: [
@@ -94,7 +134,7 @@ describe("parse", () => {
             props: {
               class: "blue",
             },
-            children: ["hello", "world"],
+            children: ["hello world"],
           },
         ],
       },
@@ -159,7 +199,7 @@ describe("parse", () => {
   });
 
   describe("binding", () => {
-    describe("constant", () => {
+    describe("constant and variables", () => {
       const testCases = [
         {
           name: "number",
@@ -178,8 +218,8 @@ describe("parse", () => {
         },
         {
           name: "string",
-          input: '"hello"',
-          output: "hello",
+          input: '"xin chào các bạn nhé"',
+          output: "xin chào các bạn nhé",
         },
         {
           name: "true",
@@ -201,12 +241,81 @@ describe("parse", () => {
           input: "null",
           output: null,
         },
+        {
+          name: "variable",
+          input: "message",
+          output: "message",
+        },
       ];
       testCases.forEach((tc) => {
         it(tc.name, () => {
           const nodes = parse(`<view>{{${tc.input}}}</view>`);
           const value = nodes[0].children[0];
           expect(value).toEqual({ type: "EXPR", expr: tc.output });
+        });
+      });
+    });
+
+    describe("binding in attribute", () => {
+      const testCases = [
+        {
+          name: "string is expr",
+          input: `<view a="{{id}}" />`,
+          output: { type: "EXPR", expr: "id" },
+        },
+        {
+          name: "expr at beginning of string",
+          input: `<view a="{{id}}-value" />`,
+          output: [{ type: "EXPR", expr: "id" }, "-value"],
+        },
+        {
+          name: "expr at the middle of string",
+          input: `<view a="item-{{id}}-value" />`,
+          output: ["item-", { type: "EXPR", expr: "id" }, "-value"],
+        },
+        {
+          name: "expr at the end of string",
+          input: `<view a="item-{{id}}" />`,
+          output: ["item-", { type: "EXPR", expr: "id" }],
+        },
+      ];
+
+      testCases.forEach((tc) => {
+        it(tc.name, () => {
+          const children = parse(tc.input)[0].props.a;
+          expect(children).toEqual(tc.output);
+        });
+      });
+    });
+
+    describe("binding in children", () => {
+      const testCases = [
+        {
+          name: "string is expr",
+          input: `<view>{{id}}</view>`,
+          output: [{ type: "EXPR", expr: "id" }],
+        },
+        {
+          name: "expr at beginning of string",
+          input: `<view>{{id}}-value</view>`,
+          output: [{ type: "EXPR", expr: "id" }, "-value"],
+        },
+        {
+          name: "expr at the middle of string",
+          input: `<view>item-{{id}}-value</view>`,
+          output: ["item-", { type: "EXPR", expr: "id" }, "-value"],
+        },
+        {
+          name: "expr at the end of string",
+          input: `<view>item-{{id}}</view>`,
+          output: ["item-", { type: "EXPR", expr: "id" }],
+        },
+      ];
+
+      testCases.forEach((tc) => {
+        it(tc.name, () => {
+          const children = parse(tc.input)[0].children;
+          expect(children).toEqual(tc.output);
         });
       });
     });

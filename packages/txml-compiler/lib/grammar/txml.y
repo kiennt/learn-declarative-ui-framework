@@ -49,7 +49,7 @@ node_start
 
 
 node_attribute
-  : attribute_name '=' STRING -> [$1, $3]
+  : attribute_name '=' DQUOTE value* DQUOTE -> [$1, $4]
   ;
 
 attribute_name
@@ -64,16 +64,18 @@ node_child
 
 value 
   : variable -> $1
+  | STRING -> $1
   | '{{' expr '}}' -> { type: 'EXPR', expr: $2 }
   ;
 
 expr
   : variable -> $1
+  | DQUOTE STRING DQUOTE -> $2
+  | DQUOTE IDENT DQUOTE -> $2
   ;
 
 variable
   : IDENT -> $1
-  | STRING -> $1
   | NUMBER -> Number($1)
   | TRUE -> true
   | FALSE -> false

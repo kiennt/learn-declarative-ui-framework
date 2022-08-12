@@ -1,37 +1,62 @@
-ident                   [a-zA-Z][a-zA-Z0-9]+ 
-number                  [1-9][0-9]+
+ident                   [a-zA-Z]?[a-zA-Z0-9]+ 
+number                  "-"?[1-9][0-9]+("."[0-9]+)?
+str_wo_dquote           ([^"\\]|\\.)*
+str_wo_lt               ([^\<])*
+
+%x string children expr
 
 %{
   const $ = yy.parser.yy.state;
 %}
 
 %%
-\s+                     /* skip whitespace */
 
-"true"                  return 'TRUE'
-"false"                 return 'FALSE'
-"undefined"             return 'UNDEFINED'
-"null"                  return 'NULL'
+<*><<EOF>>                      return 'EOF'
+<*>"{{"                         this.begin('expr'); $.acceptToken('{{'); return '{{'
+<*>"}}"                         this.popState(); $.acceptToken('}}'); return '}}'
+
+<string>"\""                    this.popState(); return 'DQUOTE';
+<string>{str_wo_dquote}/\{\{    this.unput('{{'); return 'STRING';
+<string>{str_wo_dquote}/\}\}    this.unput('}}'); return 'STRING';
+<string>{str_wo_dquote}         return 'STRING';
+
+<children>"</"                  this.begin("INITIAL"); $.acceptToken('</'); return '</';
+<children>"<"                   this.begin("INITIAL"); $.acceptToken('<'); return '<';
+<children>{str_wo_lt}/\{\{      this.unput('{{'); return 'STRING';
+<children>{str_wo_lt}/\}\}      this.unput('}}'); return 'STRING';
+<children>{str_wo_lt}           return 'STRING';
+
+<*>\s+                      /* skip whitespace */
+
+<expr>"true"                return 'TRUE';
+<expr>"false"               return 'FALSE';
+<expr>"null"                return 'NULL';
+<expr>"undefined"           return 'UNDEFINED';
+<expr>">="                  return '>=';
+<expr>"<="                  return '<=';
+<expr>">"                   return '>';
+<expr>">"                   return '<';
+<expr>("==="|"==")          return '===';
+<expr>("!=="|"!=")          return '==';
+<expr>"["                   return '[';
+<expr>"]"                   return ']';
+<expr>","                   return ']';
+<expr>":"                   return ':';
+<expr>"?"                   return '?';
+<expr>"..."                 return '...';
+<expr>{number}              return 'NUMBER';
+<expr>{ident}               return 'IDENT';
+<expr>"\""                  this.begin('string'); $.acceptToken('QUOTE'); return 'DQUOTE';
 
 {ident}":"{ident}           $.acceptToken('DIRECTIVE', yytext); return 'DIRECTIVE'
 {ident}                     $.acceptToken('IDENT', yytext); return 'IDENT'
-"-"?{number}("."[0-9]+)?    $.acceptToken('NUMBER'); return 'NUMBER'
+"</"                        $.acceptToken('</'); return '</';
+"<"                         $.acceptToken('<'); return '<';
+">"                         this.begin('children'); $.acceptToken('>'); return '>'
+"/>"                        this.begin('children'); $.acceptToken('/>'); return '/>'
+"="                         $.acceptToken('='); return '='
+"\""                        this.begin('string'); $.acceptToken('QUOTE'); return 'DQUOTE'; 
 
-\"(?:'\\'[\\"bfnrt/]|'\\u'[a-fA-F0-9]{4}|[^\\\0-\x09\x0a-\x1f"])*\" yytext = yytext.substr(1, yyleng - 2); $.acceptToken('STRING', yytext); return 'STRING'
-\'(?:'\\'[\\"bfnrt/]|'\\u'[a-fA-F0-9]{4}|[^\\\0-\x09\x0a-\x1f"])*\' yytext = yytext.substr(1, yyleng - 2); $.acceptToken('STRING', yytext); return 'STRING'
-
-
-"</"                      $.acceptToken('</'); return '</'
-"<"                       $.acceptToken('<'); return '<'
-">"                       $.acceptToken('>'); return '>'
-"/>"                      $.acceptToken('/>'); return '/>'
-"{{"                      $.acceptToken('{{'); return '{{'
-"}}"                      $.acceptToken('}}'); return '}}'
-"="                       $.acceptToken('='); return '='
-"\""                      $.acceptToken('QUOTE'); return 'DQUOTE'
-"\'"                      $.acceptToken('QUOTE'); return 'SQUOTE'
-
-<<EOF>>                 return 'EOF'
-.                       return 'INVALID'
+.                           return 'INVALID'
 
 %%
