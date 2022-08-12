@@ -1,3 +1,5 @@
+import * as ast from "./ast";
+import { ElementNode } from "./ast";
 import { Parser } from "./grammar/parser";
 
 class Stack<T> {
@@ -246,11 +248,12 @@ export function suggest(content: string): string[] {
   return [];
 }
 
-export function parse(content: string): any {
+export function parse(content: string): Array<ElementNode> {
   const parser = new Parser();
   const scanner = new Scanner();
   parser.yy = {
     state: scanner,
+    ast,
   };
   return parser.parse(content);
 }

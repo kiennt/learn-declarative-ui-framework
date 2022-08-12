@@ -1,5 +1,5 @@
-ident                   [a-zA-Z]?[a-zA-Z0-9]+ 
-number                  "-"?[1-9][0-9]+("."[0-9]+)?
+ident                   [a-zA-Z]([a-zA-Z0-9]+)?
+number                  "-"?[1-9]([0-9]+)?("."[0-9]+)?
 str_wo_dquote           ([^"\\]|\\.)*
 str_wo_lt               ([^\<])*
 
@@ -32,21 +32,37 @@ str_wo_lt               ([^\<])*
 <expr>"false"               return 'FALSE';
 <expr>"null"                return 'NULL';
 <expr>"undefined"           return 'UNDEFINED';
-<expr>">="                  return '>=';
-<expr>"<="                  return '<=';
-<expr>">"                   return '>';
-<expr>">"                   return '<';
-<expr>("==="|"==")          return '===';
-<expr>("!=="|"!=")          return '==';
-<expr>"["                   return '[';
-<expr>"]"                   return ']';
-<expr>","                   return ']';
-<expr>":"                   return ':';
-<expr>"?"                   return '?';
-<expr>"..."                 return '...';
 <expr>{number}              return 'NUMBER';
 <expr>{ident}               return 'IDENT';
 <expr>"\""                  this.begin('string'); $.acceptToken('QUOTE'); return 'DQUOTE';
+<expr>">="                  return '>=';
+<expr>"<="                  return '<=';
+<expr>">"                   return '>';
+<expr>"<"                   return '<';
+<expr>"==="                 return '===';
+<expr>"=="                  return '==';
+<expr>"!=="                 return '!==';
+<expr>"!="                  return '!=';
+<expr>"&&"                  return '&&';
+<expr>"||"                  return '||';
+<expr>"+"                   return '+';
+<expr>"-"                   return '-';
+<expr>"**"                  return '**';
+<expr>"*"                   return '*';
+<expr>"/"                   return '/';
+<expr>"%"                   return '%';
+<expr>"["                   return '[';
+<expr>"]"                   return ']';
+<expr>"("                   return '(';
+<expr>")"                   return ')';
+<expr>"{"                   return '{';
+<expr>"}"                   return '}';
+<expr>","                   return ',';
+<expr>":"                   return ':';
+<expr>"?"                   return '?';
+<expr>"!"                   return '!';
+<expr>"..."                 return '...';
+<expr>"."                   return '.';
 
 {ident}":"{ident}           $.acceptToken('DIRECTIVE', yytext); return 'DIRECTIVE'
 {ident}                     $.acceptToken('IDENT', yytext); return 'IDENT'

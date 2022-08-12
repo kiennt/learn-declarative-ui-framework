@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { suggest } from "../lib";
 
-describe("auto complete", () => {
+describe.skip("auto complete", () => {
   const testCases = [
     {
       name: "suggest tag name",
