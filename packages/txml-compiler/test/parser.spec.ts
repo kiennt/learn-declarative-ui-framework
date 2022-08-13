@@ -1331,10 +1331,7 @@ describe("parse", () => {
               destructuringList: [],
               props: [
                 {
-                  key: {
-                    type: ExprTypes.VARIABLE,
-                    value: "a",
-                  },
+                  key: "a",
                   value: {
                     type: ExprTypes.CONSTANT,
                     value: 10,
@@ -1367,20 +1364,14 @@ describe("parse", () => {
                   destructuringList: [],
                   props: [
                     {
-                      key: {
-                        type: ExprTypes.VARIABLE,
-                        value: "a",
-                      },
+                      key: "a",
                       value: {
                         type: ExprTypes.CONSTANT,
                         value: 10,
                       },
                     },
                     {
-                      key: {
-                        type: ExprTypes.VARIABLE,
-                        value: "b",
-                      },
+                      key: "b",
                       value: {
                         type: ExprTypes.CONSTANT,
                         value: 20,
@@ -1391,10 +1382,7 @@ describe("parse", () => {
               ],
               props: [
                 {
-                  key: {
-                    type: ExprTypes.VARIABLE,
-                    value: "a",
-                  },
+                  key: "a",
                   value: {
                     type: ExprTypes.CONSTANT,
                     value: 10,

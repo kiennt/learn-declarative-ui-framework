@@ -5,5 +5,9 @@ import { Parser } from "./grammar/parser";
 export function parse(content: string): Array<ElementNode> {
   const parser = new Parser();
   parser.yy = { ast };
-  return parser.parse(content);
+  const nodes = parser.parse(content);
+
+  return nodes;
 }
+
+function travarsal(node: ElementNode, visitor: Visitor): void {}

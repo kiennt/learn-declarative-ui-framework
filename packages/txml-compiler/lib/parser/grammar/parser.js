@@ -245,7 +245,7 @@ case 59:
         this.$.destructuringList.push($$[$0].expr);
       } else {
         this.$.props.push({
-          key: yy.ast.createVariableExpr($$[$0].key),
+          key: $$[$0].key,
           value: $$[$0].value,
         })
       }
@@ -258,7 +258,7 @@ case 60:
         this.$.destructuringList.push($$[$0].expr);
       } else {
         this.$.props.push({
-          key: yy.ast.createVariableExpr($$[$0].key),
+          key: $$[$0].key,
           value: $$[$0].value,
         })
       }

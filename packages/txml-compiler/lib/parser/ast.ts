@@ -131,7 +131,7 @@ export type ArrayExpr = {
 };
 
 export type ObjectProp = {
-  key: VariableExpr;
+  key: string;
   value: Expr;
 };
 

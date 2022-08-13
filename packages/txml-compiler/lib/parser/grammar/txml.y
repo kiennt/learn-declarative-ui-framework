@@ -179,7 +179,7 @@ object_expr_members
         $$.destructuringList.push($1.expr);
       } else {
         $$.props.push({
-          key: yy.ast.createVariableExpr($1.key),
+          key: $1.key,
           value: $1.value,
         })
       }
@@ -191,7 +191,7 @@ object_expr_members
         $$.destructuringList.push($3.expr);
       } else {
         $$.props.push({
-          key: yy.ast.createVariableExpr($3.key),
+          key: $3.key,
           value: $3.value,
         })
       }
