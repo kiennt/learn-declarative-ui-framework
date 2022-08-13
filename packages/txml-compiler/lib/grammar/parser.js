@@ -782,98 +782,100 @@ case 11:return 23;
 break;
 case 12:/* skip whitespace */
 break;
-case 13:return 43;
+case 13:/** skip comment */
 break;
-case 14:return 44;
+case 14:return 43;
 break;
-case 15:return 46;
+case 15:return 44;
 break;
-case 16:return 45;
+case 16:return 46;
 break;
-case 17:return 42;
+case 17:return 45;
 break;
-case 18:return 12;
+case 18:return 42;
 break;
-case 19:this.begin('string'); $.acceptToken('QUOTE'); return 18;
+case 19:return 12;
 break;
-case 20:return 59;
+case 20:this.begin('string'); $.acceptToken('QUOTE'); return 18;
 break;
-case 21:return 60;
+case 21:return 59;
 break;
-case 22:return 9;
+case 22:return 60;
 break;
-case 23:return 13;
+case 23:return 9;
 break;
-case 24:return 55;
+case 24:return 13;
 break;
-case 25:return 56;
+case 25:return 55;
 break;
-case 26:return 57;
+case 26:return 56;
 break;
-case 27:return 58;
+case 27:return 57;
 break;
-case 28:return 61;
+case 28:return 58;
 break;
-case 29:return 62;
+case 29:return 61;
 break;
-case 30:return 48;
+case 30:return 62;
 break;
-case 31:return 49;
+case 31:return 48;
 break;
-case 32:return 53;
+case 32:return 49;
 break;
-case 33:return 50;
+case 33:return 53;
 break;
-case 34:return 51;
+case 34:return 50;
 break;
-case 35:return 52;
+case 35:return 51;
 break;
-case 36:return 65;
+case 36:return 52;
 break;
-case 37:return 67;
+case 37:return 65;
 break;
-case 38:return 40;
+case 38:return 67;
 break;
-case 39:return 41;
+case 39:return 40;
 break;
-case 40:return 69;
+case 40:return 41;
 break;
-case 41:return 70;
+case 41:return 69;
 break;
-case 42:return 68;
+case 42:return 70;
 break;
-case 43:return 64;
+case 43:return 68;
 break;
-case 44:return 63;
+case 44:return 64;
 break;
-case 45:return 54;
+case 45:return 63;
 break;
-case 46:return 72;
+case 46:return 54;
 break;
-case 47:return 47;
+case 47:return 72;
 break;
-case 48:$.acceptToken('DIRECTIVE', yy_.yytext); return 20
+case 48:return 47;
 break;
-case 49:$.acceptToken('IDENT', yy_.yytext); return 12
+case 49:$.acceptToken('DIRECTIVE', yy_.yytext); return 20
 break;
-case 50:$.acceptToken('</'); return 11;
+case 50:$.acceptToken('IDENT', yy_.yytext); return 12
 break;
-case 51:$.acceptToken('<'); return 13;
+case 51:$.acceptToken('</'); return 11;
 break;
-case 52:this.begin('children'); $.acceptToken('>'); return 9
+case 52:$.acceptToken('<'); return 13;
 break;
-case 53:this.begin('children'); $.acceptToken('/>'); return 8
+case 53:this.begin('children'); $.acceptToken('>'); return 9
 break;
-case 54:$.acceptToken('='); return 17
+case 54:this.begin('children'); $.acceptToken('/>'); return 8
 break;
-case 55:this.begin('string'); $.acceptToken('QUOTE'); return 18; 
+case 55:$.acceptToken('='); return 17
 break;
-case 56:return 'INVALID'
+case 56:this.begin('string'); $.acceptToken('QUOTE'); return 18; 
+break;
+case 57:return 'INVALID'
 break;
 }
 },
-rules: [/^(?:$)/,/^(?:\{\{)/,/^(?:\}\})/,/^(?:")/,/^(?:(([^"\\]|\\.)*)(?=\{)\{)/,/^(?:(([^"\\]|\\.)*)(?=\})\})/,/^(?:(([^"\\]|\\.)*))/,/^(?:<\/)/,/^(?:<)/,/^(?:(([^\<])*)(?=\{)\{)/,/^(?:(([^\<])*)(?=\})\})/,/^(?:(([^\<])*))/,/^(?:\s+)/,/^(?:true\b)/,/^(?:false\b)/,/^(?:null\b)/,/^(?:undefined\b)/,/^(?:(-?[1-9]([0-9]+)?(\.[0-9]+)?))/,/^(?:([a-zA-Z]([a-zA-Z0-9]+)?))/,/^(?:")/,/^(?:>=)/,/^(?:<=)/,/^(?:>)/,/^(?:<)/,/^(?:===)/,/^(?:==)/,/^(?:!==)/,/^(?:!=)/,/^(?:&&)/,/^(?:\|\|)/,/^(?:\+)/,/^(?:-)/,/^(?:\*\*)/,/^(?:\*)/,/^(?:\/)/,/^(?:%)/,/^(?:\[)/,/^(?:\])/,/^(?:\()/,/^(?:\))/,/^(?:\{)/,/^(?:\})/,/^(?:,)/,/^(?::)/,/^(?:\?)/,/^(?:!)/,/^(?:\.\.\.)/,/^(?:\.)/,/^(?:([a-zA-Z]([a-zA-Z0-9]+)?):([a-zA-Z]([a-zA-Z0-9]+)?))/,/^(?:([a-zA-Z]([a-zA-Z0-9]+)?))/,/^(?:<\/)/,/^(?:<)/,/^(?:>)/,/^(?:\/>)/,/^(?:=)/,/^(?:")/,/^(?:.)/],
-conditions: {"string":{"rules":[0,1,2,3,4,5,6,12],"inclusive":false},"children":{"rules":[0,1,2,7,8,9,10,11,12],"inclusive":false},"expr":{"rules":[0,1,2,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47],"inclusive":false},"INITIAL":{"rules":[0,1,2,12,48,49,50,51,52,53,54,55,56],"inclusive":true}}
+rules: [/^(?:$)/,/^(?:\{\{)/,/^(?:\}\})/,/^(?:")/,/^(?:(([^"\\]|\\.)*)(?=\{)\{)/,/^(?:(([^"\\]|\\.)*)(?=\})\})/,/^(?:(([^"\\]|\\.)*))/,/^(?:<\/)/,/^(?:<)/,/^(?:(([^\<])*)(?=\{)\{)/,/^(?:(([^\<])*)(?=\})\})/,/^(?:(([^\<])*))/,/^(?:\s+)/,/^(?:(<!)(.+)(?=-)->)/,/^(?:true\b)/,/^(?:false\b)/,/^(?:null\b)/,/^(?:undefined\b)/,/^(?:(-?[1-9]([0-9]+)?(\.[0-9]+)?))/,/^(?:([a-zA-Z]([a-zA-Z0-9]+)?))/,/^(?:")/,/^(?:>=)/,/^(?:<=)/,/^(?:>)/,/^(?:<)/,/^(?:===)/,/^(?:==)/,/^(?:!==)/,/^(?:!=)/,/^(?:&&)/,/^(?:\|\|)/,/^(?:\+)/,/^(?:-)/,/^(?:\*\*)/,/^(?:\*)/,/^(?:\/)/,/^(?:%)/,/^(?:\[)/,/^(?:\])/,/^(?:\()/,/^(?:\))/,/^(?:\{)/,/^(?:\})/,/^(?:,)/,/^(?::)/,/^(?:\?)/,/^(?:!)/,/^(?:\.\.\.)/,/^(?:\.)/,/^(?:([a-zA-Z]([a-zA-Z0-9]+)?):([a-zA-Z]([a-zA-Z0-9]+)?))/,/^(?:([a-zA-Z]([a-zA-Z0-9]+)?))/,/^(?:<\/)/,/^(?:<)/,/^(?:>)/,/^(?:\/>)/,/^(?:=)/,/^(?:")/,/^(?:.)/],
+conditions: {"string":{"rules":[0,1,2,3,4,5,6,12],"inclusive":false},"children":{"rules":[0,1,2,7,8,9,10,11,12],"inclusive":false},"expr":{"rules":[0,1,2,12,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48],"inclusive":false},"INITIAL":{"rules":[0,1,2,12,13,49,50,51,52,53,54,55,56,57],"inclusive":true}}
 });
 return lexer;
 })();

@@ -27,6 +27,7 @@ str_wo_lt               ([^\<])*
 <children>{str_wo_lt}           return 'STRING';
 
 <*>\s+                      /* skip whitespace */
+(\<\!--)(.+)/\-\-\>         /** skip comment */
 
 <expr>"true"                return 'TRUE';
 <expr>"false"               return 'FALSE';

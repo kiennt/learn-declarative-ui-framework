@@ -350,6 +350,18 @@ describe("parse", () => {
           },
         ],
       },
+      {
+        name: "skip comment",
+        input: `<!-- <view class="blue">hello<span>world</span></view> --><view />`,
+        output: [
+          {
+            type: NodeTypes.ELEMENT,
+            tag: "view",
+            props: [],
+            children: [],
+          },
+        ],
+      },
     ];
 
     testCases.forEach((tc) => {
