@@ -9,7 +9,7 @@ import {
   NodeTypes,
   OneArgOpTypes,
   ConditionOpTypes,
-} from "../lib/ast";
+} from "../lib/parser/ast";
 
 function testExprInAttr(
   input: string,

@@ -752,15 +752,13 @@ stateStackSize:function stateStackSize() {
     },
 options: {},
 performAction: function anonymous(yy,yy_,$avoiding_name_collisions,YY_START) {
-  const $ = yy.parser.yy.state;
-
 var YYSTATE=YY_START;
 switch($avoiding_name_collisions) {
 case 0:return 5
 break;
-case 1:this.begin('expr'); $.acceptToken('{{'); return 24
+case 1:this.begin('expr'); return 24
 break;
-case 2:this.popState(); $.acceptToken('}}'); return 26
+case 2:this.popState(); return 26
 break;
 case 3:this.popState(); return 18;
 break;
@@ -770,9 +768,9 @@ case 5:this.unput('}}'); return 23;
 break;
 case 6:return 23;
 break;
-case 7:this.begin("INITIAL"); $.acceptToken('</'); return 11;
+case 7:this.begin("INITIAL"); return 11;
 break;
-case 8:this.begin("INITIAL"); $.acceptToken('<'); return 13;
+case 8:this.begin("INITIAL"); return 13;
 break;
 case 9:this.unput('{{'); return 23;
 break;
@@ -796,7 +794,7 @@ case 18:return 42;
 break;
 case 19:return 12;
 break;
-case 20:this.begin('string'); $.acceptToken('QUOTE'); return 18;
+case 20:this.begin('string'); return 18;
 break;
 case 21:return 59;
 break;
@@ -854,21 +852,21 @@ case 47:return 72;
 break;
 case 48:return 47;
 break;
-case 49:$.acceptToken('DIRECTIVE', yy_.yytext); return 20
+case 49:return 20
 break;
-case 50:$.acceptToken('IDENT', yy_.yytext); return 12
+case 50:return 12
 break;
-case 51:$.acceptToken('</'); return 11;
+case 51:return 11;
 break;
-case 52:$.acceptToken('<'); return 13;
+case 52:return 13;
 break;
-case 53:this.begin('children'); $.acceptToken('>'); return 9
+case 53:this.begin('children'); return 9
 break;
-case 54:this.begin('children'); $.acceptToken('/>'); return 8
+case 54:this.begin('children'); return 8
 break;
-case 55:$.acceptToken('='); return 17
+case 55:return 17
 break;
-case 56:this.begin('string'); $.acceptToken('QUOTE'); return 18; 
+case 56:this.begin('string'); return 18; 
 break;
 case 57:return 'INVALID'
 break;

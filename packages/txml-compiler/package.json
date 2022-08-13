@@ -12,7 +12,7 @@
     "vitest": "^0.21.0"
   },
   "scripts": {
-    "build": "yarn jison lib/grammar/txml.y lib/grammar/txml.l -o lib/grammar/parser.js",
+    "build": "yarn jison lib/parser/grammar/txml.y lib/parser/grammar/txml.l -o lib/parser/grammar/parser.js",
     "test": "yarn vitest"
   }
 }
