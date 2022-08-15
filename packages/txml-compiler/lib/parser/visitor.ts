@@ -44,7 +44,7 @@ export type NodeVisitor =
     }
   | PathVisitor;
 
-export type Visitor = {
+export interface Visitor {
   ElementNode?: NodeVisitor;
   AttributeNode?: NodeVisitor;
   DirectiveNode?: NodeVisitor;
@@ -59,7 +59,7 @@ export type Visitor = {
   ArrayExpr?: NodeVisitor;
   ObjectExpr?: NodeVisitor;
   FunctionCallExpr?: NodeVisitor;
-};
+}
 
 function getEnterExit(visitor: NodeVisitor): {
   enter: PathVisitor;
@@ -85,111 +85,111 @@ function createPath(parent: NodePath, key: string, node: Node): NodePath {
 function visitElementNode(path: NodePath, visitor: Visitor): void {
   if (!visitor.ElementNode) return;
   const { enter, exit } = getEnterExit(visitor.ElementNode);
-  enter(path);
+  enter.call(visitor, path);
   const node = path.node as ElementNode;
   node.props.forEach((prop) => visit(createPath(path, "props", prop), visitor));
   node.children.forEach((child) =>
     visit(createPath(path, "children", child), visitor)
   );
-  if (exit) exit(path);
+  if (exit) exit.call(visitor, path);
 }
 
 function visitAttributeNode(path: NodePath, visitor: Visitor): void {
   if (!visitor.AttributeNode) return;
   const { enter, exit } = getEnterExit(visitor.AttributeNode);
-  enter(path);
+  enter.call(visitor, path);
   const node = path.node as AttributeNode;
   node.value.forEach((item) => visit(createPath(path, "value", item), visitor));
-  if (exit) exit(path);
+  if (exit) exit.call(visitor, path);
 }
 
 function visitDirectiveNode(path: NodePath, visitor: Visitor): void {
   if (!visitor.DirectiveNode) return;
   const { enter, exit } = getEnterExit(visitor.DirectiveNode);
-  enter(path);
+  enter.call(visitor, path);
   const node = path.node as DirectiveNode;
   node.value.forEach((item) => visit(createPath(path, "value", item), visitor));
-  if (exit) exit(path);
+  if (exit) exit.call(visitor, path);
 }
 
 function visitConstainExpr(path: NodePath, visitor: Visitor): void {
   if (!visitor.ConstantExpr) return;
   const { enter, exit } = getEnterExit(visitor.ConstantExpr);
-  enter(path);
-  if (exit) exit(path);
+  enter.call(visitor, path);
+  if (exit) exit.call(visitor, path);
 }
 
 function visitVariableExpr(path: NodePath, visitor: Visitor): void {
   if (!visitor.VariableExpr) return;
   const { enter, exit } = getEnterExit(visitor.VariableExpr);
-  enter(path);
-  if (exit) exit(path);
+  enter.call(visitor, path);
+  if (exit) exit.call(visitor, path);
 }
 
 function visitObjectAccessExpr(path: NodePath, visitor: Visitor): void {
   if (!visitor.ObjectAccessExpr) return;
   const { enter, exit } = getEnterExit(visitor.ObjectAccessExpr);
-  enter(path);
+  enter.call(visitor, path);
   const node = path.node as ObjectAccessExpr;
   visit(createPath(path, "expr", node.expr), visitor);
-  if (exit) exit(path);
+  if (exit) exit.call(visitor, path);
 }
 
 function visitOneArgExpr(path: NodePath, visitor: Visitor): void {
   if (!visitor.OneArgExpr) return;
   const { enter, exit } = getEnterExit(visitor.OneArgExpr);
-  enter(path);
+  enter.call(visitor, path);
   const node = path.node as OneArgExpr;
   visit(createPath(path, "expr", node.expr), visitor);
-  if (exit) exit(path);
+  if (exit) exit.call(visitor, path);
 }
 
 function visitArithmeticExpr(path: NodePath, visitor: Visitor): void {
   if (!visitor.ArithmeticExpr) return;
   const { enter, exit } = getEnterExit(visitor.ArithmeticExpr);
-  enter(path);
+  enter.call(visitor, path);
   const node = path.node as ArithmeticExpr;
   visit(createPath(path, "left", node.left), visitor);
   visit(createPath(path, "right", node.left), visitor);
-  if (exit) exit(path);
+  if (exit) exit.call(visitor, path);
 }
 
 function visitConditionExpr(path: NodePath, visitor: Visitor): void {
   if (!visitor.ConditionExpr) return;
   const { enter, exit } = getEnterExit(visitor.ConditionExpr);
-  enter(path);
+  enter.call(visitor, path);
   const node = path.node as ConditionExpr;
   visit(createPath(path, "left", node.left), visitor);
   visit(createPath(path, "right", node.left), visitor);
-  if (exit) exit(path);
+  if (exit) exit.call(visitor, path);
 }
 
 function visitTenaryExpr(path: NodePath, visitor: Visitor): void {
   if (!visitor.TenaryExpr) return;
   const { enter, exit } = getEnterExit(visitor.TenaryExpr);
-  enter(path);
+  enter.call(visitor, path);
   const node = path.node as TenaryExpr;
   visit(createPath(path, "condition", node.condition), visitor);
   visit(createPath(path, "success", node.success), visitor);
   visit(createPath(path, "fail", node.fail), visitor);
-  if (exit) exit(path);
+  if (exit) exit.call(visitor, path);
 }
 
 function visitArrayExpr(path: NodePath, visitor: Visitor): void {
   if (!visitor.ArrayExpr) return;
   const { enter, exit } = getEnterExit(visitor.ArrayExpr);
-  enter(path);
+  enter.call(visitor, path);
   const node = path.node as ArrayExpr;
   node.children.forEach((child) =>
     visit(createPath(path, "children", child), visitor)
   );
-  if (exit) exit(path);
+  if (exit) exit.call(visitor, path);
 }
 
 function visitObjectExpr(path: NodePath, visitor: Visitor): void {
   if (!visitor.ObjectExpr) return;
   const { enter, exit } = getEnterExit(visitor.ObjectExpr);
-  enter(path);
+  enter.call(visitor, path);
   const node = path.node as ObjectExpr;
   node.destructuringList.forEach((expr) =>
     visit(createPath(path, "destructuringList", expr), visitor)
@@ -197,19 +197,19 @@ function visitObjectExpr(path: NodePath, visitor: Visitor): void {
   node.props.forEach((prop) => {
     visit(createPath(path, "props", prop.value), visitor);
   });
-  if (exit) exit(path);
+  if (exit) exit.call(visitor, path);
 }
 
 function visitFunctionCallExpr(path: NodePath, visitor: Visitor): void {
   if (!visitor.FunctionCallExpr) return;
   const { enter, exit } = getEnterExit(visitor.FunctionCallExpr);
-  enter(path);
+  enter.call(visitor, path);
   const node = path.node as FunctionCallExpr;
   visit(createPath(path, "fn", node.fn), visitor);
   node.params.forEach((param) =>
     visit(createPath(path, "params", param), visitor)
   );
-  if (exit) exit(path);
+  if (exit) exit.call(visitor, path);
 }
 
 export function visit(path: NodePath, visitor: Visitor): void {

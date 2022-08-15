@@ -9,5 +9,3 @@ export function parse(content: string): Array<ElementNode> {
 
   return nodes;
 }
-
-function travarsal(node: ElementNode, visitor: Visitor): void {}

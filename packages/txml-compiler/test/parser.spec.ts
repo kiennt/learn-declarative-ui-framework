@@ -362,6 +362,41 @@ describe("parse", () => {
           },
         ],
       },
+      {
+        name: "multiple node",
+        input: `
+          <view>hello</view>
+          <view></view>
+          <view />`,
+        output: [
+          {
+            type: NodeTypes.ELEMENT,
+            tag: "view",
+            props: [],
+            children: [
+              {
+                type: NodeTypes.EXPR,
+                expr: {
+                  type: ExprTypes.CONSTANT,
+                  value: "hello",
+                },
+              },
+            ],
+          },
+          {
+            type: NodeTypes.ELEMENT,
+            tag: "view",
+            props: [],
+            children: [],
+          },
+          {
+            type: NodeTypes.ELEMENT,
+            tag: "view",
+            props: [],
+            children: [],
+          },
+        ],
+      },
     ];
 
     testCases.forEach((tc) => {
@@ -414,7 +449,7 @@ describe("parse", () => {
       },
       {
         name: "expr at beginning of string",
-        input: "{{id}}-value",
+        input: "{{id}} value",
         output: [
           {
             type: NodeTypes.EXPR,
@@ -422,17 +457,17 @@ describe("parse", () => {
           },
           {
             type: NodeTypes.EXPR,
-            expr: { type: ExprTypes.CONSTANT, value: "-value" },
+            expr: { type: ExprTypes.CONSTANT, value: " value" },
           },
         ],
       },
       {
         name: "expr at the middle of string",
-        input: "item-{{id}}-value",
+        input: "item {{id}} value",
         output: [
           {
             type: NodeTypes.EXPR,
-            expr: { type: ExprTypes.CONSTANT, value: "item-" },
+            expr: { type: ExprTypes.CONSTANT, value: "item " },
           },
           {
             type: NodeTypes.EXPR,
@@ -440,17 +475,17 @@ describe("parse", () => {
           },
           {
             type: NodeTypes.EXPR,
-            expr: { type: ExprTypes.CONSTANT, value: "-value" },
+            expr: { type: ExprTypes.CONSTANT, value: " value" },
           },
         ],
       },
       {
         name: "expr at the end of string",
-        input: "item-{{id}}",
+        input: "item {{id}}",
         output: [
           {
             type: NodeTypes.EXPR,
-            expr: { type: ExprTypes.CONSTANT, value: "item-" },
+            expr: { type: ExprTypes.CONSTANT, value: "item " },
           },
           {
             type: NodeTypes.EXPR,
