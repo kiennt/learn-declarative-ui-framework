@@ -1,5 +1,6 @@
 import { ElementNode, NodeTypes } from "../../parser/ast";
 import { NodePath, visit } from "../../parser/visitor";
+import { createRootPath } from "../utils";
 
 type Summary = {
   components: Array<string>;
@@ -9,13 +10,6 @@ type Summary = {
   useTemplate: boolean;
   useBlock: boolean;
 };
-
-function createRootPath(node: ElementNode): NodePath {
-  return {
-    isRoot: true,
-    node,
-  };
-}
 
 export default function plugin(nodes: Array<ElementNode>): Summary {
   const visitor = {
