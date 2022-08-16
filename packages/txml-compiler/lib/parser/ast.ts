@@ -147,6 +147,44 @@ export type FunctionCallExpr = {
   params: Array<Expr>;
 };
 
+export function trimSpaceInChildren(
+  children: Array<ElementNode | ExprNode>
+): Array<ElementNode | ExprNode> {
+  let startNode = -1;
+  const result: Array<ElementNode | ExprNode> = [];
+  for (let i = 0; i < children.length; i++) {
+    const child = children[i];
+    if (child.type === NodeTypes.ELEMENT) {
+      startNode = i;
+      result.push(child);
+    } else {
+      const expr = child.expr;
+      const type = expr.type;
+      if (type == ExprTypes.CONSTANT && typeof expr.value === "string") {
+        // trim left
+        if (startNode + 1 === i) {
+          expr.value = expr.value.replace(/^[\s\t\r\n]*/g, "");
+        }
+
+        // trim right
+        if (
+          i + 1 === children.length ||
+          children[i + 1].type === NodeTypes.ELEMENT
+        ) {
+          expr.value = expr.value.replace(/[\s\t\r\n]*$/g, "");
+        }
+
+        if (expr.value !== "") {
+          result.push(child);
+        }
+      } else {
+        result.push(child);
+      }
+    }
+  }
+  return result;
+}
+
 export function createElementNode(
   tag: string,
   props: Array<AttributeNode>,

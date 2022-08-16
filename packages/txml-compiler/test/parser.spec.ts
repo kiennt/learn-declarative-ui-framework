@@ -32,7 +32,7 @@ function testExprInChilden(
   expect(nodes[0].children).toEqual(output);
 }
 
-function runTestCasesForExpr(testCases: Array<TestCase>) {
+function runTestCasesForExprInAttr(testCases: Array<TestCase>) {
   describe("attr", () => {
     testCases.forEach((tc) => {
       it(tc.name, () => {
@@ -40,7 +40,9 @@ function runTestCasesForExpr(testCases: Array<TestCase>) {
       });
     });
   });
+}
 
+function runTestCasesForExprInChildren(testCases: Array<TestCase>) {
   describe("children", () => {
     testCases.forEach((tc) => {
       it(tc.name, () => {
@@ -48,6 +50,11 @@ function runTestCasesForExpr(testCases: Array<TestCase>) {
       });
     });
   });
+}
+
+function runTestCasesForExpr(testCases: Array<TestCase>) {
+  runTestCasesForExprInAttr(testCases);
+  runTestCasesForExprInChildren(testCases);
 }
 
 type TestCase = {
@@ -448,6 +455,32 @@ describe("parse", () => {
         ],
       },
       {
+        name: "expr with multiple binding",
+        input: "start {{a}} {{b}} end",
+        output: [
+          {
+            type: NodeTypes.EXPR,
+            expr: { type: ExprTypes.CONSTANT, value: "start " },
+          },
+          {
+            type: NodeTypes.EXPR,
+            expr: { type: ExprTypes.VARIABLE, value: "a" },
+          },
+          {
+            type: NodeTypes.EXPR,
+            expr: { type: ExprTypes.CONSTANT, value: " " },
+          },
+          {
+            type: NodeTypes.EXPR,
+            expr: { type: ExprTypes.VARIABLE, value: "b" },
+          },
+          {
+            type: NodeTypes.EXPR,
+            expr: { type: ExprTypes.CONSTANT, value: " end" },
+          },
+        ],
+      },
+      {
         name: "expr at beginning of string",
         input: "{{id}} value",
         output: [
@@ -490,6 +523,102 @@ describe("parse", () => {
           {
             type: NodeTypes.EXPR,
             expr: { type: ExprTypes.VARIABLE, value: "id" },
+          },
+        ],
+      },
+    ]);
+  });
+
+  describe("trim children", () => {
+    runTestCasesForExprInChildren([
+      {
+        name: "trim left string if has a node before it",
+        input: `
+          hello`,
+        output: [
+          {
+            type: NodeTypes.EXPR,
+            expr: { type: ExprTypes.CONSTANT, value: "hello" },
+          },
+        ],
+      },
+      {
+        name: "trim right string if it has a node after it",
+        input: `
+        hello
+
+        <view />`,
+        output: [
+          {
+            type: NodeTypes.EXPR,
+            expr: { type: ExprTypes.CONSTANT, value: "hello" },
+          },
+          {
+            type: NodeTypes.ELEMENT,
+            tag: "view",
+            children: [],
+            props: [],
+          },
+        ],
+      },
+      {
+        name: "trim right string if it follow by close tag",
+        input: `hello
+        `,
+        output: [
+          {
+            type: NodeTypes.EXPR,
+            expr: { type: ExprTypes.CONSTANT, value: "hello" },
+          },
+        ],
+      },
+      {
+        name: "trim string if it in the middle",
+        input: `
+        <button></button> 
+
+        hello    
+          
+        <view />
+        `,
+        output: [
+          {
+            type: NodeTypes.ELEMENT,
+            tag: "button",
+            children: [],
+            props: [],
+          },
+          {
+            type: NodeTypes.EXPR,
+            expr: { type: ExprTypes.CONSTANT, value: "hello" },
+          },
+          {
+            type: NodeTypes.ELEMENT,
+            tag: "view",
+            children: [],
+            props: [],
+          },
+        ],
+      },
+      {
+        name: "does not trim children if we meet variable",
+        input: `hello   {{a}}  {{b}}`,
+        output: [
+          {
+            type: NodeTypes.EXPR,
+            expr: { type: ExprTypes.CONSTANT, value: "hello   " },
+          },
+          {
+            type: NodeTypes.EXPR,
+            expr: { type: ExprTypes.VARIABLE, value: "a" },
+          },
+          {
+            type: NodeTypes.EXPR,
+            expr: { type: ExprTypes.CONSTANT, value: "  " },
+          },
+          {
+            type: NodeTypes.EXPR,
+            expr: { type: ExprTypes.VARIABLE, value: "b" },
           },
         ],
       },

@@ -83,7 +83,7 @@ export default function plugin(nodes: Array<ElementNode>): string {
         }
 
         if (tag === "Block") {
-          node.code = `<>${children})</>`;
+          node.code = `<>${children}</>`;
         } else {
           if (children.length > 0) {
             node.code = `<${tag} ${attrs.join(" ")}>${children}</${tag}>`;

@@ -26,7 +26,7 @@ node
         throw new Error("invalid close tag")
       }
       $$ = $1;
-      $$.children = $3;
+      $$.children = yy.ast.trimSpaceInChildren($3);
     }
   ;
 
