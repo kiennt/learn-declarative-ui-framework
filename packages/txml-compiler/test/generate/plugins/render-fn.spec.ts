@@ -137,61 +137,55 @@ function render(data)  {
   );
 }`,
     },
-    //     {
-    //       name: "if else elif",
-    //       input: `
-    // <view key="value" t:if="{{a}}">a</view>
-    // <view key="value" t:elif="{{b}}">b</view>
-    // <view key="value" t:else="{{c}}">b</view>`,
-    //       output: `
-    // function render(data)  {
-    //   return (
-    //     <>
-    //     {
-    //       data['a']
-    //       ? (<View>{"a"}</View>)
-    //       : data['b'] ? (<View>{"b"}</View>)
-    //       : (<View>{"c"}</View>)
-    //     }
-    //     </>
-    //   );
-    // }`,
-    //     },
-    //     {
-    //       name: "for",
-    //       input: `<view t:for="{{list}}">{{index}} {{item}}</view>`,
-    //       output: `
-    // function render(data)  {
-    //   return (
-    //     <View>
-    //       {
-    //         data['list'].map((index, item) => {
-    //           return <>{index} {item}</>;
-    //         })
-    //       }
-    //     </View>
-    //   );
-    // }`,
-    //     },
-    //     {
-    //       name: "for with custom index, custom item and binding data",
-    //       input: `
-    // <view t:for="{{list}}" t:for-index="i" t:for-item="child">
-    //   {{i}} {{child}} {{value}}
-    // </view>`,
-    //       output: `
-    // function render(data)  {
-    //   return (
-    //     <>
-    //     {
-    //       data['list'].map((i, child) => {
-    //         return <>{i} {child} {data['value']}</>;
-    //       })
-    //     }
-    //     </>
-    //   );
-    // }`,
-    //     },
+    {
+      name: "for",
+      input: `<view tiki:for="{{list}}">{{index}} {{item}}</view>`,
+      output: `
+function render(data)  {
+  return (
+    <>
+      {
+        data['list'].map((item, index) => {
+          return <View>{toString(index, " ", item)}</View>;
+        })
+      }
+    </>
+  );
+}`,
+    },
+    {
+      name: "for with custom index, custom item and binding data",
+      input: `
+<view tiki:for="{{list}}" tiki:for-index="i" tiki:for-item="child">
+  {{i}} {{child}} {{value}}
+</view>`,
+      output: `
+function render(data)  {
+  return (
+    <>
+    {
+      data['list'].map((child, i) => {
+        return <View>{toString(i, " ", child, " ", data['value'])}</View>;
+      })
+    }
+    </>
+  );
+}`,
+    },
+    {
+      name: "if",
+      input: `<view key="value" tiki:if="{{a + b}}">a</view>`,
+      output: `
+function render(data)  {
+  return (
+    <>
+    {
+      (data['a'] + data['b']) ? (<View key={"value"}>{toString("a")}</View>) : null
+    }
+    </>
+  );
+}`,
+    },
     //     {
     //       name: "slot",
     //       input: `

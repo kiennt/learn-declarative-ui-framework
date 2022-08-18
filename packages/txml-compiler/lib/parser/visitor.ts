@@ -1,27 +1,25 @@
 import {
-  ArithmeticExpr,
-  ArrayExpr,
+  NodeTypes,
+  Node,
   AttributeNode,
-  ConditionExpr,
   DirectiveNode,
   ElementNode,
-  Expr,
-  ExprNode,
+  IfNode,
+  ForNode,
   ExprTypes,
+  ArithmeticExpr,
+  ArrayExpr,
+  ConditionExpr,
   FunctionCallExpr,
-  NodeTypes,
   ObjectAccessExpr,
   ObjectExpr,
   OneArgExpr,
   TenaryExpr,
+  BlockNode,
+  SlotNode,
+  TemplateNode,
+  TemplateTypes,
 } from "./ast";
-
-export type Node =
-  | ElementNode
-  | AttributeNode
-  | DirectiveNode
-  | ExprNode
-  | Expr;
 
 export type NodePath =
   | {
@@ -34,6 +32,14 @@ export type NodePath =
       node: Node;
       isRoot: true;
     };
+
+function createPath(parent: NodePath, key: string, node: Node): NodePath {
+  return {
+    parent,
+    key,
+    node,
+  };
+}
 
 export type PathVisitor = (path: NodePath) => void;
 
@@ -48,6 +54,14 @@ export interface Visitor {
   ElementNode?: NodeVisitor;
   AttributeNode?: NodeVisitor;
   DirectiveNode?: NodeVisitor;
+  IfNode?: NodeVisitor;
+  ForNode?: NodeVisitor;
+  BlockNode?: NodeVisitor;
+  SlotNode?: NodeVisitor;
+  ImportNode?: NodeVisitor;
+  IncludeNode?: NodeVisitor;
+  SjsImportNode?: NodeVisitor;
+  TemplateNode?: NodeVisitor;
   ExprNode?: NodeVisitor;
   ConstantExpr?: NodeVisitor;
   VariableExpr?: NodeVisitor;
@@ -78,14 +92,6 @@ function getEnterExit(visitor?: NodeVisitor): {
   }
 }
 
-function createPath(parent: NodePath, key: string, node: Node): NodePath {
-  return {
-    parent,
-    key,
-    node,
-  };
-}
-
 function visitElementNode(path: NodePath, visitor: Visitor): void {
   const { enter, exit } = getEnterExit(visitor.ElementNode);
   if (enter) enter.call(visitor, path);
@@ -110,6 +116,75 @@ function visitDirectiveNode(path: NodePath, visitor: Visitor): void {
   if (enter) enter.call(visitor, path);
   const node = path.node as DirectiveNode;
   node.value.forEach((item) => visit(createPath(path, "value", item), visitor));
+  if (exit) exit.call(visitor, path);
+}
+
+function visitIfNode(path: NodePath, visitor: Visitor): void {
+  const { enter, exit } = getEnterExit(visitor.IfNode);
+  if (enter) enter.call(visitor, path);
+  const node = path.node as IfNode;
+  visit(createPath(path, "condition", node.condition), visitor);
+  visit(createPath(path, "ifBranch", node.ifBranch), visitor);
+  if (node.elseBranch) {
+    visit(createPath(path, "elseBranch", node.elseBranch), visitor);
+  }
+  if (exit) exit.call(visitor, path);
+}
+
+function visitForNode(path: NodePath, visitor: Visitor): void {
+  const { enter, exit } = getEnterExit(visitor.ForNode);
+  if (enter) enter.call(visitor, path);
+  const node = path.node as ForNode;
+  visit(createPath(path, "data", node.data), visitor);
+  visit(createPath(path, "content", node.content), visitor);
+  if (exit) exit.call(visitor, path);
+}
+
+function visitBlockNode(path: NodePath, visitor: Visitor): void {
+  const { enter, exit } = getEnterExit(visitor.BlockNode);
+  if (enter) enter.call(visitor, path);
+  const node = path.node as BlockNode;
+  visit(createPath(path, "content", node.content), visitor);
+  if (exit) exit.call(visitor, path);
+}
+
+function visitSlotNode(path: NodePath, visitor: Visitor): void {
+  const { enter, exit } = getEnterExit(visitor.SlotNode);
+  if (enter) enter.call(visitor, path);
+  const node = path.node as SlotNode;
+  visit(createPath(path, "content", node.content), visitor);
+  if (exit) exit.call(visitor, path);
+}
+
+function visitImportNode(path: NodePath, visitor: Visitor): void {
+  const { enter, exit } = getEnterExit(visitor.ImportNode);
+  if (enter) enter.call(visitor, path);
+  if (exit) exit.call(visitor, path);
+}
+
+function visitIncludeNode(path: NodePath, visitor: Visitor): void {
+  const { enter, exit } = getEnterExit(visitor.IncludeNode);
+  if (enter) enter.call(visitor, path);
+  if (exit) exit.call(visitor, path);
+}
+
+function visitSjsImportNode(path: NodePath, visitor: Visitor): void {
+  const { enter, exit } = getEnterExit(visitor.SjsImportNode);
+  if (enter) enter.call(visitor, path);
+  if (exit) exit.call(visitor, path);
+}
+
+function visitTemplateNode(path: NodePath, visitor: Visitor): void {
+  const { enter, exit } = getEnterExit(visitor.TemplateNode);
+  if (enter) enter.call(visitor, path);
+  const node = path.node as TemplateNode;
+  if (node.data) visit(createPath(path, "data", node.data), visitor);
+  if (node.templateType === TemplateTypes.DEFINITION) {
+    visit(createPath(path, "name", node.content), visitor);
+    visit(createPath(path, "content", node.content), visitor);
+  } else {
+    visit(createPath(path, "is", node.is), visitor);
+  }
   if (exit) exit.call(visitor, path);
 }
 
@@ -238,6 +313,22 @@ export function visit(path: NodePath, visitor: Visitor): void {
       return visitAttributeNode(path, visitor);
     case NodeTypes.DIRECTIVE:
       return visitDirectiveNode(path, visitor);
+    case NodeTypes.IF:
+      return visitIfNode(path, visitor);
+    case NodeTypes.FOR:
+      return visitForNode(path, visitor);
+    case NodeTypes.BLOCK:
+      return visitBlockNode(path, visitor);
+    case NodeTypes.SLOT:
+      return visitSlotNode(path, visitor);
+    case NodeTypes.IMPORT:
+      return visitImportNode(path, visitor);
+    case NodeTypes.INCLUDE:
+      return visitIncludeNode(path, visitor);
+    case NodeTypes.SJS_IMPORT:
+      return visitSjsImportNode(path, visitor);
+    case NodeTypes.TEMPLATE:
+      return visitTemplateNode(path, visitor);
     case NodeTypes.EXPR:
       if (path.isRoot) {
         return visitExprNode({ isRoot: true, node: node.expr }, visitor);

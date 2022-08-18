@@ -3,7 +3,30 @@ export enum NodeTypes {
   ATTRIBUTE,
   DIRECTIVE,
   EXPR,
+  IF,
+  FOR,
+  BLOCK,
+  SLOT,
+  TEMPLATE,
+  IMPORT,
+  INCLUDE,
+  SJS_IMPORT,
 }
+
+export type Node =
+  | ElementNode
+  | AttributeNode
+  | DirectiveNode
+  | ExprNode
+  | IfNode
+  | ForNode
+  | BlockNode
+  | SlotNode
+  | ImportNode
+  | IncludeNode
+  | SjsImportNode
+  | TemplateNode
+  | Expr;
 
 export type ElementNode = {
   type: NodeTypes.ELEMENT;
@@ -29,6 +52,68 @@ export type ExprNode = {
   type: NodeTypes.EXPR;
   expr: Expr;
 };
+
+export type IfNode = {
+  type: NodeTypes.IF;
+  condition: Expr;
+  ifBranch: Node;
+  elseBranch?: Node;
+};
+
+export type ForNode = {
+  type: NodeTypes.FOR;
+  data: Expr;
+  itemName: string;
+  indexName: string;
+  content: Node;
+};
+
+export type SlotNode = {
+  type: NodeTypes.SLOT;
+  name: string;
+  content: Node;
+};
+
+export type BlockNode = {
+  type: NodeTypes.BLOCK;
+  content: Node;
+};
+
+export type ImportNode = {
+  type: NodeTypes.IMPORT;
+  src: string;
+};
+
+export type IncludeNode = {
+  type: NodeTypes.INCLUDE;
+  src: string;
+};
+
+export type SjsImportNode = {
+  type: NodeTypes.SJS_IMPORT;
+  from: string;
+  name: string;
+};
+
+export enum TemplateTypes {
+  DEFINITION,
+  INSTANCE,
+}
+
+export type TemplateNode = {
+  type: NodeTypes.TEMPLATE;
+  data?: Expr;
+} & (
+  | {
+      templateType: TemplateTypes.INSTANCE;
+      is: Expr;
+    }
+  | {
+      templateType: TemplateTypes.DEFINITION;
+      name: Expr;
+      content: Node;
+    }
+);
 
 export type Expr =
   | ConstantExpr
@@ -219,6 +304,99 @@ export function createDirectiveNode(
     name,
     prefix,
     value,
+  };
+}
+
+export function createIfNode(
+  condition: Expr,
+  ifBranch: Expr,
+  elseBranch?: Expr
+): IfNode {
+  return {
+    type: NodeTypes.IF,
+    condition,
+    ifBranch,
+    elseBranch,
+  };
+}
+
+export function createForNode(
+  data: Expr,
+  content: Node,
+  itemName: string,
+  indexName: string
+): ForNode {
+  return {
+    type: NodeTypes.FOR,
+    data,
+    itemName,
+    indexName,
+    content,
+  };
+}
+
+export function createBlockNode(content: Node): BlockNode {
+  return {
+    type: NodeTypes.BLOCK,
+    content,
+  };
+}
+
+export function createSlotNode(content: Node, name: string): SlotNode {
+  return {
+    type: NodeTypes.SLOT,
+    name,
+    content,
+  };
+}
+
+export function createImportNode(src: string): ImportNode {
+  return {
+    type: NodeTypes.IMPORT,
+    src,
+  };
+}
+
+export function createIncludeNode(src: string): IncludeNode {
+  return {
+    type: NodeTypes.INCLUDE,
+    src,
+  };
+}
+
+// TODO: change name to support object like
+// <sjs-import from="./index.sjs" name="{x, y: z}" />
+export function createSjsImportNode(from: string, name: string): SjsImportNode {
+  return {
+    type: NodeTypes.SJS_IMPORT,
+    from,
+    name,
+  };
+}
+
+export function createTemplateDefinedNode(
+  name: Expr,
+  content: Node,
+  data?: Expr
+): TemplateNode {
+  return {
+    type: NodeTypes.TEMPLATE,
+    templateType: TemplateTypes.DEFINITION,
+    name,
+    content,
+    data,
+  };
+}
+
+export function createTemplateInstanceNode(
+  is: Expr,
+  data?: Expr
+): TemplateNode {
+  return {
+    type: NodeTypes.TEMPLATE,
+    templateType: TemplateTypes.INSTANCE,
+    is,
+    data,
   };
 }
 
