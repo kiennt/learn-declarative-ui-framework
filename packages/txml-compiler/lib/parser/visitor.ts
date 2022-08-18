@@ -19,6 +19,7 @@ import {
   SlotNode,
   TemplateNode,
   TemplateTypes,
+  RootNode,
 } from "./ast";
 
 export type NodePath =
@@ -41,6 +42,34 @@ function createPath(parent: NodePath, key: string, node: Node): NodePath {
   };
 }
 
+/**
+ * return child of a object by path
+ * E.g
+ *   target = { name: "top", teams: [{
+ *     name: "engineering",
+ *     count: 4,
+ *     members: ["kien", "cuong", "hung", "han"]
+ *   }]}
+ *   getChildByPath(target, "name") -> "top"
+ *   getChildByPath(target, "teams.0.name") -> "engineering"
+ *   getChildByPath(target, "teams.0.members.1") -> "cuong"
+ * @param target
+ * @param path
+ */
+function getChildByPath(target: any, paths: string): any {
+  return paths.split(".").reduce((result, key) => result[key], target);
+}
+
+function setChildByPath(target: any, paths: string, value: any): any {
+  const items = paths.split(".");
+  const parent = items
+    .slice(0, -1)
+    .reduce((result, key) => result[key], target);
+  parent[items[items.length - 1]] = value;
+}
+
+function replaceNode(path: NodePath, newNode: Node): void {}
+
 export type PathVisitor = (path: NodePath) => void;
 
 export type NodeVisitor =
@@ -51,6 +80,7 @@ export type NodeVisitor =
   | PathVisitor;
 
 export interface Visitor {
+  RootNode?: NodeVisitor;
   ElementNode?: NodeVisitor;
   AttributeNode?: NodeVisitor;
   DirectiveNode?: NodeVisitor;
@@ -92,13 +122,23 @@ function getEnterExit(visitor?: NodeVisitor): {
   }
 }
 
+function visitRootNode(path: NodePath, visitor: Visitor): void {
+  const { enter, exit } = getEnterExit(visitor.RootNode);
+  if (enter) enter.call(visitor, path);
+  const node = path.node as RootNode;
+  node.children.forEach((child, index) =>
+    visit(createPath(path, `children.${index}`, child), visitor)
+  );
+  if (exit) exit.call(visitor, path);
+}
+
 function visitElementNode(path: NodePath, visitor: Visitor): void {
   const { enter, exit } = getEnterExit(visitor.ElementNode);
   if (enter) enter.call(visitor, path);
   const node = path.node as ElementNode;
   node.props.forEach((prop) => visit(createPath(path, "props", prop), visitor));
-  node.children.forEach((child) =>
-    visit(createPath(path, "children", child), visitor)
+  node.children.forEach((child, index) =>
+    visit(createPath(path, `children.${index}`, child), visitor)
   );
   if (exit) exit.call(visitor, path);
 }
@@ -107,7 +147,9 @@ function visitAttributeNode(path: NodePath, visitor: Visitor): void {
   const { enter, exit } = getEnterExit(visitor.AttributeNode);
   if (enter) enter.call(visitor, path);
   const node = path.node as AttributeNode;
-  node.value.forEach((item) => visit(createPath(path, "value", item), visitor));
+  node.value.forEach((item, index) =>
+    visit(createPath(path, `value.${index}`, item), visitor)
+  );
   if (exit) exit.call(visitor, path);
 }
 
@@ -115,7 +157,9 @@ function visitDirectiveNode(path: NodePath, visitor: Visitor): void {
   const { enter, exit } = getEnterExit(visitor.DirectiveNode);
   if (enter) enter.call(visitor, path);
   const node = path.node as DirectiveNode;
-  node.value.forEach((item) => visit(createPath(path, "value", item), visitor));
+  node.value.forEach((item, index) =>
+    visit(createPath(path, `value.${index}`, item), visitor)
+  );
   if (exit) exit.call(visitor, path);
 }
 
@@ -248,8 +292,8 @@ function visitArrayExpr(path: NodePath, visitor: Visitor): void {
   const { enter, exit } = getEnterExit(visitor.ArrayExpr);
   if (enter) enter.call(visitor, path);
   const node = path.node as ArrayExpr;
-  node.children.forEach((child) =>
-    visitExprNode(createPath(path, "children", child), visitor)
+  node.children.forEach((child, index) =>
+    visitExprNode(createPath(path, `children.${index}`, child), visitor)
   );
   if (exit) exit.call(visitor, path);
 }
@@ -258,11 +302,11 @@ function visitObjectExpr(path: NodePath, visitor: Visitor): void {
   const { enter, exit } = getEnterExit(visitor.ObjectExpr);
   if (enter) enter.call(visitor, path);
   const node = path.node as ObjectExpr;
-  node.destructuringList.forEach((expr) =>
-    visitExprNode(createPath(path, "destructuringList", expr), visitor)
+  node.destructuringList.forEach((expr, index) =>
+    visitExprNode(createPath(path, `destructuringList.${index}`, expr), visitor)
   );
-  node.props.forEach((prop) => {
-    visitExprNode(createPath(path, "props", prop.value), visitor);
+  node.props.forEach((prop, index) => {
+    visitExprNode(createPath(path, `props.${index}`, prop.value), visitor);
   });
   if (exit) exit.call(visitor, path);
 }
@@ -272,8 +316,8 @@ function visitFunctionCallExpr(path: NodePath, visitor: Visitor): void {
   if (enter) enter.call(visitor, path);
   const node = path.node as FunctionCallExpr;
   visitExprNode(createPath(path, "fn", node.fn), visitor);
-  node.params.forEach((param) =>
-    visitExprNode(createPath(path, "params", param), visitor)
+  node.params.forEach((param, index) =>
+    visitExprNode(createPath(path, `params.${index}`, param), visitor)
   );
   if (exit) exit.call(visitor, path);
 }
@@ -307,6 +351,8 @@ function visitExprNode(path: NodePath, visitor: Visitor): void {
 export function visit(path: NodePath, visitor: Visitor): void {
   const node = path.node;
   switch (node.type) {
+    case NodeTypes.ROOT:
+      return visitRootNode(path, visitor);
     case NodeTypes.ELEMENT:
       return visitElementNode(path, visitor);
     case NodeTypes.ATTRIBUTE:
@@ -330,13 +376,6 @@ export function visit(path: NodePath, visitor: Visitor): void {
     case NodeTypes.TEMPLATE:
       return visitTemplateNode(path, visitor);
     case NodeTypes.EXPR:
-      if (path.isRoot) {
-        return visitExprNode({ isRoot: true, node: node.expr }, visitor);
-      } else {
-        return visitExprNode(
-          createPath(path.parent, path.key, node.expr),
-          visitor
-        );
-      }
+      return visitExprNode(createPath(path, "expr", node.expr), visitor);
   }
 }

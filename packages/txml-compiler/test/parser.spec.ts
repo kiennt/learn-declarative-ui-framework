@@ -15,10 +15,10 @@ function testExprInAttr(
   input: string,
   output: Array<ExprNode | ElementNode>
 ): void {
-  const nodes = parse(`<view attr="${input}" />`);
-  expect(nodes.length).toEqual(1);
-  expect(nodes[0].props.length).toEqual(1);
-  const attr = nodes[0].props[0];
+  const root = parse(`<view attr="${input}" />`);
+  expect(root.children.length).toEqual(1);
+  expect(root.children[0].props.length).toEqual(1);
+  const attr = root.children[0].props[0];
   expect(attr.name).toEqual("attr");
   expect(attr.value).toEqual(output);
 }
@@ -27,9 +27,9 @@ function testExprInChilden(
   input: string,
   output: Array<ExprNode | ElementNode>
 ): void {
-  const nodes = parse(`<view>${input}</view>`);
-  expect(nodes.length).toEqual(1);
-  expect(nodes[0].children).toEqual(output);
+  const root = parse(`<view>${input}</view>`);
+  expect(root.children.length).toEqual(1);
+  expect(root.children[0].children).toEqual(output);
 }
 
 function runTestCasesForExprInAttr(testCases: Array<TestCase>) {
@@ -408,7 +408,7 @@ describe("parse", () => {
 
     testCases.forEach((tc) => {
       it(tc.name, () => {
-        expect(parse(tc.input)).toEqual(tc.output);
+        expect(parse(tc.input).children).toEqual(tc.output);
       });
     });
   });

@@ -1,4 +1,5 @@
 export enum NodeTypes {
+  ROOT,
   ELEMENT,
   ATTRIBUTE,
   DIRECTIVE,
@@ -14,6 +15,7 @@ export enum NodeTypes {
 }
 
 export type Node =
+  | RootNode
   | ElementNode
   | AttributeNode
   | DirectiveNode
@@ -27,6 +29,11 @@ export type Node =
   | SjsImportNode
   | TemplateNode
   | Expr;
+
+export type RootNode = {
+  type: NodeTypes.ROOT;
+  children: Array<ElementNode>;
+};
 
 export type ElementNode = {
   type: NodeTypes.ELEMENT;
@@ -268,6 +275,13 @@ export function trimSpaceInChildren(
     }
   }
   return result;
+}
+
+export function createRootNode(children: Array<ElementNode>): RootNode {
+  return {
+    type: NodeTypes.ROOT,
+    children,
+  };
 }
 
 export function createElementNode(

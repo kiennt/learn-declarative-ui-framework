@@ -84,7 +84,7 @@ performAction: function anonymous(yytext, yyleng, yylineno, yy, yystate /* actio
 var $0 = $$.length - 1;
 switch (yystate) {
 case 1:
- return $$[$0-1]; 
+ return yy.ast.createRootNode($$[$0-1]); 
 break;
 case 2: case 25: case 57:
 this.$ = $$[$0-1];

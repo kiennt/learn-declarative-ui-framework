@@ -17,6 +17,7 @@ import {
   AttributeNode,
   DirectiveNode,
   ExprTypes,
+  RootNode,
 } from "../../parser/ast";
 import { NodePath, visit } from "../../parser/visitor";
 import { createRootPath } from "../utils";
@@ -147,12 +148,32 @@ function getStringValueForDirective(
 }
 
 export default function plugin(
-  nodes: Array<ElementNode>,
+  root: RootNode,
   opts: RenderOptions = {
     prefixes: ["tiki"],
   }
 ): string {
   const visitor = {
+    RootNode: {
+      exit(paths: NodePath) {
+        const root = paths.node as R<RootNode>;
+        const childrenCode = root.children
+          .map((item) => (item as R<ElementNode>).code)
+          .join("\n");
+        if (root.children.length === 1) {
+          root.code = `
+function render(data) {
+  return (${childrenCode});
+}`;
+        } else {
+          root.code = `
+function render(data) {
+  return <>${childrenCode}</>;
+}`;
+        }
+      },
+    },
+
     ElementNode: {
       // prepare context for for loop
       enter(paths: NodePath) {
@@ -378,17 +399,6 @@ export default function plugin(
     },
   };
 
-  nodes.forEach((node) => visit(createRootPath(node), visitor));
-  const code = nodes.map((node) => (node as R<ElementNode>).code).join("\n");
-  if (nodes.length === 1) {
-    return `
-function render(data) {
-  return (${code});
-}`;
-  } else {
-    return `
-function render(data) {
-  return (<>${code}</>);
-}`;
-  }
+  visit(createRootPath(root), visitor);
+  return (root as R<RootNode>).code;
 }

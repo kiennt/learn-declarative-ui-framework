@@ -1,11 +1,8 @@
 import * as ast from "./ast";
-import { ElementNode } from "./ast";
 import { Parser } from "./grammar/parser";
 
-export function parse(content: string): Array<ElementNode> {
+export function parse(content: string): ast.RootNode {
   const parser = new Parser();
   parser.yy = { ast };
-  const nodes = parser.parse(content);
-
-  return nodes;
+  return parser.parse(content);
 }

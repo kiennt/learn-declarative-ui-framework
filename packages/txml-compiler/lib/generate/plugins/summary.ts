@@ -1,4 +1,4 @@
-import { ElementNode, NodeTypes } from "../../parser/ast";
+import { ElementNode, NodeTypes, RootNode } from "../../parser/ast";
 import { NodePath, visit } from "../../parser/visitor";
 import { createRootPath } from "../utils";
 
@@ -11,7 +11,7 @@ type Summary = {
   useBlock: boolean;
 };
 
-export default function plugin(nodes: Array<ElementNode>): Summary {
+export default function plugin(root: RootNode): Summary {
   const visitor = {
     summary: {
       components: [] as Array<string>,
@@ -55,6 +55,6 @@ export default function plugin(nodes: Array<ElementNode>): Summary {
     },
   };
 
-  nodes.forEach((node) => visit(createRootPath(node), visitor));
+  visit(createRootPath(root), visitor);
   return visitor.summary;
 }

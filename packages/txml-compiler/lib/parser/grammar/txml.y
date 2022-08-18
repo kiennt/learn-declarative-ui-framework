@@ -15,7 +15,7 @@
 
 root
   : node+ EOF 
-    { return $1; }
+    { return yy.ast.createRootNode($1); }
   ;
 
 node
