@@ -85,8 +85,8 @@ export type ForNode = {
 
 export type SlotNode = {
   type: NodeTypes.SLOT;
-  name: string;
-  content: Node;
+  name: Array<Expr>;
+  content: Array<Node>;
 };
 
 export type BlockNode = {
@@ -369,7 +369,10 @@ export function createBlockNode(children: Array<Node>): BlockNode {
   };
 }
 
-export function createSlotNode(content: Node, name: string): SlotNode {
+export function createSlotNode(
+  content: Array<Node>,
+  name: Array<Expr>
+): SlotNode {
   return {
     type: NodeTypes.SLOT,
     name,
