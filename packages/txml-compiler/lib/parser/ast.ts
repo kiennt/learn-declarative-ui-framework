@@ -121,12 +121,12 @@ export type TemplateNode = {
 } & (
   | {
       templateType: TemplateTypes.INSTANCE;
-      is: Expr;
+      is: Array<Expr>;
     }
   | {
       templateType: TemplateTypes.DEFINITION;
-      name: Expr;
-      content: Node;
+      name: string;
+      content: Array<Node>;
     }
 );
 
@@ -402,8 +402,8 @@ export function createSjsImportNode(from: string, name: string): SjsImportNode {
 }
 
 export function createTemplateDefinedNode(
-  name: Expr,
-  content: Node,
+  name: string,
+  content: Array<Node>,
   data?: Expr
 ): TemplateNode {
   return {
@@ -416,7 +416,7 @@ export function createTemplateDefinedNode(
 }
 
 export function createTemplateInstanceNode(
-  is: Expr,
+  is: Array<Expr>,
   data?: Expr
 ): TemplateNode {
   return {
