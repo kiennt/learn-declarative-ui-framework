@@ -16,15 +16,15 @@ import {
   ObjectExpr,
   AttributeNode,
   DirectiveNode,
-  ExprTypes,
   RootNode,
 } from "../../parser/ast";
-import { NodePath, visit } from "../../parser/visitor";
-import { createRootPath } from "../utils";
-
-type RenderOptions = {
-  prefixes: Array<string>;
-};
+import { visit } from "../visitor";
+import {
+  getDiretiveName,
+  getStringValueForDirective,
+  hasDirectiveName,
+} from "../utils";
+import { createRootPath, NodePath } from "../context";
 
 type R<T> = T & {
   code: string;
@@ -62,97 +62,11 @@ function isPredefinedVariable(name: string, paths: NodePath): boolean {
   const node = paths.node as R<typeof paths.node>;
   if (name === node.forIndex) return true;
   if (name === node.forItem) return true;
-  if (paths.isRoot) return false;
+  if (paths.parent === undefined) return false;
   return isPredefinedVariable(name, paths.parent);
 }
 
-function getDiretiveName(
-  node: ElementNode,
-  name: string,
-  prefixes: Array<string>
-): DirectiveNode | undefined {
-  return node.props
-    .filter(
-      (prop) =>
-        prop.type === NodeTypes.DIRECTIVE &&
-        prefixes.includes(prop.prefix) &&
-        prop.name === name
-    )
-    .slice(-1)[0] as DirectiveNode | undefined;
-}
-
-/**
- * check does element has a for directive or not
- *
- * <view tiki:for="{{[1, 2, 3]}}" />    -> return true
- * <view />    -> return false
- *
- * @param node
- * @param prefixes
- * @returns
- */
-function isNodeHasForDirective(
-  node: ElementNode,
-  prefixes: Array<string>
-): boolean {
-  return getDiretiveName(node, "for", prefixes) !== undefined;
-}
-
-/**
- * get for-index value for a node
- *
- * with name = "for-index"
- * <view for-index="hello" /> --> hello
- * <view for-index={{"hello"}} /> --> hello
- * <view for-index={{a}} /> --> throws error
- * <view for-index={{a + b}} /> --> throws error
- * <view /> --> index
- *
- * @param node
- * @param name
- * @param prefixes
- * @returns
- */
-function getStringValueForDirective(
-  node: ElementNode,
-  name: string,
-  prefixes: Array<string>,
-  defaultValue: string
-): string {
-  const item = getDiretiveName(node, name, prefixes);
-  if (item === undefined) {
-    return defaultValue;
-  }
-
-  if (item.value.length > 1) {
-    throw Error(
-      `invalid tiki:${name} value: ${JSON.stringify(
-        item.value
-      )} has more than 1 value`
-    );
-  }
-  const expr = item.value[0].expr;
-  if (expr.type !== ExprTypes.CONSTANT) {
-    throw Error(
-      `invalid tiki:${name}, value: ${JSON.stringify(expr)} is not a constant`
-    );
-  }
-  if (typeof expr.value !== "string") {
-    throw Error(
-      `invalid tiki:${name}, value: ${JSON.stringify(
-        expr.value
-      )} is not a string`
-    );
-  }
-  return expr.value;
-}
-
-export default function plugin(
-  root: RootNode,
-  opts: RenderOptions = {
-    prefixes: ["tiki"],
-  }
-): string {
+export default function plugin(root: RootNode): string {
   const visitor = {
     RootNode: {
       exit(paths: NodePath) {
@@ -178,19 +92,9 @@ function render(data) {
       // prepare context for for loop
       enter(paths: NodePath) {
         const node = paths.node as R<ElementNode>;
-        if (!isNodeHasForDirective(node, opts.prefixes)) return;
-        node.forIndex = getStringValueForDirective(
-          node,
-          "for-index",
-          opts.prefixes,
-          "index"
-        );
-        node.forItem = getStringValueForDirective(
-          node,
-          "for-item",
-          opts.prefixes,
-          "item"
-        );
+        if (!hasDirectiveName(node, "for")) return;
+        node.forIndex = getStringValueForDirective(node, "for-index", "index");
+        node.forItem = getStringValueForDirective(node, "for-item", "item");
       },
 
       exit(paths: NodePath) {
@@ -239,7 +143,7 @@ function render(data) {
         }
 
         // generate code for for-directive
-        const forDirective = getDiretiveName(node, "for", opts.prefixes);
+        const forDirective = getDiretiveName(node, "for");
         if (forDirective) {
           const forDirectiveR = forDirective as R<DirectiveNode>;
           code = `
@@ -270,7 +174,7 @@ function render(data) {
     AttributeNode: {
       exit(paths: NodePath) {
         // skip
-        if (paths.isRoot) return;
+        if (paths.parent === undefined) return;
 
         const node = paths.node as R<AttributeNode>;
         const name = convertAttributeName(node.name);

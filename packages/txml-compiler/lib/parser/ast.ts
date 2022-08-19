@@ -5,6 +5,7 @@ export enum NodeTypes {
   DIRECTIVE,
   EXPR,
   IF,
+  IF_BRANCH,
   FOR,
   BLOCK,
   SLOT,
@@ -20,6 +21,10 @@ export type Node =
   | AttributeNode
   | DirectiveNode
   | ExprNode
+  | Expr
+  | ControlNode;
+
+export type ControlNode =
   | IfNode
   | ForNode
   | BlockNode
@@ -27,19 +32,18 @@ export type Node =
   | ImportNode
   | IncludeNode
   | SjsImportNode
-  | TemplateNode
-  | Expr;
+  | TemplateNode;
 
 export type RootNode = {
   type: NodeTypes.ROOT;
-  children: Array<ElementNode>;
+  children: Array<ElementNode | ControlNode>;
 };
 
 export type ElementNode = {
   type: NodeTypes.ELEMENT;
   tag: string;
   props: Array<AttributeNode | DirectiveNode>;
-  children: Array<ElementNode | ExprNode>;
+  children: Array<ElementNode | ExprNode | ControlNode>;
 };
 
 export type AttributeNode = {
@@ -60,11 +64,15 @@ export type ExprNode = {
   expr: Expr;
 };
 
+export type IfBranchNode = {
+  type: NodeTypes.IF_BRANCH;
+  content: Node;
+  condition?: Expr;
+};
+
 export type IfNode = {
   type: NodeTypes.IF;
-  condition: Expr;
-  ifBranch: Node;
-  elseBranch?: Node;
+  branches: Array<IfBranchNode>;
 };
 
 export type ForNode = {
@@ -83,7 +91,7 @@ export type SlotNode = {
 
 export type BlockNode = {
   type: NodeTypes.BLOCK;
-  content: Node;
+  children: Array<Node>;
 };
 
 export type ImportNode = {
@@ -304,7 +312,7 @@ export function createAttributeNode(
   return {
     type: NodeTypes.ATTRIBUTE,
     name,
-    value,
+    value: value.length > 0 ? value : [createExprNode(createConstantExpr(""))],
   };
 }
 
@@ -317,20 +325,25 @@ export function createDirectiveNode(
     type: NodeTypes.DIRECTIVE,
     name,
     prefix,
-    value,
+    value: value.length > 0 ? value : [createExprNode(createConstantExpr(""))],
   };
 }
 
-export function createIfNode(
-  condition: Expr,
-  ifBranch: Expr,
-  elseBranch?: Expr
-): IfNode {
+export function createIfBranchNode(
+  content: Node,
+  condition?: Expr
+): IfBranchNode {
+  return {
+    type: NodeTypes.IF_BRANCH,
+    content,
+    condition,
+  };
+}
+
+export function createIfNode(branches: Array<IfBranchNode>): IfNode {
   return {
     type: NodeTypes.IF,
-    condition,
-    ifBranch,
-    elseBranch,
+    branches,
   };
 }
 
@@ -349,10 +362,10 @@ export function createForNode(
   };
 }
 
-export function createBlockNode(content: Node): BlockNode {
+export function createBlockNode(children: Array<Node>): BlockNode {
   return {
     type: NodeTypes.BLOCK,
-    content,
+    children,
   };
 }
 
@@ -522,4 +535,8 @@ export function createFunctionCallExpr(
     fn,
     params,
   };
+}
+
+export function createSyntaxError(_node: Node, message: string): Error {
+  return Error(message);
 }

@@ -104,8 +104,8 @@ describe("summary", () => {
 
   testCases.forEach((tc) => {
     it(tc.name, () => {
-      const nodes = parse(tc.input);
-      const result = summary(nodes);
+      const root = parse(tc.input);
+      const result = summary(root);
       expect(result.components).toEqual(tc.output.components);
       expect(result.useIf).toEqual(tc.output.useIf);
       expect(result.useFor).toEqual(tc.output.useFor);

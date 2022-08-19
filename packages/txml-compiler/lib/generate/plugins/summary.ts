@@ -1,6 +1,6 @@
 import { ElementNode, NodeTypes, RootNode } from "../../parser/ast";
-import { NodePath, visit } from "../../parser/visitor";
-import { createRootPath } from "../utils";
+import { visit } from "../visitor";
+import { createRootPath, NodePath } from "../context";
 
 type Summary = {
   components: Array<string>;
