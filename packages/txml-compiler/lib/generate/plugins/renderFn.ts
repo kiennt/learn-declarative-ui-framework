@@ -17,19 +17,19 @@ import {
   AttributeNode,
   DirectiveNode,
   RootNode,
+  ForNode,
+  Node,
+  BlockNode,
+  IfNode,
+  IfBranchNode,
+  InterpolationNode,
+  SlotNode,
 } from "../../parser/ast";
 import { visit } from "../visitor";
-import {
-  getDiretiveName,
-  getStringValueForDirective,
-  hasDirectiveName,
-} from "../utils";
 import { createRootPath, NodePath } from "../context";
 
-type R<T> = T & {
+export type R<T> = T & {
   code: string;
-  forIndex?: string;
-  forItem?: string;
 };
 
 function snakeToCamel(value: string): string {
@@ -60,13 +60,16 @@ function isCustomComponent(tag: string): boolean {
 // <view tiki:for="{{item}}" tiki:for-item="item" />
 function isPredefinedVariable(name: string, paths: NodePath): boolean {
   const node = paths.node as R<typeof paths.node>;
-  if (name === node.forIndex) return true;
-  if (name === node.forItem) return true;
+  if (node.type === NodeTypes.FOR) {
+    if (node.itemName === name || node.indexName === name) {
+      return true;
+    }
+  }
   if (paths.parent === undefined) return false;
   return isPredefinedVariable(name, paths.parent);
 }
 
-export default function plugin(root: RootNode): string {
+export default function plugin(root: RootNode): void {
   const visitor = {
     RootNode: {
       exit(paths: NodePath) {
@@ -74,7 +77,12 @@ export default function plugin(root: RootNode): string {
         const childrenCode = root.children
           .map((item) => (item as R<ElementNode>).code)
           .join("\n");
-        if (root.children.length === 1) {
+        const useFragment =
+          root.children.length > 1 ||
+          root.children.filter((child) =>
+            [NodeTypes.IF, NodeTypes.FOR].includes(child.type)
+          ).length > 0;
+        if (!useFragment) {
           root.code = `
 function render(data) {
   return (${childrenCode});
@@ -88,18 +96,101 @@ function render(data) {
       },
     },
 
-    ElementNode: {
-      // prepare context for for loop
-      enter(paths: NodePath) {
-        const node = paths.node as R<ElementNode>;
-        if (!hasDirectiveName(node, "for")) return;
-        node.forIndex = getStringValueForDirective(node, "for-index", "index");
-        node.forItem = getStringValueForDirective(node, "for-item", "item");
+    ForNode: {
+      exit(paths: NodePath) {
+        const node = paths.node as R<ForNode>;
+        const { itemName: item, indexName: index } = node;
+        node.code = `
+        {
+          ${(node.data as R<Expr>).code}.map((${item}, ${index}) => {
+            return ${(node.content as R<Node>).code};
+          })
+        }
+        `;
       },
+    },
 
+    IfNode: {
+      exit(paths: NodePath) {
+        const node = paths.node as R<IfNode>;
+        const hasElseCondition =
+          node.branches.filter((branch) => branch.condition === undefined)
+            .length > 0;
+        node.code = `${node.branches
+          .map((child) => (child as R<Node>).code)
+          .join(": \n")}`;
+        if (!hasElseCondition) {
+          node.code += " : null";
+        }
+        node.code = `{ ${node.code} }`;
+      },
+    },
+
+    IfBranchNode: {
+      exit(paths: NodePath) {
+        const node = paths.node as R<IfBranchNode>;
+        const content = (node.content as R<Node>).code;
+        if (node.condition) {
+          const condition = (node.condition as R<Expr>).code;
+          node.code = `${condition} ? ${content} `;
+        } else {
+          node.code = content;
+        }
+      },
+    },
+
+    BlockNode: {
+      exit(paths: NodePath) {
+        const node = paths.node as R<BlockNode>;
+        node.code = `
+          <>
+          ${node.children.map((item) => (item as R<Node>).code).join("\n")}
+          </>
+        `;
+      },
+    },
+
+    ImportNode: {
+      exit(paths: NodePath) {},
+    },
+
+    IncludeNode: {
+      exit(paths: NodePath) {},
+    },
+
+    ImportSjsNode: {
+      exit(paths: NodePath) {},
+    },
+
+    SlotNode: {
+      exit(paths: NodePath) {
+        const node = paths.node as R<SlotNode>;
+        const name = node.name.map((expr) => (expr as R<Expr>).code).join("+");
+        const children = node.content
+          .map((child) => (child as R<Node>).code)
+          .join("\n");
+        node.code = `{renderSlot(data, ${name}, <>${children}</>)}`;
+      },
+    },
+
+    TemplateNode: {
+      exit(paths: NodePath) {},
+    },
+
+    InterpolationNode: {
+      exit(paths: NodePath) {
+        const node = paths.node as R<InterpolationNode>;
+        node.code = `{toString(${node.children
+          .map((expr) => (expr as R<Expr>).code)
+          .join(", ")})}`;
+      },
+    },
+
+    ElementNode: {
       exit(paths: NodePath) {
         const node = paths.node as R<ElementNode>;
         const tag = snakeToCamel(node.tag);
+
         // prepare attributes
         const attrs = node.props
           .filter((prop) => prop.type === NodeTypes.ATTRIBUTE)
@@ -114,50 +205,15 @@ function render(data) {
         }
 
         // prepare children
-        let children = "";
-        let currentExpr = [];
-        for (let child of node.children) {
-          if (child.type === NodeTypes.ELEMENT) {
-            if (currentExpr.length > 0) {
-              children += `{toString(${currentExpr.join(", ")})}`;
-            }
-            children += (child as R<ElementNode>).code;
-            currentExpr = [];
-          } else {
-            currentExpr.push((child.expr as R<Expr>).code);
-          }
-        }
-        if (currentExpr.length > 0) {
-          children += `{toString(${currentExpr.join(", ")})}`;
-        }
+        const children = node.children
+          .map((item) => (item as R<Node>).code)
+          .join("\n");
 
-        let code;
-        if (tag === "Block") {
-          code = `<>${children}</>`;
+        if (children.length > 0) {
+          node.code = `<${tag} ${attrs.join(" ")}>${children}</${tag}>`;
         } else {
-          if (children.length > 0) {
-            code = `<${tag} ${attrs.join(" ")}>${children}</${tag}>`;
-          } else {
-            code = `<${tag} ${attrs.join(" ")}/>`;
-          }
+          node.code = `<${tag} ${attrs.join(" ")}/>`;
         }
-
-        // generate code for for-directive
-        const forDirective = getDiretiveName(node, "for");
-        if (forDirective) {
-          const forDirectiveR = forDirective as R<DirectiveNode>;
-          code = `
-          <>
-          {
-            (${forDirectiveR.code}).map((${node.forItem}, ${node.forIndex}) => {
-              return ${code}
-            })
-          }
-          </>
-          `;
-        }
-
-        node.code = code;
       },
     },
 
@@ -304,5 +360,4 @@ function render(data) {
   };
 
   visit(createRootPath(root), visitor);
-  return (root as R<RootNode>).code;
 }

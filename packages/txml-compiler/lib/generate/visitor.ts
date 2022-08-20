@@ -21,6 +21,7 @@ import {
   TemplateTypes,
   RootNode,
   IfBranchNode,
+  InterpolationNode,
 } from "../parser/ast";
 import { createPath, NodePath } from "./context";
 
@@ -47,8 +48,9 @@ export interface Visitor {
   SlotNode?: NodeVisitor;
   ImportNode?: NodeVisitor;
   IncludeNode?: NodeVisitor;
-  SjsImportNode?: NodeVisitor;
+  ImportSjsNode?: NodeVisitor;
   TemplateNode?: NodeVisitor;
+  InterpolationNode?: NodeVisitor;
   ExprNode?: NodeVisitor;
   ConstantExpr?: NodeVisitor;
   VariableExpr?: NodeVisitor;
@@ -166,14 +168,15 @@ function visitForNode(path: NodePath, visitor: Visitor): void {
 function visitBlockNode(path: NodePath, visitor: Visitor): void {
   doVisitNode(path, visitor, "BlockNode", (path, visitor) => {
     const node = path.node as BlockNode;
-    visit(createPath(path, "content", node.content), visitor);
+    visitListChildren(path, node.children, "children", visitor);
   });
 }
 
 function visitSlotNode(path: NodePath, visitor: Visitor): void {
   doVisitNode(path, visitor, "SlotNode", (path, visitor) => {
     const node = path.node as SlotNode;
-    visit(createPath(path, "content", node.content), visitor);
+    visitListChildren(path, node.name, "name", visitor, visitExprNode);
+    visitListChildren(path, node.content, "content", visitor);
   });
 }
 
@@ -186,7 +189,7 @@ function visitIncludeNode(path: NodePath, visitor: Visitor): void {
 }
 
 function visitSjsImportNode(path: NodePath, visitor: Visitor): void {
-  doVisitNode(path, visitor, "SjsImportNode", (_path, _visitor) => {});
+  doVisitNode(path, visitor, "ImportSjsNode", (_path, _visitor) => {});
 }
 
 function visitTemplateNode(path: NodePath, visitor: Visitor): void {
@@ -194,11 +197,17 @@ function visitTemplateNode(path: NodePath, visitor: Visitor): void {
     const node = path.node as TemplateNode;
     if (node.data) visit(createPath(path, "data", node.data), visitor);
     if (node.templateType === TemplateTypes.DEFINITION) {
-      visit(createPath(path, "name", node.content), visitor);
-      visit(createPath(path, "content", node.content), visitor);
+      visitListChildren(path, node.content, "content", visitor);
     } else {
-      visit(createPath(path, "is", node.is), visitor);
+      visitListChildren(path, node.is, "is", visitor, visitExprNode);
     }
+  });
+}
+
+function visitInterpolationNode(path: NodePath, visitor: Visitor): void {
+  doVisitNode(path, visitor, "InterpolationNode", (path, visitor) => {
+    const node = path.node as InterpolationNode;
+    visitListChildren(path, node.children, "children", visitor, visitExprNode);
   });
 }
 
@@ -323,7 +332,7 @@ export function visit(path: NodePath, visitor: Visitor): void {
       return visitDirectiveNode(path, visitor);
     case NodeTypes.IF:
       return visitIfNode(path, visitor);
-    case NodeTypes.IF:
+    case NodeTypes.IF_BRANCH:
       return visitIfBranchNode(path, visitor);
     case NodeTypes.FOR:
       return visitForNode(path, visitor);
@@ -339,6 +348,8 @@ export function visit(path: NodePath, visitor: Visitor): void {
       return visitSjsImportNode(path, visitor);
     case NodeTypes.TEMPLATE:
       return visitTemplateNode(path, visitor);
+    case NodeTypes.INTERPOLATION:
+      return visitInterpolationNode(path, visitor);
     case NodeTypes.EXPR:
       return visitExprNode(createPath(path, "expr", node.expr), visitor);
   }

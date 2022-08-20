@@ -13,6 +13,7 @@ export enum NodeTypes {
   IMPORT,
   INCLUDE,
   SJS_IMPORT,
+  INTERPOLATION,
 }
 
 export type Node =
@@ -26,13 +27,15 @@ export type Node =
 
 export type ControlNode =
   | IfNode
+  | IfBranchNode
   | ForNode
   | BlockNode
   | SlotNode
   | ImportNode
   | IncludeNode
   | SjsImportNode
-  | TemplateNode;
+  | TemplateNode
+  | InterpolationNode;
 
 export type RootNode = {
   type: NodeTypes.ROOT;
@@ -129,6 +132,11 @@ export type TemplateNode = {
       content: Array<Node>;
     }
 );
+
+export type InterpolationNode = {
+  type: NodeTypes.INTERPOLATION;
+  children: Array<Expr>;
+};
 
 export type Expr =
   | ConstantExpr
@@ -434,6 +442,15 @@ export function createExprNode(expr: Expr): ExprNode {
   return {
     type: NodeTypes.EXPR,
     expr,
+  };
+}
+
+export function createInterpolationNode(
+  children: Array<ExprNode>
+): InterpolationNode {
+  return {
+    type: NodeTypes.INTERPOLATION,
+    children: children.map((node) => node.expr),
   };
 }
 

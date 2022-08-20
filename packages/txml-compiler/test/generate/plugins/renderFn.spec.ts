@@ -1,7 +1,17 @@
 import { describe, it, expect } from "vitest";
 import prettier from "prettier";
-import generateRenderFn from "../../../lib/generate/plugins/render-fn";
+import generateRenderFn, { R } from "../../../lib/generate/plugins/renderFn";
+import processMergeExpr from "../../../lib/generate/plugins/mergeExpr";
+import processBlock from "../../../lib/generate/plugins/block";
+import processIf from "../../../lib/generate/plugins/if";
+import processFor from "../../../lib/generate/plugins/for";
+import processSlot from "../../../lib/generate/plugins/slot";
+import processTemplate from "../../../lib/generate/plugins/template";
+import processImport from "../../../lib/generate/plugins/import";
+import processInclude from "../../../lib/generate/plugins/include";
+import processImportSjs from "../../../lib/generate/plugins/importSjs";
 import { parse } from "../../../lib/parser";
+import { RootNode } from "../../../lib/parser/ast";
 
 describe("render function", () => {
   const testCases = [
@@ -144,11 +154,11 @@ function render(data)  {
 function render(data)  {
   return (
     <>
-      {
-        data['list'].map((item, index) => {
-          return <View>{toString(index, " ", item)}</View>;
-        })
-      }
+    {
+      data['list'].map((item, index) => {
+        return <View>{toString(index, " ", item)}</View>;
+      })
+    }
     </>
   );
 }`,
@@ -180,39 +190,117 @@ function render(data)  {
   return (
     <>
     {
-      (data['a'] + data['b']) ? (<View key={"value"}>{toString("a")}</View>) : null
+      (data['a'] + data['b']) 
+        ? (<View key={"value"}>{toString("a")}</View>) 
+        : null
     }
     </>
   );
 }`,
     },
-    //     {
-    //       name: "slot",
-    //       input: `
-    // <view>
-    //   <slot><view>hello</view></slot>
-    //   <slot name="scope"><view>scope</view></slot>
-    // </view>`,
-    //       output: `
-    // function render(data)  {
-    //   return (
-    //     <View>
-    //       {renderSlot(data, "$default", <View>hello</View>)}
-    //       {renderSlot(data, "scope", <View>scope</View>)}
-    //     </View>
-    //   );
-    // }`,
-    //     },
+    {
+      name: "if with multi children",
+      input: `
+      <view key="value" tiki:if="{{a + b}}">a</view>
+      <view />
+      `,
+      output: `
+function render(data)  {
+  return (
+    <>
+    {
+      (data['a'] + data['b']) 
+        ? (<View key={"value"}>{toString("a")}</View>) 
+        : null
+    }
+    <View />
+    </>
+  );
+
+}`,
+    },
+    {
+      name: "if else",
+      input: `
+        <view key="value" tiki:if="{{a + b}}">a</view>
+        <view key="value" tiki:else="">b</view>
+      `,
+      output: `
+function render(data)  {
+  return (
+    <>
+    {
+      (data['a'] + data['b']) 
+        ? (<View key={"value"}>{toString("a")}</View>) 
+        : (<View key={"value"}>{toString("b")}</View>)
+    }
+    </>
+  );
+}`,
+    },
+    {
+      name: "if elif ",
+      input: `
+        <view key="value" tiki:if="{{a + b}}">a</view>
+        <view key="value" tiki:elif="{{a}}">b</view>
+      `,
+      output: `
+function render(data)  {
+  return (
+    <>
+    {
+      (data['a'] + data['b']) ? (<View key={"value"}>{toString("a")}</View>) 
+        : (data['a']) ?  (<View key={"value"}>{toString("b")}</View>) 
+        : null
+    }
+    </>
+  );
+}`,
+    },
+    {
+      name: "slot",
+      input: `
+<view>
+  <slot><view>default slot</view></slot>
+  <view attr="value">view</view>
+  <slot name="named"><view>named slot</view></slot>
+</view>`,
+      output: `
+function render(data)  {
+  return (
+    <View>
+      {renderSlot(data, "$default", <><View>{toString("default slot")}</View></>)}
+      <View attr={"value"}>{toString("view")}</View>
+      {renderSlot(data, "named", <><View>{toString("named slot")}</View></>)}
+    </View>
+  );
+}`,
+    },
   ];
 
   testCases.forEach((tc) => {
     it(tc.name, () => {
-      const codeOutput = generateRenderFn(parse(tc.input));
+      const root = parse(tc.input);
+      const transformPreset = [
+        processMergeExpr,
+        processImport,
+        processInclude,
+        processImportSjs,
+        processSlot,
+        processTemplate,
+        processBlock,
+        processFor,
+        processIf,
+        generateRenderFn,
+      ];
+      transformPreset.forEach((fn) => fn(root));
+      console.log(root);
+      const codeOutput = (root as R<RootNode>).code;
       const output: Array<string> = prettier.format(codeOutput).split("\n");
       const expected: Array<string> = prettier.format(tc.output).split("\n");
       output.forEach((line, index) => {
         console.log(line);
-        expect(line).toEqual(expected[index]);
+        expect(expected[index]).toEqual(line);
       });
     });
   });
