@@ -1,16 +1,16 @@
 import {
-  Node,
-  createInterpolationNode,
+  BlockNode,
   ElementNode,
   ExprNode,
+  Node,
   NodeTypes,
   RootNode,
-  BlockNode,
+  SlotNode,
   TemplateNode,
   TemplateTypes,
-  SlotNode,
+  createInterpolationNode
 } from "../../parser/ast";
-import { createRootPath, NodePath } from "../context";
+import { NodePath, createRootPath } from "../context";
 import { visit } from "../visitor";
 
 function mergeExpr(children: Array<Node>) {
@@ -45,14 +45,14 @@ export default function plugin(root: RootNode): void {
       exit(paths: NodePath) {
         const node = paths.node as ElementNode;
         mergeExpr(node.children);
-      },
+      }
     },
 
     BlockNode: {
       exit(paths: NodePath) {
         const node = paths.node as BlockNode;
         mergeExpr(node.children);
-      },
+      }
     },
 
     TemplateNode: {
@@ -61,15 +61,15 @@ export default function plugin(root: RootNode): void {
         if (node.templateType === TemplateTypes.DEFINITION) {
           mergeExpr(node.content);
         }
-      },
+      }
     },
 
     SlotNode: {
       exit(paths: NodePath) {
         const node = paths.node as SlotNode;
         mergeExpr(node.content);
-      },
-    },
+      }
+    }
   };
 
   visit(createRootPath(root), visitor);

@@ -1,5 +1,5 @@
-import { createBlockNode, ElementNode, RootNode } from "../../parser/ast";
-import { createRootPath, NodePath, replaceNode } from "../context";
+import { ElementNode, RootNode, createBlockNode } from "../../parser/ast";
+import { NodePath, createRootPath, replaceNode } from "../context";
 import { visit } from "../visitor";
 
 export default function plugin(root: RootNode): void {
@@ -10,8 +10,8 @@ export default function plugin(root: RootNode): void {
         if (node.tag !== "block") return;
 
         replaceNode(paths, createBlockNode(node.children));
-      },
-    },
+      }
+    }
   };
 
   visit(createRootPath(root), visitor);

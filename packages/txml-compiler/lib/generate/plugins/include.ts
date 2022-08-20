@@ -1,10 +1,10 @@
 import {
-  createIncludeNode,
-  createSyntaxError,
   ElementNode,
   RootNode,
+  createIncludeNode,
+  createSyntaxError
 } from "../../parser/ast";
-import { createRootPath, NodePath, replaceNode } from "../context";
+import { NodePath, createRootPath, replaceNode } from "../context";
 import { getStringValueForAttribute } from "../utils";
 import { visit } from "../visitor";
 
@@ -23,8 +23,8 @@ export default function plugin(root: RootNode): void {
           throw createSyntaxError(node, `import must has src ends with .txml`);
         }
         replaceNode(paths, createIncludeNode(src));
-      },
-    },
+      }
+    }
   };
 
   visit(createRootPath(root), visitor);

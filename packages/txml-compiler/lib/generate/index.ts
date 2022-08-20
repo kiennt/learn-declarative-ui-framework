@@ -1,3 +1,3 @@
-export default function generate(content: string): string {
+export function generate(content: string): string {
   return "";
 }

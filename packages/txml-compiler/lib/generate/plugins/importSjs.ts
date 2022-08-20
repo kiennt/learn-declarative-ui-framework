@@ -1,10 +1,10 @@
 import {
-  createSjsImportNode,
-  createSyntaxError,
   ElementNode,
   RootNode,
+  createSjsImportNode,
+  createSyntaxError
 } from "../../parser/ast";
-import { createRootPath, NodePath, replaceNode } from "../context";
+import { NodePath, createRootPath, replaceNode } from "../context";
 import { getStringValueForAttribute } from "../utils";
 import { visit } from "../visitor";
 
@@ -30,8 +30,8 @@ export default function plugin(root: RootNode): void {
           throw createSyntaxError(node, `import-sjs must have name`);
         }
         replaceNode(paths, createSjsImportNode(from, name));
-      },
-    },
+      }
+    }
   };
 
   visit(createRootPath(root), visitor);

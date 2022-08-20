@@ -1,19 +1,19 @@
 import {
-  createIfNode,
   ElementNode,
-  RootNode,
-  createSyntaxError,
   Expr,
   IfBranchNode,
+  RootNode,
   createIfBranchNode,
+  createIfNode,
+  createSyntaxError
 } from "../../parser/ast";
-import { visit } from "../visitor";
+import { NodePath, createRootPath, removeNode, replaceNode } from "../context";
 import {
   getDiretiveName,
   hasDirectiveName,
-  removeDirectiveName,
+  removeDirectiveName
 } from "../utils";
-import { createRootPath, NodePath, removeNode, replaceNode } from "../context";
+import { visit } from "../visitor";
 
 function checkAndGetExprForDirective(
   node: ElementNode,
@@ -48,7 +48,7 @@ export default function plugin(root: RootNode) {
         const node = paths.node as ElementNode;
         const ifCondition = checkAndGetExprForDirective(node, "if", [
           "else",
-          "elif",
+          "elif"
         ]);
         if (!ifCondition) return;
 
@@ -69,7 +69,7 @@ export default function plugin(root: RootNode) {
           const next = children[index];
           let elifCondition = checkAndGetExprForDirective(next, "elif", [
             "if",
-            "else",
+            "else"
           ]);
           if (elifCondition) {
             deletedNodes.push(next);
@@ -78,7 +78,7 @@ export default function plugin(root: RootNode) {
 
           let elseCondition = checkAndGetExprForDirective(next, "else", [
             "if",
-            "elif",
+            "elif"
           ]);
           if (elseCondition) {
             deletedNodes.push(next);
@@ -87,10 +87,10 @@ export default function plugin(root: RootNode) {
           }
         }
 
-        deletedNodes.forEach((item) => removeNode(paths, item));
+        deletedNodes.forEach(item => removeNode(paths, item));
         replaceNode(paths, createIfNode(branches));
-      },
-    },
+      }
+    }
   };
 
   visit(createRootPath(root), visitor);

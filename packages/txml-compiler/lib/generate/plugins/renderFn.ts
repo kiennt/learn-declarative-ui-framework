@@ -1,32 +1,32 @@
 import {
   ArithmeticExpr,
-  ConstantExpr,
-  ElementNode,
-  NodeTypes,
-  VariableExpr,
   ArithmeticOpTypes,
-  Expr,
+  ArrayExpr,
+  AttributeNode,
+  BlockNode,
   ConditionExpr,
   ConditionOpTypes,
+  ConstantExpr,
+  DirectiveNode,
+  ElementNode,
+  Expr,
+  ForNode,
+  IfBranchNode,
+  IfNode,
+  InterpolationNode,
+  Node,
+  NodeTypes,
+  ObjectAccessExpr,
+  ObjectExpr,
   OneArgExpr,
   OneArgOpTypes,
-  TenaryExpr,
-  ObjectAccessExpr,
-  ArrayExpr,
-  ObjectExpr,
-  AttributeNode,
-  DirectiveNode,
   RootNode,
-  ForNode,
-  Node,
-  BlockNode,
-  IfNode,
-  IfBranchNode,
-  InterpolationNode,
   SlotNode,
+  TenaryExpr,
+  VariableExpr
 } from "../../parser/ast";
+import { NodePath, createRootPath } from "../context";
 import { visit } from "../visitor";
-import { createRootPath, NodePath } from "../context";
 
 export type R<T> = T & {
   code: string;
@@ -35,7 +35,7 @@ export type R<T> = T & {
 function snakeToCamel(value: string): string {
   return value
     .split("-")
-    .map((a) => {
+    .map(a => {
       if (a.length === 0) return "";
       return `${a[0].toUpperCase()}${a.slice(1)}`;
     })
@@ -75,11 +75,11 @@ export default function plugin(root: RootNode): void {
       exit(paths: NodePath) {
         const root = paths.node as R<RootNode>;
         const childrenCode = root.children
-          .map((item) => (item as R<ElementNode>).code)
+          .map(item => (item as R<ElementNode>).code)
           .join("\n");
         const useFragment =
           root.children.length > 1 ||
-          root.children.filter((child) =>
+          root.children.filter(child =>
             [NodeTypes.IF, NodeTypes.FOR].includes(child.type)
           ).length > 0;
         if (!useFragment) {
@@ -93,7 +93,7 @@ function render(data) {
   return <>${childrenCode}</>;
 }`;
         }
-      },
+      }
     },
 
     ForNode: {
@@ -107,23 +107,23 @@ function render(data) {
           })
         }
         `;
-      },
+      }
     },
 
     IfNode: {
       exit(paths: NodePath) {
         const node = paths.node as R<IfNode>;
         const hasElseCondition =
-          node.branches.filter((branch) => branch.condition === undefined)
+          node.branches.filter(branch => branch.condition === undefined)
             .length > 0;
         node.code = `${node.branches
-          .map((child) => (child as R<Node>).code)
+          .map(child => (child as R<Node>).code)
           .join(": \n")}`;
         if (!hasElseCondition) {
           node.code += " : null";
         }
         node.code = `{ ${node.code} }`;
-      },
+      }
     },
 
     IfBranchNode: {
@@ -136,7 +136,7 @@ function render(data) {
         } else {
           node.code = content;
         }
-      },
+      }
     },
 
     BlockNode: {
@@ -144,46 +144,46 @@ function render(data) {
         const node = paths.node as R<BlockNode>;
         node.code = `
           <>
-          ${node.children.map((item) => (item as R<Node>).code).join("\n")}
+          ${node.children.map(item => (item as R<Node>).code).join("\n")}
           </>
         `;
-      },
+      }
     },
 
     ImportNode: {
-      exit(paths: NodePath) {},
+      exit(paths: NodePath) {}
     },
 
     IncludeNode: {
-      exit(paths: NodePath) {},
+      exit(paths: NodePath) {}
     },
 
     ImportSjsNode: {
-      exit(paths: NodePath) {},
+      exit(paths: NodePath) {}
     },
 
     SlotNode: {
       exit(paths: NodePath) {
         const node = paths.node as R<SlotNode>;
-        const name = node.name.map((expr) => (expr as R<Expr>).code).join("+");
+        const name = node.name.map(expr => (expr as R<Expr>).code).join("+");
         const children = node.content
-          .map((child) => (child as R<Node>).code)
+          .map(child => (child as R<Node>).code)
           .join("\n");
         node.code = `{renderSlot(data, ${name}, <>${children}</>)}`;
-      },
+      }
     },
 
     TemplateNode: {
-      exit(paths: NodePath) {},
+      exit(paths: NodePath) {}
     },
 
     InterpolationNode: {
       exit(paths: NodePath) {
         const node = paths.node as R<InterpolationNode>;
         node.code = `{toString(${node.children
-          .map((expr) => (expr as R<Expr>).code)
+          .map(expr => (expr as R<Expr>).code)
           .join(", ")})}`;
-      },
+      }
     },
 
     ElementNode: {
@@ -193,20 +193,20 @@ function render(data) {
 
         // prepare attributes
         const attrs = node.props
-          .filter((prop) => prop.type === NodeTypes.ATTRIBUTE)
-          .map((prop) => (prop as R<AttributeNode>).code);
+          .filter(prop => prop.type === NodeTypes.ATTRIBUTE)
+          .map(prop => (prop as R<AttributeNode>).code);
         if (isCustomComponent(node.tag)) {
           attrs.push(
             ...[
               "$isCustomComponent={this.$isCustomComponent}",
-              `__tag='${node.tag}'`,
+              `__tag='${node.tag}'`
             ]
           );
         }
 
         // prepare children
         const children = node.children
-          .map((item) => (item as R<Node>).code)
+          .map(item => (item as R<Node>).code)
           .join("\n");
 
         if (children.length > 0) {
@@ -214,17 +214,17 @@ function render(data) {
         } else {
           node.code = `<${tag} ${attrs.join(" ")}/>`;
         }
-      },
+      }
     },
 
     DirectiveNode: {
       exit(paths: NodePath) {
         const node = paths.node as R<DirectiveNode>;
         const value = node.value
-          .map((item) => (item.expr as R<Expr>).code)
+          .map(item => (item.expr as R<Expr>).code)
           .join(" + ");
         node.code = value;
-      },
+      }
     },
 
     AttributeNode: {
@@ -235,7 +235,7 @@ function render(data) {
         const node = paths.node as R<AttributeNode>;
         const name = convertAttributeName(node.name);
         let value = node.value
-          .map((item) => (item.expr as R<Expr>).code)
+          .map(item => (item.expr as R<Expr>).code)
           .join(" + ");
         if (name.startsWith("on")) {
           const parent = paths.parent.node as R<ElementNode>;
@@ -246,7 +246,7 @@ function render(data) {
           }
         }
         node.code = `${name}={${value}}`;
-      },
+      }
     },
 
     VariableExpr: {
@@ -257,14 +257,14 @@ function render(data) {
         } else {
           node.code = `data["${node.value}"]`;
         }
-      },
+      }
     },
 
     ConstantExpr: {
       exit(paths: NodePath) {
         const node = paths.node as R<ConstantExpr>;
         node.code = JSON.stringify(node.value);
-      },
+      }
     },
 
     ObjectAccessExpr: {
@@ -272,7 +272,7 @@ function render(data) {
         const node = paths.node as R<ObjectAccessExpr>;
         const expr = node.expr as R<Expr>;
         node.code = `${expr.code}.${node.paths.join(".")}`;
-      },
+      }
     },
 
     ArithmeticExpr: {
@@ -284,12 +284,12 @@ function render(data) {
           [ArithmeticOpTypes.MULTIPLE]: "*",
           [ArithmeticOpTypes.DIVIDE]: "/",
           [ArithmeticOpTypes.MODULE]: "%",
-          [ArithmeticOpTypes.POWER]: "**",
+          [ArithmeticOpTypes.POWER]: "**"
         };
         const left = node.left as R<Expr>;
         const right = node.right as R<Expr>;
         node.code = `(${left.code} ${ops[node.op]} ${right.code})`;
-      },
+      }
     },
 
     ConditionExpr: {
@@ -305,12 +305,12 @@ function render(data) {
           [ConditionOpTypes.GREATER_THAN]: ">",
           [ConditionOpTypes.GREATER_THAN_EQUAL]: ">=",
           [ConditionOpTypes.AND]: "&&",
-          [ConditionOpTypes.OR]: "||",
+          [ConditionOpTypes.OR]: "||"
         };
         const left = node.left as R<Expr>;
         const right = node.left as R<Expr>;
         node.code = `(${left.code} ${ops[node.op]} ${right.code})`;
-      },
+      }
     },
 
     OneArgExpr: {
@@ -318,11 +318,11 @@ function render(data) {
         const node = paths.node as R<OneArgExpr>;
         const ops = {
           [OneArgOpTypes.NOT]: "!",
-          [OneArgOpTypes.MINUS]: "-",
+          [OneArgOpTypes.MINUS]: "-"
         };
         const expr = node.expr as R<Expr>;
         node.code = `${ops[node.op]}${expr.code}`;
-      },
+      }
     },
 
     TenaryExpr: {
@@ -332,16 +332,16 @@ function render(data) {
         const success = node.success as R<Expr>;
         const fail = node.fail as R<Expr>;
         node.code = `(${condition.code} ? ${success.code} : ${fail.code})`;
-      },
+      }
     },
 
     ArrayExpr: {
       exit(paths: NodePath) {
         const node = paths.node as R<ArrayExpr>;
         node.code = `[
-          ${node.children.map((expr) => (expr as R<Expr>).code).join(",")}
+          ${node.children.map(expr => (expr as R<Expr>).code).join(",")}
         ]`;
-      },
+      }
     },
 
     ObjectExpr: {
@@ -349,14 +349,14 @@ function render(data) {
         const node = paths.node as R<ObjectExpr>;
         node.code = `{
           ${node.destructuringList
-            .map((item) => `...${(item as R<Expr>).code}`)
+            .map(item => `...${(item as R<Expr>).code}`)
             .join(",\n")}
           ${node.props
-            .map((prop) => `${prop.key}: ${(prop.value as R<Expr>).code}`)
+            .map(prop => `${prop.key}: ${(prop.value as R<Expr>).code}`)
             .join(",\n")}
         }`;
-      },
-    },
+      }
+    }
   };
 
   visit(createRootPath(root), visitor);

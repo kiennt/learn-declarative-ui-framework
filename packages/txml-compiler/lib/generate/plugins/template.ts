@@ -1,12 +1,12 @@
 import {
-  createSyntaxError,
-  createTemplateDefinedNode,
-  createTemplateInstanceNode,
   ElementNode,
   Expr,
   RootNode,
+  createSyntaxError,
+  createTemplateDefinedNode,
+  createTemplateInstanceNode
 } from "../../parser/ast";
-import { createRootPath, NodePath, replaceNode } from "../context";
+import { NodePath, createRootPath, replaceNode } from "../context";
 import { getAttributeName, getStringValueForAttribute } from "../utils";
 import { visit } from "../visitor";
 
@@ -48,12 +48,12 @@ export default function plugin(root: RootNode): void {
         replaceNode(
           paths,
           createTemplateInstanceNode(
-            is.value.map((item) => item.expr),
+            is.value.map(item => item.expr),
             dataExpr
           )
         );
-      },
-    },
+      }
+    }
   };
 
   visit(createRootPath(root), visitor);

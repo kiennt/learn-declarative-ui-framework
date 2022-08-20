@@ -4,6 +4,7 @@
   "main": "index.js",
   "license": "MIT",
   "devDependencies": {
+    "@trivago/prettier-plugin-sort-imports": "^3.3.0",
     "@types/prettier": "^2.7.0",
     "@vitest/ui": "^0.21.0",
     "c8": "^7.12.0",

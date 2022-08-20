@@ -294,7 +294,6 @@ function render(data)  {
         generateRenderFn,
       ];
       transformPreset.forEach((fn) => fn(root));
-      console.log(root);
       const codeOutput = (root as R<RootNode>).code;
       const output: Array<string> = prettier.format(codeOutput).split("\n");
       const expected: Array<string> = prettier.format(tc.output).split("\n");

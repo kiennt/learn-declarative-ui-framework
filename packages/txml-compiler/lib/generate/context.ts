@@ -35,7 +35,7 @@ export function createRootPath(node: RootNode): NodePath {
   return {
     node,
     parent: undefined,
-    childIndex: undefined,
+    childIndex: undefined
   };
 }
 
@@ -51,7 +51,7 @@ export function createPath(
     parent,
     key,
     childIndex,
-    onNodeRemoved,
+    onNodeRemoved
   };
 }
 

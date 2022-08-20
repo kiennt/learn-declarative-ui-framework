@@ -12,7 +12,7 @@ enum State {
   WAIT_ATTR_VALUE_OPEN_QUOTE = "attr_value_open_quote",
   WAIT_ATTR_VALUE = "attr_value",
   WAIT_TAG_NAME_IN_END_TAG = "tag_name_in_end_tag",
-  WAIT_END_TAG_CLOSE = "end_tag_close",
+  WAIT_END_TAG_CLOSE = "end_tag_close"
 }
 
 export class Scanner {
@@ -30,7 +30,7 @@ export class Scanner {
         yytext,
         inExpr: this.inExpr,
         state: this.state,
-        nodes: this.nodes.data,
+        nodes: this.nodes.data
       });
     }
     switch (token) {

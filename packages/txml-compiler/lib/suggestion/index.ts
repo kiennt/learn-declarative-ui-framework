@@ -7,7 +7,7 @@ export function suggest(content: string): string[] {
   const dp = new DataProvider();
   const scanner = new Scanner();
   parser.yy = {
-    state: scanner,
+    state: scanner
   };
   try {
     parser.parse(content);

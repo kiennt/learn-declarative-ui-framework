@@ -13,7 +13,7 @@ export enum NodeTypes {
   IMPORT,
   INCLUDE,
   SJS_IMPORT,
-  INTERPOLATION,
+  INTERPOLATION
 }
 
 export type Node =
@@ -115,7 +115,7 @@ export type SjsImportNode = {
 
 export enum TemplateTypes {
   DEFINITION,
-  INSTANCE,
+  INSTANCE
 }
 
 export type TemplateNode = {
@@ -160,7 +160,7 @@ export enum ExprTypes {
   TENARY,
   ARRAY,
   OBJECT,
-  FUNCTION_CALL,
+  FUNCTION_CALL
 }
 
 export type ConstantExpr = {
@@ -181,7 +181,7 @@ export type ObjectAccessExpr = {
 
 export enum OneArgOpTypes {
   MINUS,
-  NOT,
+  NOT
 }
 
 export type OneArgExpr = {
@@ -196,7 +196,7 @@ export enum ArithmeticOpTypes {
   MULTIPLE,
   DIVIDE,
   MODULE,
-  POWER,
+  POWER
 }
 
 export type ArithmeticExpr = {
@@ -216,7 +216,7 @@ export enum ConditionOpTypes {
   GREATER_THAN,
   GREATER_THAN_EQUAL,
   AND,
-  OR,
+  OR
 }
 
 export type ConditionExpr = {
@@ -296,7 +296,7 @@ export function trimSpaceInChildren(
 export function createRootNode(children: Array<ElementNode>): RootNode {
   return {
     type: NodeTypes.ROOT,
-    children,
+    children
   };
 }
 
@@ -309,7 +309,7 @@ export function createElementNode(
     type: NodeTypes.ELEMENT,
     tag,
     props,
-    children,
+    children
   };
 }
 
@@ -320,7 +320,7 @@ export function createAttributeNode(
   return {
     type: NodeTypes.ATTRIBUTE,
     name,
-    value: value.length > 0 ? value : [createExprNode(createConstantExpr(""))],
+    value: value.length > 0 ? value : [createExprNode(createConstantExpr(""))]
   };
 }
 
@@ -333,7 +333,7 @@ export function createDirectiveNode(
     type: NodeTypes.DIRECTIVE,
     name,
     prefix,
-    value: value.length > 0 ? value : [createExprNode(createConstantExpr(""))],
+    value: value.length > 0 ? value : [createExprNode(createConstantExpr(""))]
   };
 }
 
@@ -344,14 +344,14 @@ export function createIfBranchNode(
   return {
     type: NodeTypes.IF_BRANCH,
     content,
-    condition,
+    condition
   };
 }
 
 export function createIfNode(branches: Array<IfBranchNode>): IfNode {
   return {
     type: NodeTypes.IF,
-    branches,
+    branches
   };
 }
 
@@ -366,14 +366,14 @@ export function createForNode(
     data,
     itemName,
     indexName,
-    content,
+    content
   };
 }
 
 export function createBlockNode(children: Array<Node>): BlockNode {
   return {
     type: NodeTypes.BLOCK,
-    children,
+    children
   };
 }
 
@@ -384,21 +384,21 @@ export function createSlotNode(
   return {
     type: NodeTypes.SLOT,
     name,
-    content,
+    content
   };
 }
 
 export function createImportNode(src: string): ImportNode {
   return {
     type: NodeTypes.IMPORT,
-    src,
+    src
   };
 }
 
 export function createIncludeNode(src: string): IncludeNode {
   return {
     type: NodeTypes.INCLUDE,
-    src,
+    src
   };
 }
 
@@ -408,7 +408,7 @@ export function createSjsImportNode(from: string, name: string): SjsImportNode {
   return {
     type: NodeTypes.SJS_IMPORT,
     from,
-    name,
+    name
   };
 }
 
@@ -422,7 +422,7 @@ export function createTemplateDefinedNode(
     templateType: TemplateTypes.DEFINITION,
     name,
     content,
-    data,
+    data
   };
 }
 
@@ -434,14 +434,14 @@ export function createTemplateInstanceNode(
     type: NodeTypes.TEMPLATE,
     templateType: TemplateTypes.INSTANCE,
     is,
-    data,
+    data
   };
 }
 
 export function createExprNode(expr: Expr): ExprNode {
   return {
     type: NodeTypes.EXPR,
-    expr,
+    expr
   };
 }
 
@@ -450,7 +450,7 @@ export function createInterpolationNode(
 ): InterpolationNode {
   return {
     type: NodeTypes.INTERPOLATION,
-    children: children.map((node) => node.expr),
+    children: children.map(node => node.expr)
   };
 }
 
@@ -459,14 +459,14 @@ export function createConstantExpr(
 ): ConstantExpr {
   return {
     type: ExprTypes.CONSTANT,
-    value,
+    value
   };
 }
 
 export function createVariableExpr(value: string): VariableExpr {
   return {
     type: ExprTypes.VARIABLE,
-    value,
+    value
   };
 }
 
@@ -477,7 +477,7 @@ export function createObjectAccessExpr(
   return {
     type: ExprTypes.OBJECT_ACCESS,
     expr,
-    paths,
+    paths
   };
 }
 
@@ -485,7 +485,7 @@ export function createOneArgExpr(op: OneArgOpTypes, expr: Expr): OneArgExpr {
   return {
     type: ExprTypes.ONE_ARG,
     op,
-    expr,
+    expr
   };
 }
 
@@ -498,7 +498,7 @@ export function createArithmeticExpr(
     type: ExprTypes.ARITHMETIC,
     op,
     left,
-    right,
+    right
   };
 }
 
@@ -511,7 +511,7 @@ export function createConditionExpr(
     type: ExprTypes.CONDITION,
     op,
     left,
-    right,
+    right
   };
 }
 
@@ -524,14 +524,14 @@ export function createTenaryExpr(
     type: ExprTypes.TENARY,
     condition,
     success,
-    fail,
+    fail
   };
 }
 
 export function createArrayExpr(children: Array<Expr>): ArrayExpr {
   return {
     type: ExprTypes.ARRAY,
-    children,
+    children
   };
 }
 
@@ -542,7 +542,7 @@ export function createObjectExpr(
   return {
     type: ExprTypes.OBJECT,
     destructuringList,
-    props,
+    props
   };
 }
 
@@ -553,7 +553,7 @@ export function createFunctionCallExpr(
   return {
     type: ExprTypes.FUNCTION_CALL,
     fn,
-    params,
+    params
   };
 }
 

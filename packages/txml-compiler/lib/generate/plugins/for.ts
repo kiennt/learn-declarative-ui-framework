@@ -1,14 +1,14 @@
 import {
-  createForNode,
-  createSyntaxError,
   ElementNode,
   RootNode,
+  createForNode,
+  createSyntaxError
 } from "../../parser/ast";
-import { createRootPath, NodePath, replaceNode } from "../context";
+import { NodePath, createRootPath, replaceNode } from "../context";
 import {
   getDiretiveName,
   getStringValueForDirective,
-  removeDirectiveName,
+  removeDirectiveName
 } from "../utils";
 import { visit } from "../visitor";
 
@@ -33,8 +33,8 @@ export default function plugin(root: RootNode): void {
         removeDirectiveName(node, "for-item");
         const expr = dir.value[0].expr;
         replaceNode(paths, createForNode(expr, node, itemName, indexName));
-      },
-    },
+      }
+    }
   };
   visit(createRootPath(root), visitor);
 }

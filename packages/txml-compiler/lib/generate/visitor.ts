@@ -1,29 +1,29 @@
 import {
-  NodeTypes,
-  Node,
-  AttributeNode,
-  DirectiveNode,
-  ElementNode,
-  IfNode,
-  ForNode,
-  ExprTypes,
   ArithmeticExpr,
   ArrayExpr,
+  AttributeNode,
+  BlockNode,
   ConditionExpr,
+  DirectiveNode,
+  ElementNode,
+  ExprTypes,
+  ForNode,
   FunctionCallExpr,
+  IfBranchNode,
+  IfNode,
+  InterpolationNode,
+  Node,
+  NodeTypes,
   ObjectAccessExpr,
   ObjectExpr,
   OneArgExpr,
-  TenaryExpr,
-  BlockNode,
+  RootNode,
   SlotNode,
   TemplateNode,
   TemplateTypes,
-  RootNode,
-  IfBranchNode,
-  InterpolationNode,
+  TenaryExpr
 } from "../parser/ast";
-import { createPath, NodePath } from "./context";
+import { NodePath, createPath } from "./context";
 
 export type PathVisitor = (path: NodePath) => void;
 
@@ -74,7 +74,7 @@ function getEnterExit(visitor?: NodeVisitor): {
 
   if (typeof visitor === "function") {
     return {
-      enter: visitor,
+      enter: visitor
     };
   } else {
     return visitor;
@@ -277,7 +277,7 @@ function visitObjectExpr(path: NodePath, visitor: Visitor): void {
     );
     visitListChildren(
       path,
-      node.props.map((prop) => prop.value),
+      node.props.map(prop => prop.value),
       "props",
       visitor,
       visitExprNode

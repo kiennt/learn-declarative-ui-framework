@@ -1,6 +1,6 @@
 import { ElementNode, NodeTypes, RootNode } from "../../parser/ast";
+import { NodePath, createRootPath } from "../context";
 import { visit } from "../visitor";
-import { createRootPath, NodePath } from "../context";
 
 type Summary = {
   components: Array<string>;
@@ -19,7 +19,7 @@ export default function plugin(root: RootNode): Summary {
       useFor: false,
       useTemplate: false,
       useSlot: false,
-      useBlock: false,
+      useBlock: false
     },
 
     checkTagName(tag: string) {
@@ -38,8 +38,8 @@ export default function plugin(root: RootNode): Summary {
       // skip if we know that document use If and For
       if (this.summary.useIf && this.summary.useFor) return;
       props
-        .filter((prop) => prop.type == NodeTypes.DIRECTIVE)
-        .forEach((prop) => {
+        .filter(prop => prop.type == NodeTypes.DIRECTIVE)
+        .forEach(prop => {
           if (prop.name === "if") {
             this.summary.useIf = true;
           } else if (prop.name === "for") {
@@ -52,7 +52,7 @@ export default function plugin(root: RootNode): Summary {
       const node = path.node as ElementNode;
       this.checkTagName(node.tag);
       this.checkProps(node.props);
-    },
+    }
   };
 
   visit(createRootPath(root), visitor);

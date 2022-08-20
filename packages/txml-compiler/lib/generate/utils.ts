@@ -1,14 +1,14 @@
 import {
   AttributeNode,
-  createSyntaxError,
   DirectiveNode,
   ElementNode,
   ExprTypes,
   NodeTypes,
+  createSyntaxError
 } from "../parser/ast";
 
 const opts = {
-  prefixes: ["tiki"],
+  prefixes: ["tiki"]
 };
 
 export function getDiretiveName(
@@ -17,7 +17,7 @@ export function getDiretiveName(
 ): DirectiveNode | undefined {
   return node.props
     .filter(
-      (prop) =>
+      prop =>
         prop.type === NodeTypes.DIRECTIVE &&
         opts.prefixes.includes(prop.prefix) &&
         prop.name === name
@@ -30,7 +30,7 @@ export function getAttributeName(
   name: string
 ): AttributeNode | undefined {
   return node.props
-    .filter((prop) => prop.type === NodeTypes.ATTRIBUTE && prop.name === name)
+    .filter(prop => prop.type === NodeTypes.ATTRIBUTE && prop.name === name)
     .slice(-1)[0] as AttributeNode | undefined;
 }
 
@@ -39,7 +39,7 @@ export function hasDirectiveName(node: ElementNode, name: string): boolean {
 }
 
 export function removeDirectiveName(node: ElementNode, name: string): void {
-  node.props = node.props.filter((prop) => {
+  node.props = node.props.filter(prop => {
     return !(prop.type === NodeTypes.DIRECTIVE && prop.name === name);
   });
 }
