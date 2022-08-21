@@ -10,16 +10,10 @@ import { NodePath, createRootPath, replaceNode } from "../context";
 import { getAttributeName, getStringValueForAttribute } from "../utils";
 import { visit } from "../visitor";
 
-function getDataExpr(node: ElementNode): Expr | undefined {
+function getDataExpr(node: ElementNode): Array<Expr> | undefined {
   const data = getAttributeName(node, "data");
-  let expr;
-  if (data) {
-    if (data.value.length > 1) {
-      throw createSyntaxError(node, "template data must be an expression");
-    }
-    expr = data.value[0].expr;
-  }
-  return expr;
+  if (!data) return;
+  return data.value.map(node => node.expr);
 }
 
 export default function plugin(root: RootNode): void {
@@ -38,10 +32,7 @@ export default function plugin(root: RootNode): void {
           if (!name) {
             throw createSyntaxError(node, "template must have name is string");
           }
-          replaceNode(
-            paths,
-            createTemplateDefinedNode(name, node.children, dataExpr)
-          );
+          replaceNode(paths, createTemplateDefinedNode(name, node.children));
           return;
         }
 

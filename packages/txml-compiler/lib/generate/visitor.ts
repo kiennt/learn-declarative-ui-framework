@@ -195,11 +195,13 @@ function visitSjsImportNode(path: NodePath, visitor: Visitor): void {
 function visitTemplateNode(path: NodePath, visitor: Visitor): void {
   doVisitNode(path, visitor, "TemplateNode", (path, visitor) => {
     const node = path.node as TemplateNode;
-    if (node.data) visit(createPath(path, "data", node.data), visitor);
     if (node.templateType === TemplateTypes.DEFINITION) {
       visitListChildren(path, node.content, "content", visitor);
     } else {
       visitListChildren(path, node.is, "is", visitor, visitExprNode);
+      if (node.data) {
+        visitListChildren(path, node.data, "data", visitor, visitExprNode);
+      }
     }
   });
 }

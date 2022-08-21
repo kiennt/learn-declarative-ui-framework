@@ -1,12 +1,12 @@
-import { describe, it, expect } from "vitest";
-import { parse } from "../../../lib/parser";
 import processTemplate from "../../../lib/generate/plugins/template";
+import { parse } from "../../../lib/parser";
 import {
-  NodeTypes,
-  Node,
-  TemplateTypes,
   ExprTypes,
+  Node,
+  NodeTypes,
+  TemplateTypes
 } from "../../../lib/parser/ast";
+import { describe, expect, it } from "vitest";
 
 type TestCase = {
   name: string;
@@ -30,40 +30,16 @@ describe("tempate plugin", () => {
                 type: NodeTypes.EXPR,
                 expr: {
                   type: ExprTypes.CONSTANT,
-                  value: "hello",
-                },
-              },
-            ],
-          },
-        ],
-      },
-      {
-        name: "tempate with data",
-        input: `<template name="hello" data="{{a}}">hello</template>`,
-        output: [
-          {
-            type: NodeTypes.TEMPLATE,
-            templateType: TemplateTypes.DEFINITION,
-            name: "hello",
-            data: {
-              type: ExprTypes.VARIABLE,
-              value: "a",
-            },
-            content: [
-              {
-                type: NodeTypes.EXPR,
-                expr: {
-                  type: ExprTypes.CONSTANT,
-                  value: "hello",
-                },
-              },
-            ],
-          },
-        ],
-      },
+                  value: "hello"
+                }
+              }
+            ]
+          }
+        ]
+      }
     ];
 
-    testCases.forEach((tc) => {
+    testCases.forEach(tc => {
       it(tc.name, () => {
         const root = parse(tc.input);
         processTemplate(root);
@@ -77,16 +53,9 @@ describe("tempate plugin", () => {
         processTemplate(root);
       }).toThrowError();
     });
-
-    it("throws error if data is not single expression", () => {
-      const root = parse(`<template data="hello-{{a}}">hello</template>`);
-      expect(() => {
-        processTemplate(root);
-      }).toThrowError();
-    });
   });
 
-  describe("useage", () => {
+  describe("instance", () => {
     const testCases: Array<TestCase> = [
       {
         name: "simple",
@@ -98,11 +67,11 @@ describe("tempate plugin", () => {
             is: [
               {
                 type: ExprTypes.CONSTANT,
-                value: "hello",
-              },
-            ],
-          },
-        ],
+                value: "hello"
+              }
+            ]
+          }
+        ]
       },
       {
         name: "tempate with data",
@@ -111,36 +80,29 @@ describe("tempate plugin", () => {
           {
             type: NodeTypes.TEMPLATE,
             templateType: TemplateTypes.INSTANCE,
-            data: {
-              type: ExprTypes.VARIABLE,
-              value: "a",
-            },
+            data: [
+              {
+                type: ExprTypes.VARIABLE,
+                value: "a"
+              }
+            ],
             is: [
               {
                 type: ExprTypes.CONSTANT,
-                value: "hello",
-              },
-            ],
-          },
-        ],
-      },
+                value: "hello"
+              }
+            ]
+          }
+        ]
+      }
     ];
 
-    testCases.forEach((tc) => {
+    testCases.forEach(tc => {
       it(tc.name, () => {
         const root = parse(tc.input);
         processTemplate(root);
         expect(root.children).toEqual(tc.output);
       });
-    });
-
-    it("throws error if data is not single expression", () => {
-      const root = parse(
-        `<template is="hello" data="hello-{{a}}">hello</template>`
-      );
-      expect(() => {
-        processTemplate(root);
-      }).toThrowError();
     });
   });
 });
