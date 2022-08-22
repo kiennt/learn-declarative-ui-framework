@@ -1,7 +1,7 @@
-import { describe, it, expect } from "vitest";
-import { parse } from "../../../lib/parser";
 import processInclude from "../../../lib/generate/plugins/include";
-import { NodeTypes, Node } from "../../../lib/parser/ast";
+import { parse } from "../../../lib/parser";
+import { Node, NodeTypes } from "../../../lib/parser/ast";
+import { describe, expect, it } from "vitest";
 
 type TestCase = {
   name: string;
@@ -17,9 +17,9 @@ describe("include plugin", () => {
       output: [
         {
           type: NodeTypes.INCLUDE,
-          src: "item.txml",
-        },
-      ],
+          src: "item.txml"
+        }
+      ]
     },
     {
       name: "include allow binding with constant",
@@ -27,9 +27,9 @@ describe("include plugin", () => {
       output: [
         {
           type: NodeTypes.INCLUDE,
-          src: "item.txml",
-        },
-      ],
+          src: "item.txml"
+        }
+      ]
     },
     {
       name: "include skip attribute",
@@ -37,17 +37,17 @@ describe("include plugin", () => {
       output: [
         {
           type: NodeTypes.INCLUDE,
-          src: "item.txml",
-        },
-      ],
-    },
+          src: "item.txml"
+        }
+      ]
+    }
   ];
 
-  testCases.forEach((tc) => {
+  testCases.forEach(tc => {
     it(tc.name, () => {
       const root = parse(tc.input);
       processInclude(root);
-      expect(root.children).toEqual(tc.output);
+      expect(root.children).toMatchObject(tc.output);
     });
   });
 

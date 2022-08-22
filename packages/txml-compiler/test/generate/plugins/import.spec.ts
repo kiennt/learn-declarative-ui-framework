@@ -1,7 +1,7 @@
-import { describe, it, expect } from "vitest";
-import { parse } from "../../../lib/parser";
 import processImport from "../../../lib/generate/plugins/import";
-import { NodeTypes, Node } from "../../../lib/parser/ast";
+import { parse } from "../../../lib/parser";
+import { Node, NodeTypes } from "../../../lib/parser/ast";
+import { describe, expect, it } from "vitest";
 
 type TestCase = {
   name: string;
@@ -17,9 +17,9 @@ describe("import plugin", () => {
       output: [
         {
           type: NodeTypes.IMPORT,
-          src: "item.txml",
-        },
-      ],
+          src: "item.txml"
+        }
+      ]
     },
     {
       name: "import allow binding with constant",
@@ -27,9 +27,9 @@ describe("import plugin", () => {
       output: [
         {
           type: NodeTypes.IMPORT,
-          src: "item.txml",
-        },
-      ],
+          src: "item.txml"
+        }
+      ]
     },
     {
       name: "import skip attribute",
@@ -37,17 +37,17 @@ describe("import plugin", () => {
       output: [
         {
           type: NodeTypes.IMPORT,
-          src: "item.txml",
-        },
-      ],
-    },
+          src: "item.txml"
+        }
+      ]
+    }
   ];
 
-  testCases.forEach((tc) => {
+  testCases.forEach(tc => {
     it(tc.name, () => {
       const root = parse(tc.input);
       processImport(root);
-      expect(root.children).toEqual(tc.output);
+      expect(root.children).toMatchObject(tc.output);
     });
   });
 

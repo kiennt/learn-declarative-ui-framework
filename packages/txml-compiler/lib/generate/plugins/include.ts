@@ -1,5 +1,6 @@
 import {
   ElementNode,
+  IncludeNode,
   RootNode,
   createIncludeNode,
   createSyntaxError
@@ -7,6 +8,7 @@ import {
 import { NodePath, createRootPath, replaceNode } from "../context";
 import { getStringValueForAttribute } from "../utils";
 import { visit } from "../visitor";
+import { WithImportIndex, importPath } from "./import";
 
 export default function plugin(root: RootNode): void {
   const visitor = {
@@ -22,7 +24,12 @@ export default function plugin(root: RootNode): void {
         if (!src.endsWith(".txml")) {
           throw createSyntaxError(node, `import must has src ends with .txml`);
         }
-        replaceNode(paths, createIncludeNode(src));
+
+        const includeNode = createIncludeNode(
+          src
+        ) as WithImportIndex<IncludeNode>;
+        includeNode.importIndex = importPath(root, src);
+        replaceNode(paths, includeNode);
       }
     }
   };

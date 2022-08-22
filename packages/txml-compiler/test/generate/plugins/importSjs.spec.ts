@@ -1,7 +1,7 @@
-import { describe, it, expect } from "vitest";
-import { parse } from "../../../lib/parser";
 import processImportSjs from "../../../lib/generate/plugins/importSjs";
-import { NodeTypes, Node } from "../../../lib/parser/ast";
+import { parse } from "../../../lib/parser";
+import { Node, NodeTypes } from "../../../lib/parser/ast";
+import { describe, expect, it } from "vitest";
 
 type TestCase = {
   name: string;
@@ -18,9 +18,9 @@ describe("sjs-import plugin", () => {
         {
           type: NodeTypes.SJS_IMPORT,
           name: "m1",
-          from: "./index.sjs",
-        },
-      ],
+          from: "./index.sjs"
+        }
+      ]
     },
     {
       name: "import-sjs allow binding with constant",
@@ -29,9 +29,9 @@ describe("sjs-import plugin", () => {
         {
           type: NodeTypes.SJS_IMPORT,
           name: "m1",
-          from: "./index.sjs",
-        },
-      ],
+          from: "./index.sjs"
+        }
+      ]
     },
     {
       name: "import skip attribute",
@@ -40,17 +40,17 @@ describe("sjs-import plugin", () => {
         {
           type: NodeTypes.SJS_IMPORT,
           name: "m1",
-          from: "./index.sjs",
-        },
-      ],
-    },
+          from: "./index.sjs"
+        }
+      ]
+    }
   ];
 
-  testCases.forEach((tc) => {
+  testCases.forEach(tc => {
     it(tc.name, () => {
       const root = parse(tc.input);
       processImportSjs(root);
-      expect(root.children).toEqual(tc.output);
+      expect(root.children).toMatchObject(tc.output);
     });
   });
 
