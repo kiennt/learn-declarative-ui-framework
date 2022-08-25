@@ -1,17 +1,11 @@
-import { describe, it, expect } from "vitest";
-import prettier from "prettier";
-import generateRenderFn, { R } from "../../../lib/generate/plugins/renderFn";
-import processMergeExpr from "../../../lib/generate/plugins/mergeExpr";
-import processBlock from "../../../lib/generate/plugins/block";
-import processIf from "../../../lib/generate/plugins/if";
-import processFor from "../../../lib/generate/plugins/for";
-import processSlot from "../../../lib/generate/plugins/slot";
-import processTemplate from "../../../lib/generate/plugins/template";
-import processImport from "../../../lib/generate/plugins/import";
-import processInclude from "../../../lib/generate/plugins/include";
-import processImportSjs from "../../../lib/generate/plugins/importSjs";
 import { parse } from "../../../lib/parser";
 import { RootNode } from "../../../lib/parser/ast";
+import { defaultPreset, transform } from "../../../lib/transforms";
+import generateRenderFn, {
+  R
+} from "../../../lib/transforms/codegen/genRenderFn";
+import prettier from "prettier";
+import { describe, expect, it } from "vitest";
 
 describe("render function", () => {
   const testCases = [
@@ -21,7 +15,7 @@ describe("render function", () => {
       output: `
 function render(data)  {
   return <View>{toString("hello")}</View>
-}`,
+}`
     },
     {
       name: "component with multiple text children",
@@ -29,7 +23,7 @@ function render(data)  {
       output: `
 function render(data)  {
   return <View>{toString("hello ", data['a'])}</View>
-}`,
+}`
     },
     {
       name: "nested component",
@@ -37,7 +31,7 @@ function render(data)  {
       output: `
 function render(data)  {
   return <View><Button>{toString("hello")}</Button></View>
-}`,
+}`
     },
     {
       name: "nested component with mix text and node",
@@ -60,7 +54,7 @@ function render(data)  {
       <Button>{toString("node3")}</Button>
     </View>
   )
-}`,
+}`
     },
     {
       name: "component with props",
@@ -68,7 +62,7 @@ function render(data)  {
       output: `
 function render(data)  {
   return <View a={"b"}>{toString("hello")}</View>
-}`,
+}`
     },
     {
       name: "component with props complex",
@@ -80,7 +74,7 @@ function render(data)  {
     {toString("hello")}
     </View>
   );
-}`,
+}`
     },
     {
       name: "convert class props to className",
@@ -88,7 +82,7 @@ function render(data)  {
       output: `
 function render(data)  {
   return <View className={"hello"}>{toString("hello")}</View>
-}`,
+}`
     },
     {
       name: "native component with event listener",
@@ -100,7 +94,7 @@ function render(data)  {
     {toString("hello")}
     </View>
   );
-}`,
+}`
     },
     {
       name: "native component with event listener is variable",
@@ -112,7 +106,7 @@ function render(data)  {
     {toString("hello")}
     </View>
   );
-}`,
+}`
     },
     {
       name: "custom component with event listener",
@@ -122,7 +116,7 @@ function render(data)  {
   return (
     <MyComponent onTap={$getComponentEventHandler(this, "onTap")} $isCustomComponent={this.$isCustomComponent} __tag='my-component' />
   );
-}`,
+}`
     },
     {
       name: "binding data in attribute and children",
@@ -130,7 +124,7 @@ function render(data)  {
       output: `
 function render(data)  {
   return <View attr={data['a']}>{toString(data['b'])}</View>;
-}`,
+}`
     },
     {
       name: "block",
@@ -145,7 +139,7 @@ function render(data)  {
       <View>{toString("hello")}</View>
     </>
   );
-}`,
+}`
     },
     {
       name: "for",
@@ -161,7 +155,7 @@ function render(data)  {
     }
     </>
   );
-}`,
+}`
     },
     {
       name: "for with custom index, custom item and binding data",
@@ -180,7 +174,7 @@ function render(data)  {
     }
     </>
   );
-}`,
+}`
     },
     {
       name: "if",
@@ -196,7 +190,7 @@ function render(data)  {
     }
     </>
   );
-}`,
+}`
     },
     {
       name: "if with multi children",
@@ -217,7 +211,7 @@ function render(data)  {
     </>
   );
 
-}`,
+}`
     },
     {
       name: "if else",
@@ -236,7 +230,7 @@ function render(data)  {
     }
     </>
   );
-}`,
+}`
     },
     {
       name: "if elif ",
@@ -255,7 +249,7 @@ function render(data)  {
     }
     </>
   );
-}`,
+}`
     },
     {
       name: "slot",
@@ -274,26 +268,14 @@ function render(data)  {
       {renderSlot(data, "named", <><View>{toString("named slot")}</View></>)}
     </View>
   );
-}`,
-    },
+}`
+    }
   ];
 
-  testCases.forEach((tc) => {
+  testCases.forEach(tc => {
     it(tc.name, () => {
       const root = parse(tc.input);
-      const transformPreset = [
-        processMergeExpr,
-        processImport,
-        processInclude,
-        processImportSjs,
-        processSlot,
-        processTemplate,
-        processBlock,
-        processFor,
-        processIf,
-        generateRenderFn,
-      ];
-      transformPreset.forEach((fn) => fn(root));
+      transform(root, [...defaultPreset, generateRenderFn]);
       const codeOutput = (root as R<RootNode>).code;
       const output: Array<string> = prettier.format(codeOutput).split("\n");
       const expected: Array<string> = prettier.format(tc.output).split("\n");

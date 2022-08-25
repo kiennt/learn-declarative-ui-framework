@@ -1,3 +1,3 @@
 export { parse } from "./parser";
 export { suggest } from "./suggestion";
-export { generate } from "./generate";
+export { generate } from "./transforms";

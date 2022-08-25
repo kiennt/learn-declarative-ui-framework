@@ -1,7 +1,7 @@
-import { describe, it, expect } from "vitest";
 import { parse } from "../../../lib/parser";
-import processBlock from "../../../lib/generate/plugins/block";
-import { ExprTypes, NodeTypes, Node } from "../../../lib/parser/ast";
+import { ExprTypes, Node, NodeTypes } from "../../../lib/parser/ast";
+import processBlock from "../../../lib/transforms/plugins/block";
+import { describe, expect, it } from "vitest";
 
 type TestCase = {
   name: string;
@@ -25,12 +25,12 @@ describe("block plugin", () => {
               type: NodeTypes.EXPR,
               expr: {
                 type: ExprTypes.CONSTANT,
-                value: "hello",
-              },
-            },
-          ],
-        },
-      ],
+                value: "hello"
+              }
+            }
+          ]
+        }
+      ]
     },
     {
       name: "multiple child",
@@ -47,22 +47,22 @@ describe("block plugin", () => {
               type: NodeTypes.EXPR,
               expr: {
                 type: ExprTypes.CONSTANT,
-                value: "hello",
-              },
+                value: "hello"
+              }
             },
             {
               type: NodeTypes.ELEMENT,
               tag: "view",
               props: [],
-              children: [],
-            },
-          ],
-        },
-      ],
-    },
+              children: []
+            }
+          ]
+        }
+      ]
+    }
   ];
 
-  testCases.forEach((tc) => {
+  testCases.forEach(tc => {
     it(tc.name, () => {
       const root = parse(tc.input);
       processBlock(root);

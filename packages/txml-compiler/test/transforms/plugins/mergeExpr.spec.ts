@@ -1,7 +1,7 @@
-import { describe, it, expect } from "vitest";
 import { parse } from "../../../lib/parser";
-import processMergeExpr from "../../../lib/generate/plugins/mergeExpr";
-import { ExprTypes, NodeTypes, Node } from "../../../lib/parser/ast";
+import { ExprTypes, Node, NodeTypes } from "../../../lib/parser/ast";
+import processMergeExpr from "../../../lib/transforms/plugins/mergeExpr";
+import { describe, expect, it } from "vitest";
 
 type TestCase = {
   name: string;
@@ -30,44 +30,44 @@ describe("mergeExpr plugin", () => {
               children: [
                 {
                   type: ExprTypes.CONSTANT,
-                  value: "hello ",
+                  value: "hello "
                 },
                 {
                   type: ExprTypes.VARIABLE,
-                  value: "a",
-                },
-              ],
+                  value: "a"
+                }
+              ]
             },
             {
               type: NodeTypes.ELEMENT,
               tag: "view",
               props: [],
-              children: [],
+              children: []
             },
             {
               type: NodeTypes.INTERPOLATION,
               children: [
                 {
                   type: ExprTypes.VARIABLE,
-                  value: "b",
+                  value: "b"
                 },
                 {
                   type: ExprTypes.CONSTANT,
-                  value: " ",
+                  value: " "
                 },
                 {
                   type: ExprTypes.VARIABLE,
-                  value: "c",
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    },
+                  value: "c"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
   ];
 
-  testCases.forEach((tc) => {
+  testCases.forEach(tc => {
     it(tc.name, () => {
       const root = parse(tc.input);
       processMergeExpr(root);

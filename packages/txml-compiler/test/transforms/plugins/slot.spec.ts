@@ -1,7 +1,7 @@
-import { describe, it, expect } from "vitest";
 import { parse } from "../../../lib/parser";
-import processSlot from "../../../lib/generate/plugins/slot";
-import { ExprTypes, NodeTypes, Node } from "../../../lib/parser/ast";
+import { ExprTypes, Node, NodeTypes } from "../../../lib/parser/ast";
+import processSlot from "../../../lib/transforms/plugins/slot";
+import { describe, expect, it } from "vitest";
 
 type TestCase = {
   name: string;
@@ -23,20 +23,20 @@ describe("slot plugin", () => {
           name: [
             {
               type: ExprTypes.CONSTANT,
-              value: "$default",
-            },
+              value: "$default"
+            }
           ],
           content: [
             {
               type: NodeTypes.EXPR,
               expr: {
                 type: ExprTypes.CONSTANT,
-                value: "hello",
-              },
-            },
-          ],
-        },
-      ],
+                value: "hello"
+              }
+            }
+          ]
+        }
+      ]
     },
     {
       name: "with name",
@@ -51,26 +51,26 @@ describe("slot plugin", () => {
           name: [
             {
               type: ExprTypes.CONSTANT,
-              value: "hello",
-            },
+              value: "hello"
+            }
           ],
           content: [
             {
               type: NodeTypes.EXPR,
               expr: {
                 type: ExprTypes.CONSTANT,
-                value: "hello",
-              },
+                value: "hello"
+              }
             },
             {
               type: NodeTypes.ELEMENT,
               tag: "view",
               props: [],
-              children: [],
-            },
-          ],
-        },
-      ],
+              children: []
+            }
+          ]
+        }
+      ]
     },
     {
       name: "multiple child",
@@ -85,30 +85,30 @@ describe("slot plugin", () => {
           name: [
             {
               type: ExprTypes.CONSTANT,
-              value: "$default",
-            },
+              value: "$default"
+            }
           ],
           content: [
             {
               type: NodeTypes.EXPR,
               expr: {
                 type: ExprTypes.CONSTANT,
-                value: "hello",
-              },
+                value: "hello"
+              }
             },
             {
               type: NodeTypes.ELEMENT,
               tag: "view",
               props: [],
-              children: [],
-            },
-          ],
-        },
-      ],
-    },
+              children: []
+            }
+          ]
+        }
+      ]
+    }
   ];
 
-  testCases.forEach((tc) => {
+  testCases.forEach(tc => {
     it(tc.name, () => {
       const root = parse(tc.input);
       processSlot(root);

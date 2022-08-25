@@ -1,7 +1,7 @@
-import { describe, it, expect } from "vitest";
 import { parse } from "../../../lib/parser";
-import processIf from "../../../lib/generate/plugins/if";
-import { ExprTypes, NodeTypes, Node } from "../../../lib/parser/ast";
+import { ExprTypes, Node, NodeTypes } from "../../../lib/parser/ast";
+import processIf from "../../../lib/transforms/plugins/if";
+import { describe, expect, it } from "vitest";
 
 type TestCase = {
   name: string;
@@ -24,16 +24,16 @@ describe("if plugin", () => {
                 type: NodeTypes.ELEMENT,
                 tag: "view",
                 props: [],
-                children: [],
+                children: []
               },
               condition: {
                 type: ExprTypes.VARIABLE,
-                value: "a",
-              },
-            },
-          ],
-        },
-      ],
+                value: "a"
+              }
+            }
+          ]
+        }
+      ]
     },
     {
       name: "if with props and children ",
@@ -59,29 +59,29 @@ describe("if plugin", () => {
                         type: NodeTypes.EXPR,
                         expr: {
                           type: ExprTypes.CONSTANT,
-                          value: "value1",
-                        },
-                      },
-                    ],
-                  },
+                          value: "value1"
+                        }
+                      }
+                    ]
+                  }
                 ],
                 children: [
                   {
                     type: NodeTypes.ELEMENT,
                     tag: "button",
                     props: [],
-                    children: [],
-                  },
-                ],
+                    children: []
+                  }
+                ]
               },
               condition: {
                 type: ExprTypes.VARIABLE,
-                value: "a",
-              },
-            },
-          ],
-        },
-      ],
+                value: "a"
+              }
+            }
+          ]
+        }
+      ]
     },
     {
       name: "if with else",
@@ -98,12 +98,12 @@ describe("if plugin", () => {
                 type: NodeTypes.ELEMENT,
                 tag: "view",
                 props: [],
-                children: [],
+                children: []
               },
               condition: {
                 type: ExprTypes.VARIABLE,
-                value: "a",
-              },
+                value: "a"
+              }
             },
             {
               type: NodeTypes.IF_BRANCH,
@@ -111,12 +111,12 @@ describe("if plugin", () => {
                 type: NodeTypes.ELEMENT,
                 tag: "view",
                 props: [],
-                children: [],
-              },
-            },
-          ],
-        },
-      ],
+                children: []
+              }
+            }
+          ]
+        }
+      ]
     },
     {
       name: "if with elif",
@@ -133,12 +133,12 @@ describe("if plugin", () => {
                 type: NodeTypes.ELEMENT,
                 tag: "view",
                 props: [],
-                children: [],
+                children: []
               },
               condition: {
                 type: ExprTypes.VARIABLE,
-                value: "a",
-              },
+                value: "a"
+              }
             },
             {
               type: NodeTypes.IF_BRANCH,
@@ -146,16 +146,16 @@ describe("if plugin", () => {
                 type: NodeTypes.ELEMENT,
                 tag: "view",
                 props: [],
-                children: [],
+                children: []
               },
               condition: {
                 type: ExprTypes.VARIABLE,
-                value: "b",
-              },
-            },
-          ],
-        },
-      ],
+                value: "b"
+              }
+            }
+          ]
+        }
+      ]
     },
     {
       name: "if with elif and else",
@@ -173,12 +173,12 @@ describe("if plugin", () => {
                 type: NodeTypes.ELEMENT,
                 tag: "view",
                 props: [],
-                children: [],
+                children: []
               },
               condition: {
                 type: ExprTypes.VARIABLE,
-                value: "a",
-              },
+                value: "a"
+              }
             },
             {
               type: NodeTypes.IF_BRANCH,
@@ -186,12 +186,12 @@ describe("if plugin", () => {
                 type: NodeTypes.ELEMENT,
                 tag: "view",
                 props: [],
-                children: [],
+                children: []
               },
               condition: {
                 type: ExprTypes.VARIABLE,
-                value: "b",
-              },
+                value: "b"
+              }
             },
             {
               type: NodeTypes.IF_BRANCH,
@@ -199,16 +199,16 @@ describe("if plugin", () => {
                 type: NodeTypes.ELEMENT,
                 tag: "view",
                 props: [],
-                children: [],
-              },
-            },
-          ],
-        },
-      ],
-    },
+                children: []
+              }
+            }
+          ]
+        }
+      ]
+    }
   ];
 
-  testCases.forEach((tc) => {
+  testCases.forEach(tc => {
     it(tc.name, () => {
       const root = parse(tc.input);
       processIf(root);

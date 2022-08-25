@@ -1,7 +1,7 @@
-import { describe, it, expect } from "vitest";
 import { parse } from "../../../lib/parser";
-import processFor from "../../../lib/generate/plugins/for";
-import { ExprTypes, NodeTypes, Node } from "../../../lib/parser/ast";
+import { ExprTypes, Node, NodeTypes } from "../../../lib/parser/ast";
+import processFor from "../../../lib/transforms/plugins/for";
+import { describe, expect, it } from "vitest";
 
 type TestCase = {
   name: string;
@@ -22,9 +22,9 @@ describe("for plugin", () => {
             children: [
               {
                 type: ExprTypes.CONSTANT,
-                value: 1,
-              },
-            ],
+                value: 1
+              }
+            ]
           },
           itemName: "item",
           indexName: "index",
@@ -37,13 +37,13 @@ describe("for plugin", () => {
                 type: NodeTypes.EXPR,
                 expr: {
                   type: ExprTypes.CONSTANT,
-                  value: "hello",
-                },
-              },
-            ],
-          },
-        },
-      ],
+                  value: "hello"
+                }
+              }
+            ]
+          }
+        }
+      ]
     },
     {
       name: "for with custom item and index",
@@ -62,9 +62,9 @@ describe("for plugin", () => {
             children: [
               {
                 type: ExprTypes.CONSTANT,
-                value: 1,
-              },
-            ],
+                value: 1
+              }
+            ]
           },
           itemName: "child",
           indexName: "i",
@@ -80,28 +80,28 @@ describe("for plugin", () => {
                     type: NodeTypes.EXPR,
                     expr: {
                       type: ExprTypes.CONSTANT,
-                      value: "value",
-                    },
-                  },
-                ],
-              },
+                      value: "value"
+                    }
+                  }
+                ]
+              }
             ],
             children: [
               {
                 type: NodeTypes.EXPR,
                 expr: {
                   type: ExprTypes.CONSTANT,
-                  value: "hello",
-                },
-              },
-            ],
-          },
-        },
-      ],
-    },
+                  value: "hello"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
   ];
 
-  testCases.forEach((tc) => {
+  testCases.forEach(tc => {
     it(tc.name, () => {
       const root = parse(tc.input);
       processFor(root);

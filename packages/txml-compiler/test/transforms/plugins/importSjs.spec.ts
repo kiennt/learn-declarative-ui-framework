@@ -1,6 +1,6 @@
-import processImportSjs from "../../../lib/generate/plugins/importSjs";
 import { parse } from "../../../lib/parser";
 import { Node, NodeTypes } from "../../../lib/parser/ast";
+import processImportSjs from "../../../lib/transforms/plugins/importSjs";
 import { describe, expect, it } from "vitest";
 
 type TestCase = {

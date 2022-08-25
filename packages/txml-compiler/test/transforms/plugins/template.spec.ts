@@ -1,4 +1,3 @@
-import processTemplate from "../../../lib/generate/plugins/template";
 import { parse } from "../../../lib/parser";
 import {
   ExprTypes,
@@ -6,6 +5,7 @@ import {
   NodeTypes,
   TemplateTypes
 } from "../../../lib/parser/ast";
+import processTemplate from "../../../lib/transforms/plugins/template";
 import { describe, expect, it } from "vitest";
 
 type TestCase = {

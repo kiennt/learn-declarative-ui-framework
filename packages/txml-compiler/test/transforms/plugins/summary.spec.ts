@@ -1,6 +1,6 @@
-import { describe, it, expect } from "vitest";
 import { parse } from "../../../lib/parser";
-import summary from "../../../lib/generate/plugins/summary";
+import summary from "../../../lib/transforms/plugins/summary";
+import { describe, expect, it } from "vitest";
 
 describe("summary", () => {
   const testCases = [
@@ -13,8 +13,8 @@ describe("summary", () => {
         useFor: false,
         useSlot: false,
         useTemplate: false,
-        useBlock: false,
-      },
+        useBlock: false
+      }
     },
     {
       name: "nested components",
@@ -25,8 +25,8 @@ describe("summary", () => {
         useFor: false,
         useSlot: false,
         useTemplate: false,
-        useBlock: false,
-      },
+        useBlock: false
+      }
     },
     {
       name: "duplicated component",
@@ -37,8 +37,8 @@ describe("summary", () => {
         useFor: false,
         useSlot: false,
         useTemplate: false,
-        useBlock: false,
-      },
+        useBlock: false
+      }
     },
     {
       name: "use if",
@@ -49,8 +49,8 @@ describe("summary", () => {
         useFor: false,
         useSlot: false,
         useTemplate: false,
-        useBlock: false,
-      },
+        useBlock: false
+      }
     },
     {
       name: "use for",
@@ -61,8 +61,8 @@ describe("summary", () => {
         useFor: true,
         useSlot: false,
         useTemplate: false,
-        useBlock: false,
-      },
+        useBlock: false
+      }
     },
     {
       name: "use block",
@@ -73,8 +73,8 @@ describe("summary", () => {
         useFor: false,
         useSlot: false,
         useTemplate: false,
-        useBlock: true,
-      },
+        useBlock: true
+      }
     },
     {
       name: "use slot",
@@ -85,8 +85,8 @@ describe("summary", () => {
         useFor: false,
         useSlot: true,
         useTemplate: false,
-        useBlock: false,
-      },
+        useBlock: false
+      }
     },
     {
       name: "use template",
@@ -97,12 +97,12 @@ describe("summary", () => {
         useFor: false,
         useSlot: false,
         useTemplate: true,
-        useBlock: false,
-      },
-    },
+        useBlock: false
+      }
+    }
   ];
 
-  testCases.forEach((tc) => {
+  testCases.forEach(tc => {
     it(tc.name, () => {
       const root = parse(tc.input);
       const result = summary(root);

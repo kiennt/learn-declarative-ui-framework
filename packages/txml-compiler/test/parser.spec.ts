@@ -1,15 +1,15 @@
-import { describe, it, expect } from "vitest";
 import { parse } from "../lib";
 import {
   ArithmeticOpTypes,
-  Expr,
+  ConditionOpTypes,
   ElementNode,
+  Expr,
   ExprNode,
   ExprTypes,
   NodeTypes,
-  OneArgOpTypes,
-  ConditionOpTypes,
+  OneArgOpTypes
 } from "../lib/parser/ast";
+import { describe, expect, it } from "vitest";
 
 function testExprInAttr(
   input: string,
@@ -17,8 +17,10 @@ function testExprInAttr(
 ): void {
   const root = parse(`<view attr="${input}" />`);
   expect(root.children.length).toEqual(1);
-  expect(root.children[0].props.length).toEqual(1);
-  const attr = root.children[0].props[0];
+  expect(root.children[0].type).toEqual(NodeTypes.ELEMENT);
+  const node = root.children[0] as ElementNode;
+  expect(node.props.length).toEqual(1);
+  const attr = node.props[0];
   expect(attr.name).toEqual("attr");
   expect(attr.value).toEqual(output);
 }
@@ -29,12 +31,14 @@ function testExprInChilden(
 ): void {
   const root = parse(`<view>${input}</view>`);
   expect(root.children.length).toEqual(1);
-  expect(root.children[0].children).toEqual(output);
+  expect(root.children[0].type).toEqual(NodeTypes.ELEMENT);
+  const node = root.children[0] as ElementNode;
+  expect(node.children).toEqual(output);
 }
 
 function runTestCasesForExprInAttr(testCases: Array<TestCase>) {
   describe("attr", () => {
-    testCases.forEach((tc) => {
+    testCases.forEach(tc => {
       it(tc.name, () => {
         testExprInAttr(tc.input, tc.output);
       });
@@ -44,7 +48,7 @@ function runTestCasesForExprInAttr(testCases: Array<TestCase>) {
 
 function runTestCasesForExprInChildren(testCases: Array<TestCase>) {
   describe("children", () => {
-    testCases.forEach((tc) => {
+    testCases.forEach(tc => {
       it(tc.name, () => {
         testExprInChilden(tc.input, tc.output);
       });
@@ -74,9 +78,9 @@ describe("parse", () => {
             type: NodeTypes.ELEMENT,
             tag: "view",
             props: [],
-            children: [],
-          },
-        ],
+            children: []
+          }
+        ]
       },
       {
         name: "tag without props and children self closed",
@@ -86,9 +90,9 @@ describe("parse", () => {
             type: NodeTypes.ELEMENT,
             tag: "view",
             props: [],
-            children: [],
-          },
-        ],
+            children: []
+          }
+        ]
       },
       {
         name: "tag with props and without children",
@@ -106,15 +110,15 @@ describe("parse", () => {
                     type: NodeTypes.EXPR,
                     expr: {
                       type: ExprTypes.CONSTANT,
-                      value: "blue",
-                    },
-                  },
-                ],
-              },
+                      value: "blue"
+                    }
+                  }
+                ]
+              }
             ],
-            children: [],
-          },
-        ],
+            children: []
+          }
+        ]
       },
       {
         name: "tag with props unicode",
@@ -132,15 +136,15 @@ describe("parse", () => {
                     type: NodeTypes.EXPR,
                     expr: {
                       type: ExprTypes.CONSTANT,
-                      value: 'đây là tiếng \\" việt nhé',
-                    },
-                  },
-                ],
-              },
+                      value: 'đây là tiếng \\" việt nhé'
+                    }
+                  }
+                ]
+              }
             ],
-            children: [],
-          },
-        ],
+            children: []
+          }
+        ]
       },
       {
         name: "tag with prop value has single quote in double quote",
@@ -158,15 +162,15 @@ describe("parse", () => {
                     type: NodeTypes.EXPR,
                     expr: {
                       type: ExprTypes.CONSTANT,
-                      value: "đây là tiếng ' việt nhé",
-                    },
-                  },
-                ],
-              },
+                      value: "đây là tiếng ' việt nhé"
+                    }
+                  }
+                ]
+              }
             ],
-            children: [],
-          },
-        ],
+            children: []
+          }
+        ]
       },
       {
         name: "tag with props is directive",
@@ -185,15 +189,15 @@ describe("parse", () => {
                     type: NodeTypes.EXPR,
                     expr: {
                       type: ExprTypes.CONSTANT,
-                      value: "blue",
-                    },
-                  },
-                ],
-              },
+                      value: "blue"
+                    }
+                  }
+                ]
+              }
             ],
-            children: [],
-          },
-        ],
+            children: []
+          }
+        ]
       },
       {
         name: "tag with props and without children self closed",
@@ -211,15 +215,15 @@ describe("parse", () => {
                     type: NodeTypes.EXPR,
                     expr: {
                       type: ExprTypes.CONSTANT,
-                      value: "blue",
-                    },
-                  },
-                ],
-              },
+                      value: "blue"
+                    }
+                  }
+                ]
+              }
             ],
-            children: [],
-          },
-        ],
+            children: []
+          }
+        ]
       },
       {
         name: "tag with props and with children text",
@@ -237,23 +241,23 @@ describe("parse", () => {
                     type: NodeTypes.EXPR,
                     expr: {
                       type: ExprTypes.CONSTANT,
-                      value: "blue",
-                    },
-                  },
-                ],
-              },
+                      value: "blue"
+                    }
+                  }
+                ]
+              }
             ],
             children: [
               {
                 type: NodeTypes.EXPR,
                 expr: {
                   type: ExprTypes.CONSTANT,
-                  value: "hello",
-                },
-              },
-            ],
-          },
-        ],
+                  value: "hello"
+                }
+              }
+            ]
+          }
+        ]
       },
       {
         name: "tag with children unicode",
@@ -268,12 +272,12 @@ describe("parse", () => {
                 type: NodeTypes.EXPR,
                 expr: {
                   type: ExprTypes.CONSTANT,
-                  value: "một đoạn văn tiếng việt rất ngầu",
-                },
-              },
-            ],
-          },
-        ],
+                  value: "một đoạn văn tiếng việt rất ngầu"
+                }
+              }
+            ]
+          }
+        ]
       },
       {
         name: "tag with props and with children with many text",
@@ -291,23 +295,23 @@ describe("parse", () => {
                     type: NodeTypes.EXPR,
                     expr: {
                       type: ExprTypes.CONSTANT,
-                      value: "blue",
-                    },
-                  },
-                ],
-              },
+                      value: "blue"
+                    }
+                  }
+                ]
+              }
             ],
             children: [
               {
                 type: NodeTypes.EXPR,
                 expr: {
                   type: ExprTypes.CONSTANT,
-                  value: "hello world",
-                },
-              },
-            ],
-          },
-        ],
+                  value: "hello world"
+                }
+              }
+            ]
+          }
+        ]
       },
       {
         name: "tag with props and with nested children",
@@ -325,19 +329,19 @@ describe("parse", () => {
                     type: NodeTypes.EXPR,
                     expr: {
                       type: ExprTypes.CONSTANT,
-                      value: "blue",
-                    },
-                  },
-                ],
-              },
+                      value: "blue"
+                    }
+                  }
+                ]
+              }
             ],
             children: [
               {
                 type: NodeTypes.EXPR,
                 expr: {
                   type: ExprTypes.CONSTANT,
-                  value: "hello",
-                },
+                  value: "hello"
+                }
               },
               {
                 type: NodeTypes.ELEMENT,
@@ -348,14 +352,14 @@ describe("parse", () => {
                     type: NodeTypes.EXPR,
                     expr: {
                       type: ExprTypes.CONSTANT,
-                      value: "world",
-                    },
-                  },
-                ],
-              },
-            ],
-          },
-        ],
+                      value: "world"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
       },
       {
         name: "skip comment",
@@ -365,9 +369,9 @@ describe("parse", () => {
             type: NodeTypes.ELEMENT,
             tag: "view",
             props: [],
-            children: [],
-          },
-        ],
+            children: []
+          }
+        ]
       },
       {
         name: "multiple node",
@@ -385,28 +389,28 @@ describe("parse", () => {
                 type: NodeTypes.EXPR,
                 expr: {
                   type: ExprTypes.CONSTANT,
-                  value: "hello",
-                },
-              },
-            ],
+                  value: "hello"
+                }
+              }
+            ]
           },
           {
             type: NodeTypes.ELEMENT,
             tag: "view",
             props: [],
-            children: [],
+            children: []
           },
           {
             type: NodeTypes.ELEMENT,
             tag: "view",
             props: [],
-            children: [],
-          },
-        ],
-      },
+            children: []
+          }
+        ]
+      }
     ];
 
-    testCases.forEach((tc) => {
+    testCases.forEach(tc => {
       it(tc.name, () => {
         expect(parse(tc.input).children).toEqual(tc.output);
       });
@@ -417,23 +421,23 @@ describe("parse", () => {
     const errorCases = [
       {
         name: "invalid closed tag",
-        input: "<view></div>",
+        input: "<view></div>"
       },
       {
         name: "invalid closed tag with props",
-        input: `<view a="b"></div>`,
+        input: `<view a="b"></div>`
       },
       {
         name: "invalid closed tag with children",
-        input: `<view>hello</div>`,
+        input: `<view>hello</div>`
       },
       {
         name: "invalid closed tag with props and children",
-        input: `<view a="b">hello</div>`,
-      },
+        input: `<view a="b">hello</div>`
+      }
     ];
 
-    errorCases.forEach((tc) => {
+    errorCases.forEach(tc => {
       it(tc.name, () => {
         expect(() => {
           parse(tc.input);
@@ -450,9 +454,9 @@ describe("parse", () => {
         output: [
           {
             type: NodeTypes.EXPR,
-            expr: { type: ExprTypes.CONSTANT, value: "id1" },
-          },
-        ],
+            expr: { type: ExprTypes.CONSTANT, value: "id1" }
+          }
+        ]
       },
       {
         name: "expr with multiple binding",
@@ -460,25 +464,25 @@ describe("parse", () => {
         output: [
           {
             type: NodeTypes.EXPR,
-            expr: { type: ExprTypes.CONSTANT, value: "start " },
+            expr: { type: ExprTypes.CONSTANT, value: "start " }
           },
           {
             type: NodeTypes.EXPR,
-            expr: { type: ExprTypes.VARIABLE, value: "a" },
+            expr: { type: ExprTypes.VARIABLE, value: "a" }
           },
           {
             type: NodeTypes.EXPR,
-            expr: { type: ExprTypes.CONSTANT, value: " " },
+            expr: { type: ExprTypes.CONSTANT, value: " " }
           },
           {
             type: NodeTypes.EXPR,
-            expr: { type: ExprTypes.VARIABLE, value: "b" },
+            expr: { type: ExprTypes.VARIABLE, value: "b" }
           },
           {
             type: NodeTypes.EXPR,
-            expr: { type: ExprTypes.CONSTANT, value: " end" },
-          },
-        ],
+            expr: { type: ExprTypes.CONSTANT, value: " end" }
+          }
+        ]
       },
       {
         name: "expr at beginning of string",
@@ -486,13 +490,13 @@ describe("parse", () => {
         output: [
           {
             type: NodeTypes.EXPR,
-            expr: { type: ExprTypes.VARIABLE, value: "id" },
+            expr: { type: ExprTypes.VARIABLE, value: "id" }
           },
           {
             type: NodeTypes.EXPR,
-            expr: { type: ExprTypes.CONSTANT, value: " value" },
-          },
-        ],
+            expr: { type: ExprTypes.CONSTANT, value: " value" }
+          }
+        ]
       },
       {
         name: "expr at the middle of string",
@@ -500,17 +504,17 @@ describe("parse", () => {
         output: [
           {
             type: NodeTypes.EXPR,
-            expr: { type: ExprTypes.CONSTANT, value: "item " },
+            expr: { type: ExprTypes.CONSTANT, value: "item " }
           },
           {
             type: NodeTypes.EXPR,
-            expr: { type: ExprTypes.VARIABLE, value: "id" },
+            expr: { type: ExprTypes.VARIABLE, value: "id" }
           },
           {
             type: NodeTypes.EXPR,
-            expr: { type: ExprTypes.CONSTANT, value: " value" },
-          },
-        ],
+            expr: { type: ExprTypes.CONSTANT, value: " value" }
+          }
+        ]
       },
       {
         name: "expr at the end of string",
@@ -518,14 +522,14 @@ describe("parse", () => {
         output: [
           {
             type: NodeTypes.EXPR,
-            expr: { type: ExprTypes.CONSTANT, value: "item " },
+            expr: { type: ExprTypes.CONSTANT, value: "item " }
           },
           {
             type: NodeTypes.EXPR,
-            expr: { type: ExprTypes.VARIABLE, value: "id" },
-          },
-        ],
-      },
+            expr: { type: ExprTypes.VARIABLE, value: "id" }
+          }
+        ]
+      }
     ]);
   });
 
@@ -538,9 +542,9 @@ describe("parse", () => {
         output: [
           {
             type: NodeTypes.EXPR,
-            expr: { type: ExprTypes.CONSTANT, value: "hello" },
-          },
-        ],
+            expr: { type: ExprTypes.CONSTANT, value: "hello" }
+          }
+        ]
       },
       {
         name: "trim right string if it has a node after it",
@@ -551,15 +555,15 @@ describe("parse", () => {
         output: [
           {
             type: NodeTypes.EXPR,
-            expr: { type: ExprTypes.CONSTANT, value: "hello" },
+            expr: { type: ExprTypes.CONSTANT, value: "hello" }
           },
           {
             type: NodeTypes.ELEMENT,
             tag: "view",
             children: [],
-            props: [],
-          },
-        ],
+            props: []
+          }
+        ]
       },
       {
         name: "trim right string if it follow by close tag",
@@ -568,9 +572,9 @@ describe("parse", () => {
         output: [
           {
             type: NodeTypes.EXPR,
-            expr: { type: ExprTypes.CONSTANT, value: "hello" },
-          },
-        ],
+            expr: { type: ExprTypes.CONSTANT, value: "hello" }
+          }
+        ]
       },
       {
         name: "trim string if it in the middle",
@@ -586,19 +590,19 @@ describe("parse", () => {
             type: NodeTypes.ELEMENT,
             tag: "button",
             children: [],
-            props: [],
+            props: []
           },
           {
             type: NodeTypes.EXPR,
-            expr: { type: ExprTypes.CONSTANT, value: "hello" },
+            expr: { type: ExprTypes.CONSTANT, value: "hello" }
           },
           {
             type: NodeTypes.ELEMENT,
             tag: "view",
             children: [],
-            props: [],
-          },
-        ],
+            props: []
+          }
+        ]
       },
       {
         name: "does not trim children if we meet variable",
@@ -606,22 +610,22 @@ describe("parse", () => {
         output: [
           {
             type: NodeTypes.EXPR,
-            expr: { type: ExprTypes.CONSTANT, value: "hello   " },
+            expr: { type: ExprTypes.CONSTANT, value: "hello   " }
           },
           {
             type: NodeTypes.EXPR,
-            expr: { type: ExprTypes.VARIABLE, value: "a" },
+            expr: { type: ExprTypes.VARIABLE, value: "a" }
           },
           {
             type: NodeTypes.EXPR,
-            expr: { type: ExprTypes.CONSTANT, value: "  " },
+            expr: { type: ExprTypes.CONSTANT, value: "  " }
           },
           {
             type: NodeTypes.EXPR,
-            expr: { type: ExprTypes.VARIABLE, value: "b" },
-          },
-        ],
-      },
+            expr: { type: ExprTypes.VARIABLE, value: "b" }
+          }
+        ]
+      }
     ]);
   });
 
@@ -636,96 +640,96 @@ describe("parse", () => {
         input: "{{10}}",
         output: {
           type: ExprTypes.CONSTANT,
-          value: 10,
-        },
+          value: 10
+        }
       },
       {
         name: "binding negative number",
         input: "{{-10}}",
         output: {
           type: ExprTypes.CONSTANT,
-          value: -10,
-        },
+          value: -10
+        }
       },
       {
         name: "binding float",
         input: "{{-10.2}}",
         output: {
           type: ExprTypes.CONSTANT,
-          value: -10.2,
-        },
+          value: -10.2
+        }
       },
       {
         name: "binding unicode string",
         input: '{{"xin chào các bạn nhé"}}',
         output: {
           type: ExprTypes.CONSTANT,
-          value: "xin chào các bạn nhé",
-        },
+          value: "xin chào các bạn nhé"
+        }
       },
       {
         name: "binding true",
         input: "{{true}}",
         output: {
           type: ExprTypes.CONSTANT,
-          value: true,
-        },
+          value: true
+        }
       },
       {
         name: "binding false",
         input: "{{false}}",
         output: {
           type: ExprTypes.CONSTANT,
-          value: false,
-        },
+          value: false
+        }
       },
       {
         name: "binding undefined",
         input: "{{undefined}}",
         output: {
           type: ExprTypes.CONSTANT,
-          value: undefined,
-        },
+          value: undefined
+        }
       },
       {
         name: "binding null",
         input: "{{null}}",
         output: {
           type: ExprTypes.CONSTANT,
-          value: null,
-        },
+          value: null
+        }
       },
       {
         name: "binding variable",
         input: "{{message}}",
         output: {
           type: ExprTypes.VARIABLE,
-          value: "message",
-        },
-      },
+          value: "message"
+        }
+      }
     ];
 
     describe("attribute", () => {
-      testCases.forEach((tc) => {
+      testCases.forEach(tc => {
         it(tc.name, () => {
           testExprInAttr(tc.input, [
             {
               type: NodeTypes.EXPR,
-              expr: tc.output,
-            },
+              expr: tc.output
+            }
           ]);
         });
       });
     });
 
     describe("attribute", () => {
-      testCases.forEach((tc) => {
+      testCases.forEach(tc => {
         it(tc.name, () => {
           testExprInChilden(tc.input, [
             {
               type: NodeTypes.EXPR,
-              expr: tc.output,
-            },
+              expr: tc.output
+            }
           ]);
         });
       });
@@ -745,15 +749,15 @@ describe("parse", () => {
               op: ArithmeticOpTypes.ADD,
               left: {
                 type: ExprTypes.VARIABLE,
-                value: "a",
+                value: "a"
               },
               right: {
                 type: ExprTypes.VARIABLE,
-                value: "b",
-              },
-            },
-          },
-        ],
+                value: "b"
+              }
+            }
+          }
+        ]
       },
       {
         name: "simple -",
@@ -766,15 +770,15 @@ describe("parse", () => {
               op: ArithmeticOpTypes.SUBTRACT,
               left: {
                 type: ExprTypes.VARIABLE,
-                value: "a",
+                value: "a"
               },
               right: {
                 type: ExprTypes.VARIABLE,
-                value: "b",
-              },
-            },
-          },
-        ],
+                value: "b"
+              }
+            }
+          }
+        ]
       },
       {
         name: "simple *",
@@ -787,15 +791,15 @@ describe("parse", () => {
               op: ArithmeticOpTypes.MULTIPLE,
               left: {
                 type: ExprTypes.VARIABLE,
-                value: "a",
+                value: "a"
               },
               right: {
                 type: ExprTypes.VARIABLE,
-                value: "b",
-              },
-            },
-          },
-        ],
+                value: "b"
+              }
+            }
+          }
+        ]
       },
       {
         name: "simple /",
@@ -808,15 +812,15 @@ describe("parse", () => {
               op: ArithmeticOpTypes.DIVIDE,
               left: {
                 type: ExprTypes.VARIABLE,
-                value: "a",
+                value: "a"
               },
               right: {
                 type: ExprTypes.VARIABLE,
-                value: "b",
-              },
-            },
-          },
-        ],
+                value: "b"
+              }
+            }
+          }
+        ]
       },
       {
         name: "simple %",
@@ -829,15 +833,15 @@ describe("parse", () => {
               op: ArithmeticOpTypes.MODULE,
               left: {
                 type: ExprTypes.VARIABLE,
-                value: "a",
+                value: "a"
               },
               right: {
                 type: ExprTypes.VARIABLE,
-                value: "b",
-              },
-            },
-          },
-        ],
+                value: "b"
+              }
+            }
+          }
+        ]
       },
       {
         name: "simple **",
@@ -850,15 +854,15 @@ describe("parse", () => {
               op: ArithmeticOpTypes.POWER,
               left: {
                 type: ExprTypes.VARIABLE,
-                value: "a",
+                value: "a"
               },
               right: {
                 type: ExprTypes.VARIABLE,
-                value: "b",
-              },
-            },
-          },
-        ],
+                value: "b"
+              }
+            }
+          }
+        ]
       },
       {
         name: "order of + and -",
@@ -874,20 +878,20 @@ describe("parse", () => {
                 op: ArithmeticOpTypes.ADD,
                 left: {
                   type: ExprTypes.VARIABLE,
-                  value: "a1",
+                  value: "a1"
                 },
                 right: {
                   type: ExprTypes.VARIABLE,
-                  value: "a2",
-                },
+                  value: "a2"
+                }
               },
               right: {
                 type: ExprTypes.VARIABLE,
-                value: "a3",
-              },
-            },
-          },
-        ],
+                value: "a3"
+              }
+            }
+          }
+        ]
       },
       {
         name: "order of * / % **",
@@ -909,30 +913,30 @@ describe("parse", () => {
                     op: ArithmeticOpTypes.MULTIPLE,
                     left: {
                       type: ExprTypes.VARIABLE,
-                      value: "a1",
+                      value: "a1"
                     },
                     right: {
                       type: ExprTypes.VARIABLE,
-                      value: "a2",
-                    },
+                      value: "a2"
+                    }
                   },
                   right: {
                     type: ExprTypes.VARIABLE,
-                    value: "a3",
-                  },
+                    value: "a3"
+                  }
                 },
                 right: {
                   type: ExprTypes.VARIABLE,
-                  value: "a4",
-                },
+                  value: "a4"
+                }
               },
               right: {
                 type: ExprTypes.VARIABLE,
-                value: "a5",
-              },
-            },
-          },
-        ],
+                value: "a5"
+              }
+            }
+          }
+        ]
       },
       {
         name: "order of all operators",
@@ -948,12 +952,12 @@ describe("parse", () => {
                 op: ArithmeticOpTypes.ADD,
                 left: {
                   type: ExprTypes.VARIABLE,
-                  value: "a1",
+                  value: "a1"
                 },
                 right: {
                   type: ExprTypes.VARIABLE,
-                  value: "a2",
-                },
+                  value: "a2"
+                }
               },
               right: {
                 type: ExprTypes.ARITHMETIC,
@@ -969,31 +973,31 @@ describe("parse", () => {
                       op: ArithmeticOpTypes.MULTIPLE,
                       left: {
                         type: ExprTypes.VARIABLE,
-                        value: "a3",
+                        value: "a3"
                       },
                       right: {
                         type: ExprTypes.VARIABLE,
-                        value: "a4",
-                      },
+                        value: "a4"
+                      }
                     },
                     right: {
                       type: ExprTypes.VARIABLE,
-                      value: "a5",
-                    },
+                      value: "a5"
+                    }
                   },
                   right: {
                     type: ExprTypes.VARIABLE,
-                    value: "a6",
-                  },
+                    value: "a6"
+                  }
                 },
                 right: {
                   type: ExprTypes.VARIABLE,
-                  value: "a7",
-                },
-              },
-            },
-          },
-        ],
+                  value: "a7"
+                }
+              }
+            }
+          }
+        ]
       },
       {
         name: "using ( ) to change order",
@@ -1009,21 +1013,21 @@ describe("parse", () => {
                 op: ArithmeticOpTypes.ADD,
                 left: {
                   type: ExprTypes.VARIABLE,
-                  value: "a1",
+                  value: "a1"
                 },
                 right: {
                   type: ExprTypes.VARIABLE,
-                  value: "a2",
-                },
+                  value: "a2"
+                }
               },
               right: {
                 type: ExprTypes.VARIABLE,
-                value: "a3",
-              },
-            },
-          },
-        ],
-      },
+                value: "a3"
+              }
+            }
+          }
+        ]
+      }
     ]);
   });
 
@@ -1040,11 +1044,11 @@ describe("parse", () => {
               op: OneArgOpTypes.MINUS,
               expr: {
                 type: ExprTypes.VARIABLE,
-                value: "a",
-              },
-            },
-          },
-        ],
+                value: "a"
+              }
+            }
+          }
+        ]
       },
       {
         name: "minus complex expr",
@@ -1060,20 +1064,20 @@ describe("parse", () => {
                 op: OneArgOpTypes.MINUS,
                 expr: {
                   type: ExprTypes.VARIABLE,
-                  value: "a",
-                },
+                  value: "a"
+                }
               },
               right: {
                 type: ExprTypes.ONE_ARG,
                 op: OneArgOpTypes.MINUS,
                 expr: {
                   type: ExprTypes.VARIABLE,
-                  value: "b",
-                },
-              },
-            },
-          },
-        ],
+                  value: "b"
+                }
+              }
+            }
+          }
+        ]
       },
       {
         name: "not expr",
@@ -1086,12 +1090,12 @@ describe("parse", () => {
               op: OneArgOpTypes.NOT,
               expr: {
                 type: ExprTypes.VARIABLE,
-                value: "a",
-              },
-            },
-          },
-        ],
-      },
+                value: "a"
+              }
+            }
+          }
+        ]
+      }
     ]);
   });
 
@@ -1108,15 +1112,15 @@ describe("parse", () => {
               op: ConditionOpTypes.DEEP_EQUAL,
               left: {
                 type: ExprTypes.VARIABLE,
-                value: "a",
+                value: "a"
               },
               right: {
                 type: ExprTypes.VARIABLE,
-                value: "b",
-              },
-            },
-          },
-        ],
+                value: "b"
+              }
+            }
+          }
+        ]
       },
       {
         name: "equal",
@@ -1129,15 +1133,15 @@ describe("parse", () => {
               op: ConditionOpTypes.EQUAL,
               left: {
                 type: ExprTypes.VARIABLE,
-                value: "a",
+                value: "a"
               },
               right: {
                 type: ExprTypes.VARIABLE,
-                value: "b",
-              },
-            },
-          },
-        ],
+                value: "b"
+              }
+            }
+          }
+        ]
       },
       {
         name: "deep not equal",
@@ -1150,15 +1154,15 @@ describe("parse", () => {
               op: ConditionOpTypes.DEEP_NOT_EQUAL,
               left: {
                 type: ExprTypes.VARIABLE,
-                value: "a",
+                value: "a"
               },
               right: {
                 type: ExprTypes.VARIABLE,
-                value: "b",
-              },
-            },
-          },
-        ],
+                value: "b"
+              }
+            }
+          }
+        ]
       },
       {
         name: "not equal",
@@ -1171,15 +1175,15 @@ describe("parse", () => {
               op: ConditionOpTypes.NOT_EQUAL,
               left: {
                 type: ExprTypes.VARIABLE,
-                value: "a",
+                value: "a"
               },
               right: {
                 type: ExprTypes.VARIABLE,
-                value: "b",
-              },
-            },
-          },
-        ],
+                value: "b"
+              }
+            }
+          }
+        ]
       },
       {
         name: "greater than or equal",
@@ -1192,15 +1196,15 @@ describe("parse", () => {
               op: ConditionOpTypes.GREATER_THAN_EQUAL,
               left: {
                 type: ExprTypes.VARIABLE,
-                value: "a",
+                value: "a"
               },
               right: {
                 type: ExprTypes.VARIABLE,
-                value: "b",
-              },
-            },
-          },
-        ],
+                value: "b"
+              }
+            }
+          }
+        ]
       },
       {
         name: "greater",
@@ -1213,15 +1217,15 @@ describe("parse", () => {
               op: ConditionOpTypes.GREATER_THAN,
               left: {
                 type: ExprTypes.VARIABLE,
-                value: "a",
+                value: "a"
               },
               right: {
                 type: ExprTypes.VARIABLE,
-                value: "b",
-              },
-            },
-          },
-        ],
+                value: "b"
+              }
+            }
+          }
+        ]
       },
       {
         name: "less than equal",
@@ -1234,15 +1238,15 @@ describe("parse", () => {
               op: ConditionOpTypes.LESS_THAN_EQUAL,
               left: {
                 type: ExprTypes.VARIABLE,
-                value: "a",
+                value: "a"
               },
               right: {
                 type: ExprTypes.VARIABLE,
-                value: "b",
-              },
-            },
-          },
-        ],
+                value: "b"
+              }
+            }
+          }
+        ]
       },
       {
         name: "less than",
@@ -1255,15 +1259,15 @@ describe("parse", () => {
               op: ConditionOpTypes.LESS_THAN,
               left: {
                 type: ExprTypes.VARIABLE,
-                value: "a",
+                value: "a"
               },
               right: {
                 type: ExprTypes.VARIABLE,
-                value: "b",
-              },
-            },
-          },
-        ],
+                value: "b"
+              }
+            }
+          }
+        ]
       },
       {
         name: "and ",
@@ -1276,15 +1280,15 @@ describe("parse", () => {
               op: ConditionOpTypes.AND,
               left: {
                 type: ExprTypes.VARIABLE,
-                value: "a",
+                value: "a"
               },
               right: {
                 type: ExprTypes.VARIABLE,
-                value: "b",
-              },
-            },
-          },
-        ],
+                value: "b"
+              }
+            }
+          }
+        ]
       },
       {
         name: "or",
@@ -1297,16 +1301,16 @@ describe("parse", () => {
               op: ConditionOpTypes.OR,
               left: {
                 type: ExprTypes.VARIABLE,
-                value: "a",
+                value: "a"
               },
               right: {
                 type: ExprTypes.VARIABLE,
-                value: "b",
-              },
-            },
-          },
-        ],
-      },
+                value: "b"
+              }
+            }
+          }
+        ]
+      }
     ]);
   });
 
@@ -1322,12 +1326,12 @@ describe("parse", () => {
               type: ExprTypes.OBJECT_ACCESS,
               expr: {
                 type: ExprTypes.VARIABLE,
-                value: "a",
+                value: "a"
               },
-              paths: ["b", "c", "d", "e", "f"],
-            },
-          },
-        ],
+              paths: ["b", "c", "d", "e", "f"]
+            }
+          }
+        ]
       },
       {
         name: "complex expr",
@@ -1342,18 +1346,18 @@ describe("parse", () => {
                 op: ArithmeticOpTypes.ADD,
                 left: {
                   type: ExprTypes.VARIABLE,
-                  value: "a",
+                  value: "a"
                 },
                 right: {
                   type: ExprTypes.VARIABLE,
-                  value: "b",
-                },
+                  value: "b"
+                }
               },
-              paths: ["length"],
-            },
-          },
-        ],
-      },
+              paths: ["length"]
+            }
+          }
+        ]
+      }
     ]);
   });
 
@@ -1369,19 +1373,19 @@ describe("parse", () => {
               type: ExprTypes.TENARY,
               condition: {
                 type: ExprTypes.VARIABLE,
-                value: "a",
+                value: "a"
               },
               success: {
                 type: ExprTypes.VARIABLE,
-                value: "b",
+                value: "b"
               },
               fail: {
                 type: ExprTypes.VARIABLE,
-                value: "c",
-              },
-            },
-          },
-        ],
+                value: "c"
+              }
+            }
+          }
+        ]
       },
       {
         name: "simple",
@@ -1396,33 +1400,33 @@ describe("parse", () => {
                 op: ConditionOpTypes.GREATER_THAN_EQUAL,
                 left: {
                   type: ExprTypes.VARIABLE,
-                  value: "a",
+                  value: "a"
                 },
                 right: {
                   type: ExprTypes.VARIABLE,
-                  value: "b",
-                },
+                  value: "b"
+                }
               },
               success: {
                 type: ExprTypes.ARITHMETIC,
                 op: ArithmeticOpTypes.ADD,
                 left: {
                   type: ExprTypes.VARIABLE,
-                  value: "c",
+                  value: "c"
                 },
                 right: {
                   type: ExprTypes.CONSTANT,
-                  value: 3,
-                },
+                  value: 3
+                }
               },
               fail: {
                 type: ExprTypes.VARIABLE,
-                value: "d",
-              },
-            },
-          },
-        ],
-      },
+                value: "d"
+              }
+            }
+          }
+        ]
+      }
     ]);
   });
 
@@ -1436,10 +1440,10 @@ describe("parse", () => {
             type: NodeTypes.EXPR,
             expr: {
               type: ExprTypes.ARRAY,
-              children: [],
-            },
-          },
-        ],
+              children: []
+            }
+          }
+        ]
       },
       {
         name: "array with different type",
@@ -1452,33 +1456,33 @@ describe("parse", () => {
               children: [
                 {
                   type: ExprTypes.CONSTANT,
-                  value: 1,
+                  value: 1
                 },
                 {
                   type: ExprTypes.CONSTANT,
-                  value: null,
+                  value: null
                 },
                 {
                   type: ExprTypes.VARIABLE,
-                  value: "a",
+                  value: "a"
                 },
                 {
                   type: ExprTypes.ARITHMETIC,
                   op: ArithmeticOpTypes.ADD,
                   left: {
                     type: ExprTypes.VARIABLE,
-                    value: "b",
+                    value: "b"
                   },
                   right: {
                     type: ExprTypes.VARIABLE,
-                    value: "c",
-                  },
-                },
-              ],
-            },
-          },
-        ],
-      },
+                    value: "c"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
     ]);
   });
 
@@ -1498,13 +1502,13 @@ describe("parse", () => {
                   key: "a",
                   value: {
                     type: ExprTypes.CONSTANT,
-                    value: 10,
-                  },
-                },
-              ],
-            },
-          },
-        ],
+                    value: 10
+                  }
+                }
+              ]
+            }
+          }
+        ]
       },
       {
         name: "object with key and destructuring",
@@ -1517,11 +1521,11 @@ describe("parse", () => {
               destructuringList: [
                 {
                   type: ExprTypes.VARIABLE,
-                  value: "b",
+                  value: "b"
                 },
                 {
                   type: ExprTypes.VARIABLE,
-                  value: "c",
+                  value: "c"
                 },
                 {
                   type: ExprTypes.OBJECT,
@@ -1531,32 +1535,32 @@ describe("parse", () => {
                       key: "a",
                       value: {
                         type: ExprTypes.CONSTANT,
-                        value: 10,
-                      },
+                        value: 10
+                      }
                     },
                     {
                       key: "b",
                       value: {
                         type: ExprTypes.CONSTANT,
-                        value: 20,
-                      },
-                    },
-                  ],
-                },
+                        value: 20
+                      }
+                    }
+                  ]
+                }
               ],
               props: [
                 {
                   key: "a",
                   value: {
                     type: ExprTypes.CONSTANT,
-                    value: 10,
-                  },
-                },
-              ],
-            },
-          },
-        ],
-      },
+                    value: 10
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
     ]);
   });
 
@@ -1572,17 +1576,17 @@ describe("parse", () => {
               type: ExprTypes.FUNCTION_CALL,
               fn: {
                 type: ExprTypes.VARIABLE,
-                value: "a",
+                value: "a"
               },
               params: [
                 {
                   type: ExprTypes.CONSTANT,
-                  value: 10,
-                },
-              ],
-            },
-          },
-        ],
+                  value: 10
+                }
+              ]
+            }
+          }
+        ]
       },
       {
         name: "object access",
@@ -1596,20 +1600,20 @@ describe("parse", () => {
                 type: ExprTypes.OBJECT_ACCESS,
                 expr: {
                   type: ExprTypes.VARIABLE,
-                  value: "a",
+                  value: "a"
                 },
-                paths: ["b", "c", "d"],
+                paths: ["b", "c", "d"]
               },
               params: [
                 {
                   type: ExprTypes.CONSTANT,
-                  value: 10,
-                },
-              ],
-            },
-          },
-        ],
-      },
+                  value: 10
+                }
+              ]
+            }
+          }
+        ]
+      }
     ]);
   });
 });

@@ -8,8 +8,18 @@ import {
 } from "../parser/ast";
 
 const opts = {
-  prefixes: ["tiki"]
+  prefixes: ["tiki"],
+  library: "@tiki/tf-miniapp",
+  rmlRuntimeLibraryName: "@hoangviet/rml-runtime"
 };
+
+export function getOpts(name: keyof typeof opts) {
+  return opts[name];
+}
+
+export function setOpts(name: keyof typeof opts, value: any) {
+  opts[name] = value;
+}
 
 export function getDiretiveName(
   node: ElementNode,

@@ -1,6 +1,6 @@
-import processInclude from "../../../lib/generate/plugins/include";
 import { parse } from "../../../lib/parser";
 import { Node, NodeTypes } from "../../../lib/parser/ast";
+import processInclude from "../../../lib/transforms/plugins/include";
 import { describe, expect, it } from "vitest";
 
 type TestCase = {

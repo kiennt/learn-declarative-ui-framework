@@ -13,6 +13,7 @@ import {
   ForNode,
   IfBranchNode,
   IfNode,
+  IncludeNode,
   InterpolationNode,
   Node,
   NodeTypes,
@@ -22,10 +23,13 @@ import {
   OneArgOpTypes,
   RootNode,
   SlotNode,
+  TemplateNode,
+  TemplateTypes,
   TenaryExpr,
   VariableExpr
 } from "../../parser/ast";
 import { NodePath, createRootPath } from "../context";
+import { WithImportIndex } from "../plugins/import";
 import { visit } from "../visitor";
 
 export type R<T> = T & {
@@ -150,16 +154,11 @@ function render(data) {
       }
     },
 
-    ImportNode: {
-      exit(paths: NodePath) {}
-    },
-
     IncludeNode: {
-      exit(paths: NodePath) {}
-    },
-
-    ImportSjsNode: {
-      exit(paths: NodePath) {}
+      exit(paths: NodePath) {
+        const node = paths.node as R<WithImportIndex<IncludeNode>>;
+        node.code = `{importTemplate${node.importIndex}.default.apply(this, arguments)}`;
+      }
     },
 
     SlotNode: {
@@ -174,7 +173,16 @@ function render(data) {
     },
 
     TemplateNode: {
-      exit(paths: NodePath) {}
+      exit(paths: NodePath) {
+        const node = paths.node as R<TemplateNode>;
+        if (node.templateType === TemplateTypes.INSTANCE) {
+          const data =
+            node.data === undefined
+              ? undefined
+              : node.data.map(item => (item as R<Expr>).code).join("");
+          node.code = `{useTemplate($template['${node.is}'], ${data}, underfined, this)}`;
+        }
+      }
     },
 
     InterpolationNode: {
