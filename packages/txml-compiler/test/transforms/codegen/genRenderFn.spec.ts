@@ -13,7 +13,13 @@ describe("render function", () => {
       name: "simple component",
       input: `<view>hello</view>`,
       output: `
-function render(data)  {
+let $template = void 0;
+export const $ownTemplates = {};
+
+const $templates = {
+  ...$ownTemplates
+};
+export default function render(data) {
   return <View>{toString("hello")}</View>
 }`
     },
@@ -21,7 +27,13 @@ function render(data)  {
       name: "component with multiple text children",
       input: `<view>hello {{a}}</view>`,
       output: `
-function render(data)  {
+let $template = void 0;
+export const $ownTemplates = {};
+
+const $templates = {
+  ...$ownTemplates
+};
+export default function render(data) {
   return <View>{toString("hello ", data['a'])}</View>
 }`
     },
@@ -29,8 +41,28 @@ function render(data)  {
       name: "nested component",
       input: `<view><button>hello</button></view>`,
       output: `
-function render(data)  {
+let $template = void 0;
+export const $ownTemplates = {};
+
+const $templates = {
+  ...$ownTemplates
+};
+export default function render(data) {
   return <View><Button>{toString("hello")}</Button></View>
+}`
+    },
+    {
+      name: "component with object access",
+      input: `<view>{{a.b.c.d.e}}</view>`,
+      output: `
+let $template = void 0;
+export const $ownTemplates = {};
+
+const $templates = {
+  ...$ownTemplates
+};
+export default function render(data) {
+  return <View>{toString(getLooseDataMember(data['a'], 'b', 'c', 'd', 'e'))}</View>
 }`
     },
     {
@@ -44,7 +76,13 @@ function render(data)  {
   <button>node3</button>
 </view>`,
       output: `
-function render(data)  {
+let $template = void 0;
+export const $ownTemplates = {};
+
+const $templates = {
+  ...$ownTemplates
+};
+export default function render(data) {
   return (
     <View>
       {toString("text1 ", data['a'])}
@@ -60,7 +98,13 @@ function render(data)  {
       name: "component with props",
       input: `<view a="b">hello</view>`,
       output: `
-function render(data)  {
+let $template = void 0;
+export const $ownTemplates = {};
+
+const $templates = {
+  ...$ownTemplates
+};
+export default function render(data) {
   return <View a={"b"}>{toString("hello")}</View>
 }`
     },
@@ -68,7 +112,13 @@ function render(data)  {
       name: "component with props complex",
       input: `<view a="start {{a + b}} end">hello</view>`,
       output: `
-function render(data)  {
+let $template = void 0;
+export const $ownTemplates = {};
+
+const $templates = {
+  ...$ownTemplates
+};
+export default function render(data) {
   return (
     <View a={"start " + (data["a"] + data["b"]) + " end"}>
     {toString("hello")}
@@ -80,7 +130,13 @@ function render(data)  {
       name: "convert class props to className",
       input: `<view class="hello">hello</view>`,
       output: `
-function render(data)  {
+let $template = void 0;
+export const $ownTemplates = {};
+
+const $templates = {
+  ...$ownTemplates
+};
+export default function render(data) {
   return <View className={"hello"}>{toString("hello")}</View>
 }`
     },
@@ -88,7 +144,13 @@ function render(data)  {
       name: "native component with event listener",
       input: `<view onTap="onTap">hello</view>`,
       output: `
-function render(data)  {
+let $template = void 0;
+export const $ownTemplates = {};
+
+const $templates = {
+  ...$ownTemplates
+};
+export default function render(data) {
   return (
     <View onTap={$getEventHandler(this, "onTap")}>
     {toString("hello")}
@@ -100,7 +162,13 @@ function render(data)  {
       name: "native component with event listener is variable",
       input: `<view onTap="{{a + b}}">hello</view>`,
       output: `
-function render(data)  {
+let $template = void 0;
+export const $ownTemplates = {};
+
+const $templates = {
+  ...$ownTemplates
+};
+export default function render(data) {
   return (
     <View onTap={$getEventHandler(this, (data['a'] + data['b']))}>
     {toString("hello")}
@@ -112,7 +180,13 @@ function render(data)  {
       name: "custom component with event listener",
       input: `<my-component onTap="onTap" />`,
       output: `
-function render(data)  {
+let $template = void 0;
+export const $ownTemplates = {};
+
+const $templates = {
+  ...$ownTemplates
+};
+export default function render(data) {
   return (
     <MyComponent onTap={$getComponentEventHandler(this, "onTap")} $isCustomComponent={this.$isCustomComponent} __tag='my-component' />
   );
@@ -122,7 +196,13 @@ function render(data)  {
       name: "binding data in attribute and children",
       input: `<view attr="{{a}}">{{b}}</view>`,
       output: `
-function render(data)  {
+let $template = void 0;
+export const $ownTemplates = {};
+
+const $templates = {
+  ...$ownTemplates
+};
+export default function render(data) {
   return <View attr={data['a']}>{toString(data['b'])}</View>;
 }`
     },
@@ -133,7 +213,13 @@ function render(data)  {
   <view>hello</view>
 </block>`,
       output: `
-function render(data)  {
+let $template = void 0;
+export const $ownTemplates = {};
+
+const $templates = {
+  ...$ownTemplates
+};
+export default function render(data) {
   return (
     <>
       <View>{toString("hello")}</View>
@@ -145,7 +231,13 @@ function render(data)  {
       name: "for",
       input: `<view tiki:for="{{list}}">{{index}} {{item}}</view>`,
       output: `
-function render(data)  {
+let $template = void 0;
+export const $ownTemplates = {};
+
+const $templates = {
+  ...$ownTemplates
+};
+export default function render(data) {
   return (
     <>
     {
@@ -164,7 +256,13 @@ function render(data)  {
   {{i}} {{child}} {{value}}
 </view>`,
       output: `
-function render(data)  {
+let $template = void 0;
+export const $ownTemplates = {};
+
+const $templates = {
+  ...$ownTemplates
+};
+export default function render(data) {
   return (
     <>
     {
@@ -180,7 +278,13 @@ function render(data)  {
       name: "if",
       input: `<view key="value" tiki:if="{{a + b}}">a</view>`,
       output: `
-function render(data)  {
+let $template = void 0;
+export const $ownTemplates = {};
+
+const $templates = {
+  ...$ownTemplates
+};
+export default function render(data) {
   return (
     <>
     {
@@ -199,7 +303,13 @@ function render(data)  {
       <view />
       `,
       output: `
-function render(data)  {
+let $template = void 0;
+export const $ownTemplates = {};
+
+const $templates = {
+  ...$ownTemplates
+};
+export default function render(data) {
   return (
     <>
     {
@@ -220,7 +330,13 @@ function render(data)  {
         <view key="value" tiki:else="">b</view>
       `,
       output: `
-function render(data)  {
+let $template = void 0;
+export const $ownTemplates = {};
+
+const $templates = {
+  ...$ownTemplates
+};
+export default function render(data) {
   return (
     <>
     {
@@ -239,7 +355,13 @@ function render(data)  {
         <view key="value" tiki:elif="{{a}}">b</view>
       `,
       output: `
-function render(data)  {
+let $template = void 0;
+export const $ownTemplates = {};
+
+const $templates = {
+  ...$ownTemplates
+};
+export default function render(data) {
   return (
     <>
     {
@@ -260,7 +382,13 @@ function render(data)  {
   <slot name="named"><view>named slot</view></slot>
 </view>`,
       output: `
-function render(data)  {
+let $template = void 0;
+export const $ownTemplates = {};
+
+const $templates = {
+  ...$ownTemplates
+};
+export default function render(data) {
   return (
     <View>
       {renderSlot(data, "$default", <><View>{toString("default slot")}</View></>)}
@@ -268,6 +396,175 @@ function render(data)  {
       {renderSlot(data, "named", <><View>{toString("named slot")}</View></>)}
     </View>
   );
+}`
+    },
+    {
+      name: "using template with name is string",
+      input: `<template is="hello" data="{{x}}" />`,
+      output: `
+let $template = void 0;
+export const $ownTemplates = {};
+
+const $templates = {
+  ...$ownTemplates
+};
+export default function render(data) {
+  return (
+    <>{useTemplate($templates["hello"], { x: data['x'] }, undefined, this)}</>
+  );
+}`
+    },
+    {
+      name: "using template with name is expr",
+      input: `<template is="{{x + y}}" data="{{x}}" />`,
+      output: `
+let $template = void 0;
+export const $ownTemplates = {};
+
+const $templates = {
+  ...$ownTemplates
+};
+export default function render(data) {
+  return (
+    <>{useTemplate($templates[data['x'] + data['y']], { x: data['x'] }, undefined, this)}</>
+  );
+}`
+    },
+    {
+      name: "using template with data is expression",
+      input: `<template is="hello" data="{{x, y}}" />`,
+      output: `
+let $template = void 0;
+export const $ownTemplates = {};
+
+const $templates = {
+  ...$ownTemplates
+};
+export default function render(data) {
+  return (
+    <>{useTemplate($templates["hello"], { 
+      x: data['x'], 
+      y: data['y'] 
+    }, undefined, this)}</>
+  );
+}`
+    },
+    {
+      name: "define template without other code",
+      input: `
+<template name="hello"></template>`,
+      output: `
+let $template = void 0;
+export const $ownTemplates = {};
+
+$template = $ownTemplates['hello'] = function (data) {
+  return null;
+}
+$template.Component = createTemplate('hello', $template);
+
+const $templates = {
+  ...$ownTemplates
+};
+export default function render(data) {
+  return null;
+}`
+    },
+    {
+      name: "define template",
+      input: `
+<template name="hello">
+  <view>message</view>
+  <view>{{message}}</view>
+</template>`,
+      output: `
+let $template = void 0;
+export const $ownTemplates = {};
+
+$template = $ownTemplates['hello'] = function (data) {
+  return (
+    <>
+      <View>{toString("message")}</View>
+      <View>{toString(data["message"])}</View>
+    </>
+  );
+}
+$template.Component = createTemplate('hello', $template);
+
+const $templates = {
+  ...$ownTemplates
+};
+export default function render(data) {
+  return null;
+}`
+    },
+    {
+      name: "define multiple template",
+      input: `
+<template name="name1"></template>
+<template name="name2"></template>
+`,
+      output: `
+let $template = void 0;
+export const $ownTemplates = {};
+
+$template = $ownTemplates['name1'] = function (data) {
+  return null;
+}
+$template.Component = createTemplate('name1', $template);
+
+$template = $ownTemplates['name2'] = function (data) {
+  return null;
+}
+$template.Component = createTemplate('name2', $template);
+
+const $templates = {
+  ...$ownTemplates
+};
+export default function render(data) {
+  return null;
+}`
+    },
+    {
+      name: "using import",
+      input: `
+<import src="./a.txml" />      
+<import src="./b.txml" />      
+`,
+      output: `
+import { $ownTemplates as template0 } from "./a.txml";
+import { $ownTemplates as template1 } from "./b.txml";
+
+let $template = void 0;
+export const $ownTemplates = {};
+
+const $templates = {
+  ...template0,
+  ...template1,
+  ...$ownTemplates
+};
+export default function render(data) {
+  return null;
+}`
+    },
+    {
+      name: "using import with include",
+      input: `
+<include src="./a.txml" />      
+<import src="./b.txml" />      
+`,
+      output: `
+import template0 from "./a.txml";
+import { $ownTemplates as template1 } from "./b.txml";
+
+let $template = void 0;
+export const $ownTemplates = {};
+
+const $templates = {
+  ...template1,
+  ...$ownTemplates
+};
+export default function render(data) {
+  return <>{template0.apply(this, arguments)}</>;
 }`
     }
   ];
@@ -279,10 +576,10 @@ function render(data)  {
       const codeOutput = (root as R<RootNode>).code;
       const output: Array<string> = prettier.format(codeOutput).split("\n");
       const expected: Array<string> = prettier.format(tc.output).split("\n");
-      output.forEach((line, index) => {
-        console.log(line);
-        expect(expected[index]).toEqual(line);
-      });
+      console.log(tc.name);
+      console.log("output is", output);
+      console.log("expected is", expected);
+      expect(output).toEqual(expected);
     });
   });
 });

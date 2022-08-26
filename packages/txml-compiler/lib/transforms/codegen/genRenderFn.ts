@@ -10,9 +10,11 @@ import {
   DirectiveNode,
   ElementNode,
   Expr,
+  ExprTypes,
   ForNode,
   IfBranchNode,
   IfNode,
+  ImportNode,
   IncludeNode,
   InterpolationNode,
   Node,
@@ -23,8 +25,8 @@ import {
   OneArgOpTypes,
   RootNode,
   SlotNode,
-  TemplateNode,
-  TemplateTypes,
+  TemplateDefinitionNode,
+  TemplateInstanceNode,
   TenaryExpr,
   VariableExpr
 } from "../../parser/ast";
@@ -34,6 +36,10 @@ import { visit } from "../visitor";
 
 export type R<T> = T & {
   code: string;
+};
+
+export type RT<T> = T & {
+  templates: Array<TemplateDefinitionNode>;
 };
 
 function snakeToCamel(value: string): string {
@@ -73,30 +79,66 @@ function isPredefinedVariable(name: string, paths: NodePath): boolean {
   return isPredefinedVariable(name, paths.parent);
 }
 
+function getCodeOfArray(_items: Array<Node>): string {
+  const items = _items.filter(
+    item =>
+      item.type !== NodeTypes.TEMPLATE_DEFINITION &&
+      item.type !== NodeTypes.IMPORT
+  );
+  if (items.length === 0) {
+    return "null";
+  }
+
+  const childrenCode = items.map(item => (item as R<Node>).code).join("\n");
+  const useFragment =
+    items.length > 1 ||
+    items.filter(item =>
+      (
+        [
+          NodeTypes.IF,
+          NodeTypes.FOR,
+          NodeTypes.TEMPLATE_INSTANCE,
+          NodeTypes.INTERPOLATION,
+          NodeTypes.INCLUDE
+        ] as Array<NodeTypes | ExprTypes>
+      ).includes(item.type)
+    ).length > 0;
+  return useFragment ? `<>${childrenCode}</>` : `(${childrenCode})`;
+}
+
 export default function plugin(root: RootNode): void {
+  const templates: Array<TemplateDefinitionNode> = [];
+  const imports: Array<R<WithImportIndex<ImportNode | IncludeNode>>> = [];
+
   const visitor = {
     RootNode: {
       exit(paths: NodePath) {
-        const root = paths.node as R<RootNode>;
-        const childrenCode = root.children
-          .map(item => (item as R<ElementNode>).code)
+        const node = paths.node as R<RootNode>;
+        const importCode = imports
+          .map(node => {
+            if (node.type === NodeTypes.IMPORT) {
+              return `import { $ownTemplates as template${node.importIndex} } from "${node.src}";`;
+            } else {
+              return `import template${node.importIndex} from "${node.src}";`;
+            }
+          })
           .join("\n");
-        const useFragment =
-          root.children.length > 1 ||
-          root.children.filter(child =>
-            [NodeTypes.IF, NodeTypes.FOR].includes(child.type)
-          ).length > 0;
-        if (!useFragment) {
-          root.code = `
-function render(data) {
-  return (${childrenCode});
+        node.code = `
+${importCode}
+let $template = void 0;
+export const $ownTemplates = {};
+
+${templates.map(item => (item as R<TemplateDefinitionNode>).code).join("\n")}
+const $templates = {
+  ${imports
+    .filter(item => item.type === NodeTypes.IMPORT)
+    .map(item => `...template${item.importIndex},`)
+    .join("\n")}
+  ...$ownTemplates
+};
+export default function render(data) {
+  return ${getCodeOfArray(node.children)};
 }`;
-        } else {
-          root.code = `
-function render(data) {
-  return <>${childrenCode}</>;
-}`;
-        }
       }
     },
 
@@ -154,10 +196,18 @@ function render(data) {
       }
     },
 
+    ImportNode: {
+      exit(paths: NodePath) {
+        const node = paths.node as R<WithImportIndex<ImportNode>>;
+        imports.push(node);
+      }
+    },
+
     IncludeNode: {
       exit(paths: NodePath) {
         const node = paths.node as R<WithImportIndex<IncludeNode>>;
-        node.code = `{importTemplate${node.importIndex}.default.apply(this, arguments)}`;
+        node.code = `{template${node.importIndex}.apply(this, arguments)}`;
+        imports.push(node);
       }
     },
 
@@ -172,16 +222,36 @@ function render(data) {
       }
     },
 
-    TemplateNode: {
+    TemplateDefinitionNode: {
       exit(paths: NodePath) {
-        const node = paths.node as R<TemplateNode>;
-        if (node.templateType === TemplateTypes.INSTANCE) {
-          const data =
-            node.data === undefined
-              ? undefined
-              : node.data.map(item => (item as R<Expr>).code).join("");
-          node.code = `{useTemplate($template['${node.is}'], ${data}, underfined, this)}`;
+        const node = paths.node as R<TemplateDefinitionNode>;
+        node.code = `
+$template = $ownTemplates['${node.name}'] = function(data) {
+  return ${getCodeOfArray(node.content)};
+}
+$template.Component = createTemplate('${node.name}', $template);
+`;
+        templates.push(node);
+      }
+    },
+
+    TemplateInstanceNode: {
+      exit(paths: NodePath) {
+        const node = paths.node as R<TemplateInstanceNode>;
+        let data = undefined;
+        if (node.data) {
+          if (
+            node.data.length === 1 &&
+            node.data[0].type === ExprTypes.VARIABLE
+          ) {
+            const name = node.data[0].value;
+            data = `{${name}: data['${name}']}`;
+          } else {
+            data = node.data.map(item => (item as R<Expr>).code).join("");
+          }
         }
+        const is = node.is.map(item => (item as R<Expr>).code).join("+");
+        node.code = `{useTemplate($templates[${is}], ${data}, undefined, this)}`;
       }
     },
 
@@ -279,7 +349,9 @@ function render(data) {
       exit(paths: NodePath) {
         const node = paths.node as R<ObjectAccessExpr>;
         const expr = node.expr as R<Expr>;
-        node.code = `${expr.code}.${node.paths.join(".")}`;
+        node.code = `getLooseDataMember(${expr.code}, ${node.paths
+          .map(item => `'${item}'`)
+          .join(",")})`;
       }
     },
 

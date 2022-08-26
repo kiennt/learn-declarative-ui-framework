@@ -19,8 +19,8 @@ import {
   OneArgExpr,
   RootNode,
   SlotNode,
-  TemplateNode,
-  TemplateTypes,
+  TemplateDefinitionNode,
+  TemplateInstanceNode,
   TenaryExpr
 } from "../parser/ast";
 import { NodePath, createPath } from "./context";
@@ -49,7 +49,8 @@ export interface Visitor {
   ImportNode?: NodeVisitor;
   IncludeNode?: NodeVisitor;
   ImportSjsNode?: NodeVisitor;
-  TemplateNode?: NodeVisitor;
+  TemplateDefinitionNode?: NodeVisitor;
+  TemplateInstanceNode?: NodeVisitor;
   InterpolationNode?: NodeVisitor;
   ExprNode?: NodeVisitor;
   ConstantExpr?: NodeVisitor;
@@ -192,16 +193,19 @@ function visitSjsImportNode(path: NodePath, visitor: Visitor): void {
   doVisitNode(path, visitor, "ImportSjsNode", (_path, _visitor) => {});
 }
 
-function visitTemplateNode(path: NodePath, visitor: Visitor): void {
-  doVisitNode(path, visitor, "TemplateNode", (path, visitor) => {
-    const node = path.node as TemplateNode;
-    if (node.templateType === TemplateTypes.DEFINITION) {
-      visitListChildren(path, node.content, "content", visitor);
-    } else {
-      visitListChildren(path, node.is, "is", visitor, visitExprNode);
-      if (node.data) {
-        visitListChildren(path, node.data, "data", visitor, visitExprNode);
-      }
+function visitTemplateDefinitionNode(path: NodePath, visitor: Visitor): void {
+  doVisitNode(path, visitor, "TemplateDefinitionNode", (path, visitor) => {
+    const node = path.node as TemplateDefinitionNode;
+    visitListChildren(path, node.content, "content", visitor);
+  });
+}
+
+function visitTemplateInstanceNode(path: NodePath, visitor: Visitor): void {
+  doVisitNode(path, visitor, "TemplateInstanceNode", (path, visitor) => {
+    const node = path.node as TemplateInstanceNode;
+    visitListChildren(path, node.is, "is", visitor, visitExprNode);
+    if (node.data) {
+      visitListChildren(path, node.data, "data", visitor, visitExprNode);
     }
   });
 }
@@ -348,8 +352,10 @@ export function visit(path: NodePath, visitor: Visitor): void {
       return visitIncludeNode(path, visitor);
     case NodeTypes.SJS_IMPORT:
       return visitSjsImportNode(path, visitor);
-    case NodeTypes.TEMPLATE:
-      return visitTemplateNode(path, visitor);
+    case NodeTypes.TEMPLATE_DEFINITION:
+      return visitTemplateDefinitionNode(path, visitor);
+    case NodeTypes.TEMPLATE_INSTANCE:
+      return visitTemplateInstanceNode(path, visitor);
     case NodeTypes.INTERPOLATION:
       return visitInterpolationNode(path, visitor);
     case NodeTypes.EXPR:

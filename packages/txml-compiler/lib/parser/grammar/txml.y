@@ -167,12 +167,12 @@ array_expr_members
   ;
 
 object_expr
-  : '{' object_expr_members '}' -> $2
+  : '{' '}' -> yy.ast.createObjectExpr([], [])
+  | '{' object_expr_members '}' -> $2
   ;
 
 object_expr_members
-  : /* empty */ -> yy.ast.createObjectExpr([], [])
-  | object_expr_member 
+  : object_expr_member 
     {
       $$ = yy.ast.createObjectExpr([], []);
       if ($1.type === 'destructuring') {
@@ -200,7 +200,16 @@ object_expr_members
 
 object_expr_member
   : '...' expr -> { type: 'destructuring', expr: $2 }
-  | IDENT ':' expr -> { type: 'key', key: $1, value: $3 }
+  | IDENT object_expr_member_after_key
+    {
+      const objectValue = $2 ? $2 : yy.ast.createVariableExpr($1);
+      $$ = { type: 'key', key: $1, value: objectValue }
+    }
+  ;
+
+object_expr_member_after_key
+  : ':' expr -> $2
+  | /* empty */ -> undefined
   ;
 
 function_call_expr

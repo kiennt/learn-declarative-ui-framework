@@ -9,7 +9,8 @@ export enum NodeTypes {
   FOR,
   BLOCK,
   SLOT,
-  TEMPLATE,
+  TEMPLATE_DEFINITION,
+  TEMPLATE_INSTANCE,
   IMPORT,
   INCLUDE,
   SJS_IMPORT,
@@ -34,7 +35,8 @@ export type ControlNode =
   | ImportNode
   | IncludeNode
   | SjsImportNode
-  | TemplateNode
+  | TemplateDefinitionNode
+  | TemplateInstanceNode
   | InterpolationNode;
 
 export type RootNode = {
@@ -113,25 +115,17 @@ export type SjsImportNode = {
   name: string;
 };
 
-export enum TemplateTypes {
-  DEFINITION,
-  INSTANCE
-}
+export type TemplateInstanceNode = {
+  type: NodeTypes.TEMPLATE_INSTANCE;
+  is: Array<Expr>;
+  data?: Array<Expr>;
+};
 
-export type TemplateNode = {
-  type: NodeTypes.TEMPLATE;
-} & (
-  | {
-      templateType: TemplateTypes.INSTANCE;
-      is: Array<Expr>;
-      data?: Array<Expr>;
-    }
-  | {
-      templateType: TemplateTypes.DEFINITION;
-      name: string;
-      content: Array<Node>;
-    }
-);
+export type TemplateDefinitionNode = {
+  type: NodeTypes.TEMPLATE_DEFINITION;
+  name: string;
+  content: Array<Node>;
+};
 
 export type InterpolationNode = {
   type: NodeTypes.INTERPOLATION;
@@ -415,10 +409,9 @@ export function createSjsImportNode(from: string, name: string): SjsImportNode {
 export function createTemplateDefinedNode(
   name: string,
   content: Array<Node>
-): TemplateNode {
+): TemplateDefinitionNode {
   return {
-    type: NodeTypes.TEMPLATE,
-    templateType: TemplateTypes.DEFINITION,
+    type: NodeTypes.TEMPLATE_DEFINITION,
     name,
     content
   };
@@ -427,10 +420,9 @@ export function createTemplateDefinedNode(
 export function createTemplateInstanceNode(
   is: Array<Expr>,
   data?: Array<Expr>
-): TemplateNode {
+): TemplateInstanceNode {
   return {
-    type: NodeTypes.TEMPLATE,
-    templateType: TemplateTypes.INSTANCE,
+    type: NodeTypes.TEMPLATE_INSTANCE,
     is,
     data
   };

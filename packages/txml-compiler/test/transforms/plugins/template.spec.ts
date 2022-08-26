@@ -22,8 +22,7 @@ describe("tempate plugin", () => {
         input: `<template name="hello">hello</template>`,
         output: [
           {
-            type: NodeTypes.TEMPLATE,
-            templateType: TemplateTypes.DEFINITION,
+            type: NodeTypes.TEMPLATE_DEFINITION,
             name: "hello",
             content: [
               {
@@ -62,8 +61,7 @@ describe("tempate plugin", () => {
         input: `<template is="hello" />`,
         output: [
           {
-            type: NodeTypes.TEMPLATE,
-            templateType: TemplateTypes.INSTANCE,
+            type: NodeTypes.TEMPLATE_INSTANCE,
             is: [
               {
                 type: ExprTypes.CONSTANT,
@@ -78,8 +76,7 @@ describe("tempate plugin", () => {
         input: `<template is="hello" data="{{a}}" />`,
         output: [
           {
-            type: NodeTypes.TEMPLATE,
-            templateType: TemplateTypes.INSTANCE,
+            type: NodeTypes.TEMPLATE_INSTANCE,
             data: [
               {
                 type: ExprTypes.VARIABLE,

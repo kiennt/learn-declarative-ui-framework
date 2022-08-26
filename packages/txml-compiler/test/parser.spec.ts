@@ -1560,6 +1560,35 @@ describe("parse", () => {
             }
           }
         ]
+      },
+      {
+        name: "object with only key",
+        input: `{{ a, b: "value" }}`,
+        output: [
+          {
+            type: NodeTypes.EXPR,
+            expr: {
+              type: ExprTypes.OBJECT,
+              destructuringList: [],
+              props: [
+                {
+                  key: "a",
+                  value: {
+                    type: ExprTypes.VARIABLE,
+                    value: "a"
+                  }
+                },
+                {
+                  key: "b",
+                  value: {
+                    type: ExprTypes.CONSTANT,
+                    value: "value"
+                  }
+                }
+              ]
+            }
+          }
+        ]
       }
     ]);
   });
