@@ -1,10 +1,5 @@
 import { parse } from "../../../lib/parser";
-import {
-  ExprTypes,
-  Node,
-  NodeTypes,
-  TemplateTypes
-} from "../../../lib/parser/ast";
+import { ExprTypes, Node, NodeTypes } from "../../../lib/parser/ast";
 import processTemplate from "../../../lib/transforms/plugins/template";
 import { describe, expect, it } from "vitest";
 

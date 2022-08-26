@@ -1,9 +1,9 @@
 ident                   [a-zA-Z_$]([a-zA-Z0-9_$]+)?
 tag                     [a-zA-Z_$]([a-zA-Z0-9_$\-]+)?
-number                  "-"?[1-9]([0-9]+)?("."[0-9]+)?
+number                  ("-"?[1-9]([0-9]+)?("."[0-9]+)?|[0-9])
 space                   [\s\r\n\t]+
-str_wo_dquote           ([^\{"\\]|\\.|[^\{"\\]+\{)*
-str_wo_lt               ([^\{\<]|[^\{\<]+\{)*
+str_wo_dquote           ([^\{"\\]|\\.|[^\{"\\]+\{)+
+str_wo_lt               ([^\{\<]|[^\{\<]+\{)+
 
 %x open_tag close_tag string children expr
 
@@ -80,6 +80,7 @@ str_wo_lt               ([^\{\<]|[^\{\<]+\{)*
 <expr>{space}                   /* skip whitespace */
 
 <close_tag>{space}              /* skip whitespace */
+<close_tag>{tag}                return 'IDENT';
 <close_tag>{ident}              return 'IDENT';
 <close_tag>">"                  this.popState(); return '>';
 

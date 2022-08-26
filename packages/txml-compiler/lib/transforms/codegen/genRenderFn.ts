@@ -83,7 +83,8 @@ function getCodeOfArray(_items: Array<Node>): string {
   const items = _items.filter(
     item =>
       item.type !== NodeTypes.TEMPLATE_DEFINITION &&
-      item.type !== NodeTypes.IMPORT
+      item.type !== NodeTypes.IMPORT &&
+      item.type !== NodeTypes.SJS_IMPORT
   );
   if (items.length === 0) {
     return "null";
@@ -106,7 +107,7 @@ function getCodeOfArray(_items: Array<Node>): string {
   return useFragment ? `<>${childrenCode}</>` : `(${childrenCode})`;
 }
 
-export default function plugin(root: RootNode): void {
+export default function plugin(root: RootNode): string {
   const templates: Array<TemplateDefinitionNode> = [];
   const imports: Array<R<WithImportIndex<ImportNode | IncludeNode>>> = [];
 
@@ -440,4 +441,5 @@ $template.Component = createTemplate('${node.name}', $template);
   };
 
   visit(createRootPath(root), visitor);
+  return (root as R<RootNode>).code;
 }

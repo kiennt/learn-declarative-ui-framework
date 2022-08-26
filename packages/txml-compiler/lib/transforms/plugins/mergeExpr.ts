@@ -6,8 +6,7 @@ import {
   NodeTypes,
   RootNode,
   SlotNode,
-  TemplateNode,
-  TemplateTypes,
+  TemplateDefinitionNode,
   createInterpolationNode
 } from "../../parser/ast";
 import { NodePath, createRootPath } from "../context";
@@ -55,12 +54,10 @@ export default function plugin(root: RootNode): void {
       }
     },
 
-    TemplateNode: {
+    TemplateDefinitionNode: {
       exit(paths: NodePath) {
-        const node = paths.node as TemplateNode;
-        if (node.templateType === TemplateTypes.DEFINITION) {
-          mergeExpr(node.content);
-        }
+        const node = paths.node as TemplateDefinitionNode;
+        mergeExpr(node.content);
       }
     },
 

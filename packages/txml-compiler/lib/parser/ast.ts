@@ -136,6 +136,7 @@ export type Expr =
   | ConstantExpr
   | VariableExpr
   | ObjectAccessExpr
+  | ArrayAccessExpr
   | OneArgExpr
   | ArithmeticExpr
   | ConditionExpr
@@ -148,6 +149,7 @@ export enum ExprTypes {
   CONSTANT,
   VARIABLE,
   OBJECT_ACCESS,
+  ARRAY_ACCESS,
   ONE_ARG,
   ARITHMETIC,
   CONDITION,
@@ -171,6 +173,12 @@ export type ObjectAccessExpr = {
   type: ExprTypes.OBJECT_ACCESS;
   expr: Expr;
   paths: Array<string>;
+};
+
+export type ArrayAccessExpr = {
+  type: ExprTypes.ARRAY_ACCESS;
+  value: Expr;
+  index: Expr;
 };
 
 export enum OneArgOpTypes {
@@ -314,7 +322,7 @@ export function createAttributeNode(
   return {
     type: NodeTypes.ATTRIBUTE,
     name,
-    value: value.length > 0 ? value : [createExprNode(createConstantExpr(""))]
+    value: value.length > 0 ? value : [createExprNode(createConstantExpr(true))]
   };
 }
 
@@ -327,7 +335,7 @@ export function createDirectiveNode(
     type: NodeTypes.DIRECTIVE,
     name,
     prefix,
-    value: value.length > 0 ? value : [createExprNode(createConstantExpr(""))]
+    value: value.length > 0 ? value : [createExprNode(createConstantExpr(true))]
   };
 }
 
@@ -468,6 +476,17 @@ export function createObjectAccessExpr(
     type: ExprTypes.OBJECT_ACCESS,
     expr,
     paths
+  };
+}
+
+export function createArrayAccessExpr(
+  value: Expr,
+  index: Expr
+): ArrayAccessExpr {
+  return {
+    type: ExprTypes.ARRAY_ACCESS,
+    value,
+    index
   };
 }
 

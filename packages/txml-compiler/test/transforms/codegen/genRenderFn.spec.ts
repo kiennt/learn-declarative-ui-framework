@@ -1,9 +1,6 @@
 import { parse } from "../../../lib/parser";
-import { RootNode } from "../../../lib/parser/ast";
 import { defaultPreset, transform } from "../../../lib/transforms";
-import generateRenderFn, {
-  R
-} from "../../../lib/transforms/codegen/genRenderFn";
+import generateRenderFn from "../../../lib/transforms/codegen/genRenderFn";
 import prettier from "prettier";
 import { describe, expect, it } from "vitest";
 
@@ -572,8 +569,8 @@ export default function render(data) {
   testCases.forEach(tc => {
     it(tc.name, () => {
       const root = parse(tc.input);
-      transform(root, [...defaultPreset, generateRenderFn]);
-      const codeOutput = (root as R<RootNode>).code;
+      transform(root, [...defaultPreset]);
+      const codeOutput = generateRenderFn(root);
       const output: Array<string> = prettier.format(codeOutput).split("\n");
       const expected: Array<string> = prettier.format(tc.output).split("\n");
       console.log(tc.name);

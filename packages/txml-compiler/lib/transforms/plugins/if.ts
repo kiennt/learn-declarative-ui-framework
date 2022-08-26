@@ -2,6 +2,8 @@ import {
   ElementNode,
   Expr,
   IfBranchNode,
+  Node,
+  NodeTypes,
   RootNode,
   createIfBranchNode,
   createIfNode,
@@ -57,16 +59,15 @@ export default function plugin(root: RootNode) {
         branches.push(createIfBranchNode(node, ifCondition));
 
         if (paths.childIndex === undefined) return;
-        const children = (paths.parent.node as any)[
-          paths.key
-        ] as Array<ElementNode>;
-
+        const children = (paths.parent.node as any)[paths.key] as Array<Node>;
         for (
           let index = paths.childIndex + 1;
           index < children.length;
           index++
         ) {
           const next = children[index];
+          if (next.type !== NodeTypes.ELEMENT) continue;
+
           let elifCondition = checkAndGetExprForDirective(next, "elif", [
             "if",
             "else"

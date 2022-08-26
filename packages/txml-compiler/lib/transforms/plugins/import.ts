@@ -1,6 +1,7 @@
 import {
   ElementNode,
   ImportNode,
+  IncludeNode,
   RootNode,
   createImportNode,
   createIncludeNode,

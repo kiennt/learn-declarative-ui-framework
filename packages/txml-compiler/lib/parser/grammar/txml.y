@@ -1,6 +1,7 @@
 %start root
 
 %left '.'
+%left '['
 %left '?' ':'
 %left '+' '-'
 %left '*' '/' '%' '**'
@@ -45,6 +46,18 @@ node_attribute
         $$ = yy.ast.createDirectiveNode(node.name, node.prefix, $4);
       }
     }
+  | attribute_name 
+    {
+      // we create scope in here so variable is not leaked
+      {
+        const node = $1;
+        if (node.type === 'ident') {
+          $$ = yy.ast.createAttributeNode(node.name, []);
+        } else {
+          $$ = yy.ast.createDirectiveNode(node.name, node.prefix, []);
+        }
+      }
+    }
   ;
 
 attribute_name
@@ -77,6 +90,7 @@ value
 common_expr
   : simple_expr
   | object_access_expr
+  | array_access_expr
   | arithmetic_expr
   | one_arg_expr
   | condition_expr
@@ -119,6 +133,10 @@ object_access_expr
         $$ = yy.ast.createObjectAccessExpr($1, [$3]);
       }
     }
+  ;
+
+array_access_expr
+  : expr '[' expr ']' -> yy.ast.createArrayAccessExpr($1, $3)
   ;
 
 arithmetic_expr

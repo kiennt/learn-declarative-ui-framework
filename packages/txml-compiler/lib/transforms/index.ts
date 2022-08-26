@@ -8,6 +8,9 @@ import processMergeExpr from "./plugins/mergeExpr";
 import processSlot from "./plugins/slot";
 import processTemplate from "./plugins/template";
 
+export { default as genImport } from "./codegen/genImport";
+export { default as genRender } from "./codegen/genRenderFn";
+
 export type Plugin = (root: RootNode) => void;
 
 export const defaultPreset = [
@@ -25,5 +28,7 @@ export function transform(
   root: RootNode,
   preset: Array<Plugin> = defaultPreset
 ): void {
-  preset.forEach(fn => fn(root));
+  preset.forEach(fn => {
+    fn(root);
+  });
 }
