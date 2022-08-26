@@ -1,0 +1,29 @@
+{
+  "name": "rollup-plugin-tini",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/preset-react": "^7.18.6",
+    "@babel/standalone": "^7.18.13",
+    "@rollup/plugin-typescript": "^8.4.0",
+    "@vitest/ui": "^0.22.1",
+    "prettier": "^2.7.1",
+    "rollup": "^2.78.1",
+    "tslib": "^2.4.0",
+    "typescript": "^4.7.4",
+    "vite": "^3.0.9",
+    "vitest": "^0.22.1"
+  },
+  "dependencies": {
+    "@rollup/pluginutils": "^4.2.1"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "rollup -c rollup.config.js",
+    "dev": "tsc -w -p .",
+    "test": "vitest --ui"
+  }
+}
