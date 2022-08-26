@@ -106,7 +106,7 @@ function render(data) {
         const { itemName: item, indexName: index } = node;
         node.code = `
         {
-          ${(node.data as R<Expr>).code}.map((${item}, ${index}) => {
+          iterate(${(node.data as R<Expr>).code}, (${item}, ${index}) => {
             return ${(node.content as R<Node>).code};
           })
         }

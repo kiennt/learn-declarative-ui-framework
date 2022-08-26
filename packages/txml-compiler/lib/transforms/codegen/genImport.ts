@@ -55,7 +55,6 @@ import React from 'react';
 ${[
   "iterate",
   "createRoot",
-  "createBlock",
   "useTemplate",
   "createTemplate",
   "renderSlot",

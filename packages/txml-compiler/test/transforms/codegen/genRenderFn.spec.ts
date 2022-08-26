@@ -149,7 +149,7 @@ function render(data)  {
   return (
     <>
     {
-      data['list'].map((item, index) => {
+      iterate(data['list'], (item, index) => {
         return <View>{toString(index, " ", item)}</View>;
       })
     }
@@ -168,7 +168,7 @@ function render(data)  {
   return (
     <>
     {
-      data['list'].map((child, i) => {
+      iterate(data['list'], (child, i) => {
         return <View>{toString(i, " ", child, " ", data['value'])}</View>;
       })
     }

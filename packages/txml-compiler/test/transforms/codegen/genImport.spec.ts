@@ -19,7 +19,6 @@ describe("import", () => {
       output: `
 import iterate from '@hoangviet/rml-runtime/iterate';
 import createRoot from '@hoangviet/rml-runtime/createRoot';
-import createBlock from '@hoangviet/rml-runtime/createBlock';
 import useTemplate from '@hoangviet/rml-runtime/useTemplate';
 import createTemplate from '@hoangviet/rml-runtime/createTemplate';
 import renderSlot from '@hoangviet/rml-runtime/renderSlot';
