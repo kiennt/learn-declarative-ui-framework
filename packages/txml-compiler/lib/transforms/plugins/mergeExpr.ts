@@ -38,7 +38,7 @@ function mergeExpr(children: Array<Node>) {
   doMergeExprs();
 }
 
-export default function plugin(root: RootNode): void {
+export default function mergeExprPlugin(root: RootNode): void {
   const visitor = {
     ElementNode: {
       exit(paths: NodePath) {

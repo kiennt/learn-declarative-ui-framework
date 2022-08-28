@@ -37,7 +37,7 @@ node_start
 
 
 node_attribute
-  : attribute_name '=' DQUOTE value* DQUOTE 
+  : attribute_name '=' QUOTE value* QUOTE 
     {
       const node = $1;
       if (node.type === 'ident') {
@@ -115,7 +115,7 @@ variable
   ;
 
 constant
-  : DQUOTE STRING DQUOTE -> yy.ast.createConstantExpr($2);
+  : QUOTE STRING QUOTE -> yy.ast.createConstantExpr($2);
   | NUMBER -> yy.ast.createConstantExpr(Number($1))
   | TRUE -> yy.ast.createConstantExpr(true)
   | FALSE -> yy.ast.createConstantExpr(false)

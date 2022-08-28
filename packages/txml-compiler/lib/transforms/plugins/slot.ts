@@ -9,7 +9,7 @@ import { NodePath, createRootPath, replaceNode } from "../context";
 import { getAttributeName } from "../utils";
 import { visit } from "../visitor";
 
-export default function plugin(root: RootNode): void {
+export default function slotPlugin(root: RootNode): void {
   const visitor = {
     ElementNode: {
       exit(paths: NodePath) {

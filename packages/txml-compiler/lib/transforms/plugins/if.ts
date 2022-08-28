@@ -43,7 +43,7 @@ function checkAndGetExprForDirective(
   return dir.value[0].expr;
 }
 
-export default function plugin(root: RootNode) {
+export default function ifPlugin(root: RootNode) {
   const visitor = {
     ElementNode: {
       exit(paths: NodePath) {

@@ -8,7 +8,7 @@ import { NodePath, createRootPath, replaceNode } from "../context";
 import { getStringValueForAttribute } from "../utils";
 import { visit } from "../visitor";
 
-export default function plugin(root: RootNode): void {
+export default function importSjsPlugin(root: RootNode): void {
   const visitor = {
     ElementNode: {
       exit(paths: NodePath) {

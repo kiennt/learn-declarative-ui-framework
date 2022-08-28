@@ -2,7 +2,7 @@ import { ElementNode, RootNode, createBlockNode } from "../../parser/ast";
 import { NodePath, createRootPath, replaceNode } from "../context";
 import { visit } from "../visitor";
 
-export default function plugin(root: RootNode): void {
+export default function blockPlugin(root: RootNode): void {
   const visitor = {
     ElementNode: {
       exit(paths: NodePath) {

@@ -71,7 +71,7 @@ function convertElementToIncludeNode(
   replaceNode(paths, includeNode);
 }
 
-export default function plugin(root: RootNode): void {
+export default function importPlugin(root: RootNode): void {
   const visitor = {
     ElementNode: {
       exit(paths: NodePath) {

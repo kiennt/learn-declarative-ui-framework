@@ -16,7 +16,7 @@ function getDataExpr(node: ElementNode): Array<Expr> | undefined {
   return data.value.map(node => node.expr);
 }
 
-export default function plugin(root: RootNode): void {
+export default function templatePlugin(root: RootNode): void {
   const visitor = {
     ElementNode: {
       exit(paths: NodePath) {
