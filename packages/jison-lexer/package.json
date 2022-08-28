@@ -1,0 +1,16 @@
+{
+  "name": "jison-lexer",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "devDependencies": {
+    "@vitest/ui": "^0.22.1",
+    "jison-lex": "^0.3.4",
+    "typescript": "^4.8.2",
+    "vite": "^3.0.9",
+    "vitest": "^0.22.1"
+  },
+  "scripts": {
+    "test": "yarn vitest"
+  }
+}
