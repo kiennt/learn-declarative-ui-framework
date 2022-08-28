@@ -2,7 +2,7 @@ ident                   [a-zA-Z_$]([a-zA-Z0-9_$]+)?
 tag                     [a-zA-Z_$]([a-zA-Z0-9_$\-]+)?
 number                  ("-"?[1-9]([0-9]+)?("."[0-9]+)?|[0-9])
 space                   [\s\r\n\t]+
-str_wo_dquote           ([^\{"\\]|\\.|[^\{"\\]+\{)+
+str_wo_dquote           [^"\{]+
 str_wo_lt               ([^\{\<]|[^\{\<]+\{)+
 
 %x open_tag close_tag string children expr
@@ -28,11 +28,37 @@ str_wo_lt               ([^\{\<]|[^\{\<]+\{)+
 <open_tag>">"                   this.popState(); this.begin('children'); return '>';
 <open_tag>"/>"                  this.popState(); return '/>';
 
-<string>"{{"                    this.begin('expr'); return '{{'
-<string>"\""                    this.popState(); return 'DQUOTE';
-<string>{str_wo_dquote}/(\{\{)  return 'STRING';
-<string>{str_wo_dquote}/(\}\})  this.unput('}}'); return 'STRING';
-<string>{str_wo_dquote}         return 'STRING';
+<string>"\""                    %{
+  if (yytext === '"') {
+    this.popState();
+    return 'DQUOTE';
+  } else {
+    if (yytext.charAt(yyleng - 2) === "\\") {
+      this.more();
+    } else {
+      this.unput('"');
+      return 'STRING'; 
+    }
+  }  
+%}
+<string>"{{"                    %{
+  if (yytext === "{{")  {
+    this.begin('expr');
+    return '{{';
+  } else {
+    this.unput('{{');
+    return 'STRING';
+  }
+%}
+<string>"{"                    %{
+  if (yytext.charAt(yyleng - 2) === "{") {
+    this.unput("{{");
+    return 'STRING';
+  } else {
+    this.more();
+  }
+%}
+<string>{str_wo_dquote}         this.more();
 
 <children>"{{"                  this.begin('expr'); return '{{';
 <children>"</"                  this.popState(); this.begin("close_tag"); return '</';

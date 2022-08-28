@@ -52,9 +52,9 @@ node_attribute
       {
         const node = $1;
         if (node.type === 'ident') {
-          $$ = yy.ast.createAttributeNode(node.name, []);
+          $$ = yy.ast.createAttributeNode(node.name, [yy.ast.createExprNode(yy.ast.createConstantExpr(true))]);
         } else {
-          $$ = yy.ast.createDirectiveNode(node.name, node.prefix, []);
+          $$ = yy.ast.createDirectiveNode(node.name, node.prefix, [yy.ast.createExprNode(yy.ast.createConstantExpr(true))]);
         }
       }
     }

@@ -14,7 +14,3 @@ ${importCode}
 ${renderCode}
   `;
 }
-
-(function () {
-  parse(`<view a="a {" />`);
-})();

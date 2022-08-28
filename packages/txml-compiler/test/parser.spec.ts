@@ -35,24 +35,33 @@ function testExprInChilden(
   expect(node.children).toEqual(output);
 }
 
-function runTestCasesForExprInAttr(testCases: Array<TestCase>) {
-  describe("attr", () => {
+function runDescribeForTestCase(
+  name: string,
+  testCases: Array<TestCase>,
+  fn: (input: string, output: Array<ExprNode | ElementNode>) => void
+): void {
+  describe(name, () => {
+    const hasOnly = testCases.some(item => item.only);
     testCases.forEach(tc => {
-      it(tc.name, () => {
-        testExprInAttr(tc.input, tc.output);
-      });
+      if (!hasOnly) {
+        it(tc.name, () => {
+          fn(tc.input, tc.output);
+        });
+      } else if (tc.only) {
+        it(tc.name, () => {
+          fn(tc.input, tc.output);
+        });
+      }
     });
   });
 }
 
+function runTestCasesForExprInAttr(testCases: Array<TestCase>) {
+  runDescribeForTestCase("attr", testCases, testExprInAttr);
+}
+
 function runTestCasesForExprInChildren(testCases: Array<TestCase>) {
-  describe("children", () => {
-    testCases.forEach(tc => {
-      it(tc.name, () => {
-        testExprInChilden(tc.input, tc.output);
-      });
-    });
-  });
+  runDescribeForTestCase("children", testCases, testExprInChilden);
 }
 
 function runTestCasesForExpr(testCases: Array<TestCase>) {
@@ -63,429 +72,580 @@ function runTestCasesForExpr(testCases: Array<TestCase>) {
 type TestCase = {
   name: string;
   input: string;
+  only?: boolean;
   output: Array<ExprNode | ElementNode>;
 };
 
-describe("my test", () => {
-  it("simple", () => {
-    expect(1).toEqual(1);
-  });
-});
-
-const describeSkip = (_name: string, _fn: () => void) => {};
-
-describeSkip("parse", () => {
+describe("parse", () => {
   describe("node", () => {
-    const testCases: Array<TestCase> = [
-      {
-        name: "tag without props and children",
-        input: `<view></view>`,
-        output: [
-          {
-            type: NodeTypes.ELEMENT,
-            tag: "view",
-            props: [],
-            children: []
-          }
-        ]
-      },
-      {
-        name: "tag without props and children self closed",
-        input: `<view />`,
-        output: [
-          {
-            type: NodeTypes.ELEMENT,
-            tag: "view",
-            props: [],
-            children: []
-          }
-        ]
-      },
-      {
-        name: "tag with props and without children",
-        input: `<view class="blue"></view>`,
-        output: [
-          {
-            type: NodeTypes.ELEMENT,
-            tag: "view",
-            props: [
-              {
-                type: NodeTypes.ATTRIBUTE,
-                name: "class",
-                value: [
-                  {
-                    type: NodeTypes.EXPR,
-                    expr: {
-                      type: ExprTypes.CONSTANT,
-                      value: "blue"
+    runDescribeForTestCase(
+      "node",
+      [
+        {
+          name: "tag without props and children",
+          input: `<view></view>`,
+          output: [
+            {
+              type: NodeTypes.ELEMENT,
+              tag: "view",
+              props: [],
+              children: []
+            }
+          ]
+        },
+        {
+          name: "tag without props and children self closed",
+          input: `<view />`,
+          output: [
+            {
+              type: NodeTypes.ELEMENT,
+              tag: "view",
+              props: [],
+              children: []
+            }
+          ]
+        },
+        {
+          name: "tag with props and without children",
+          input: `<view class="blue"></view>`,
+          output: [
+            {
+              type: NodeTypes.ELEMENT,
+              tag: "view",
+              props: [
+                {
+                  type: NodeTypes.ATTRIBUTE,
+                  name: "class",
+                  value: [
+                    {
+                      type: NodeTypes.EXPR,
+                      expr: {
+                        type: ExprTypes.CONSTANT,
+                        value: "blue"
+                      }
                     }
-                  }
-                ]
-              }
-            ],
-            children: []
-          }
-        ]
-      },
-      {
-        name: "tag with props unicode",
-        input: `<view message="đây là tiếng \\" việt nhé"></view>`,
-        output: [
-          {
-            type: NodeTypes.ELEMENT,
-            tag: "view",
-            props: [
-              {
-                type: NodeTypes.ATTRIBUTE,
-                name: "message",
-                value: [
-                  {
-                    type: NodeTypes.EXPR,
-                    expr: {
-                      type: ExprTypes.CONSTANT,
-                      value: 'đây là tiếng \\" việt nhé'
-                    }
-                  }
-                ]
-              }
-            ],
-            children: []
-          }
-        ]
-      },
-      {
-        name: "tag with prop value has single quote in double quote",
-        input: `<view message="đây là tiếng ' việt nhé"></view>`,
-        output: [
-          {
-            type: NodeTypes.ELEMENT,
-            tag: "view",
-            props: [
-              {
-                type: NodeTypes.ATTRIBUTE,
-                name: "message",
-                value: [
-                  {
-                    type: NodeTypes.EXPR,
-                    expr: {
-                      type: ExprTypes.CONSTANT,
-                      value: "đây là tiếng ' việt nhé"
-                    }
-                  }
-                ]
-              }
-            ],
-            children: []
-          }
-        ]
-      },
-      {
-        name: "tag with props is directive",
-        input: `<view tk:class="blue"></view>`,
-        output: [
-          {
-            type: NodeTypes.ELEMENT,
-            tag: "view",
-            props: [
-              {
-                type: NodeTypes.DIRECTIVE,
-                prefix: "tk",
-                name: "class",
-                value: [
-                  {
-                    type: NodeTypes.EXPR,
-                    expr: {
-                      type: ExprTypes.CONSTANT,
-                      value: "blue"
-                    }
-                  }
-                ]
-              }
-            ],
-            children: []
-          }
-        ]
-      },
-      {
-        name: "tag with props and without children self closed",
-        input: `<view class="blue" />`,
-        output: [
-          {
-            type: NodeTypes.ELEMENT,
-            tag: "view",
-            props: [
-              {
-                type: NodeTypes.ATTRIBUTE,
-                name: "class",
-                value: [
-                  {
-                    type: NodeTypes.EXPR,
-                    expr: {
-                      type: ExprTypes.CONSTANT,
-                      value: "blue"
-                    }
-                  }
-                ]
-              }
-            ],
-            children: []
-          }
-        ]
-      },
-      {
-        name: "tag with props and with children text",
-        input: `<view class="blue">hello</view>`,
-        output: [
-          {
-            type: NodeTypes.ELEMENT,
-            tag: "view",
-            props: [
-              {
-                type: NodeTypes.ATTRIBUTE,
-                name: "class",
-                value: [
-                  {
-                    type: NodeTypes.EXPR,
-                    expr: {
-                      type: ExprTypes.CONSTANT,
-                      value: "blue"
-                    }
-                  }
-                ]
-              }
-            ],
-            children: [
-              {
-                type: NodeTypes.EXPR,
-                expr: {
-                  type: ExprTypes.CONSTANT,
-                  value: "hello"
+                  ]
                 }
-              }
-            ]
-          }
-        ]
-      },
-      {
-        name: "tag with children unicode",
-        input: `<view>một đoạn văn tiếng việt rất ngầu</view>`,
-        output: [
-          {
-            type: NodeTypes.ELEMENT,
-            tag: "view",
-            props: [],
-            children: [
-              {
-                type: NodeTypes.EXPR,
-                expr: {
-                  type: ExprTypes.CONSTANT,
-                  value: "một đoạn văn tiếng việt rất ngầu"
-                }
-              }
-            ]
-          }
-        ]
-      },
-      {
-        name: "tag with props and with children with many text",
-        input: `<view class="blue">hello world</view>`,
-        output: [
-          {
-            type: NodeTypes.ELEMENT,
-            tag: "view",
-            props: [
-              {
-                type: NodeTypes.ATTRIBUTE,
-                name: "class",
-                value: [
-                  {
-                    type: NodeTypes.EXPR,
-                    expr: {
-                      type: ExprTypes.CONSTANT,
-                      value: "blue"
+              ],
+              children: []
+            }
+          ]
+        },
+        {
+          name: "tag with props unicode",
+          input: `<view message="đây là tiếng \\" việt nhé"></view>`,
+          output: [
+            {
+              type: NodeTypes.ELEMENT,
+              tag: "view",
+              props: [
+                {
+                  type: NodeTypes.ATTRIBUTE,
+                  name: "message",
+                  value: [
+                    {
+                      type: NodeTypes.EXPR,
+                      expr: {
+                        type: ExprTypes.CONSTANT,
+                        value: 'đây là tiếng \\" việt nhé'
+                      }
                     }
-                  }
-                ]
-              }
-            ],
-            children: [
-              {
-                type: NodeTypes.EXPR,
-                expr: {
-                  type: ExprTypes.CONSTANT,
-                  value: "hello world"
+                  ]
                 }
-              }
-            ]
-          }
-        ]
-      },
-      {
-        name: "tag with props and with nested children",
-        input: `<view class="blue">hello<span>world</span></view>`,
-        output: [
-          {
-            type: NodeTypes.ELEMENT,
-            tag: "view",
-            props: [
-              {
-                type: NodeTypes.ATTRIBUTE,
-                name: "class",
-                value: [
-                  {
-                    type: NodeTypes.EXPR,
-                    expr: {
-                      type: ExprTypes.CONSTANT,
-                      value: "blue"
+              ],
+              children: []
+            }
+          ]
+        },
+        {
+          name: "tag with prop value has single quote in double quote",
+          input: `<view message="đây là tiếng ' việt nhé"></view>`,
+          output: [
+            {
+              type: NodeTypes.ELEMENT,
+              tag: "view",
+              props: [
+                {
+                  type: NodeTypes.ATTRIBUTE,
+                  name: "message",
+                  value: [
+                    {
+                      type: NodeTypes.EXPR,
+                      expr: {
+                        type: ExprTypes.CONSTANT,
+                        value: "đây là tiếng ' việt nhé"
+                      }
                     }
-                  }
-                ]
-              }
-            ],
-            children: [
-              {
-                type: NodeTypes.EXPR,
-                expr: {
-                  type: ExprTypes.CONSTANT,
-                  value: "hello"
+                  ]
                 }
-              },
-              {
-                type: NodeTypes.ELEMENT,
-                tag: "span",
-                props: [],
-                children: [
-                  {
-                    type: NodeTypes.EXPR,
-                    expr: {
-                      type: ExprTypes.CONSTANT,
-                      value: "world"
+              ],
+              children: []
+            }
+          ]
+        },
+        {
+          name: "tag with props is directive",
+          input: `<view tk:class="blue"></view>`,
+          output: [
+            {
+              type: NodeTypes.ELEMENT,
+              tag: "view",
+              props: [
+                {
+                  type: NodeTypes.DIRECTIVE,
+                  prefix: "tk",
+                  name: "class",
+                  value: [
+                    {
+                      type: NodeTypes.EXPR,
+                      expr: {
+                        type: ExprTypes.CONSTANT,
+                        value: "blue"
+                      }
                     }
+                  ]
+                }
+              ],
+              children: []
+            }
+          ]
+        },
+        {
+          name: "tag with props and without children self closed",
+          input: `<view class="blue" />`,
+          output: [
+            {
+              type: NodeTypes.ELEMENT,
+              tag: "view",
+              props: [
+                {
+                  type: NodeTypes.ATTRIBUTE,
+                  name: "class",
+                  value: [
+                    {
+                      type: NodeTypes.EXPR,
+                      expr: {
+                        type: ExprTypes.CONSTANT,
+                        value: "blue"
+                      }
+                    }
+                  ]
+                }
+              ],
+              children: []
+            }
+          ]
+        },
+        {
+          name: "tag with props and with children text",
+          input: `<view class="blue">hello</view>`,
+          output: [
+            {
+              type: NodeTypes.ELEMENT,
+              tag: "view",
+              props: [
+                {
+                  type: NodeTypes.ATTRIBUTE,
+                  name: "class",
+                  value: [
+                    {
+                      type: NodeTypes.EXPR,
+                      expr: {
+                        type: ExprTypes.CONSTANT,
+                        value: "blue"
+                      }
+                    }
+                  ]
+                }
+              ],
+              children: [
+                {
+                  type: NodeTypes.EXPR,
+                  expr: {
+                    type: ExprTypes.CONSTANT,
+                    value: "hello"
                   }
-                ]
-              }
-            ]
-          }
-        ]
-      },
-      {
-        name: "skip comment",
-        input: `<!-- <view class="blue">hello<span>world</span></view> --><view />`,
-        output: [
-          {
-            type: NodeTypes.ELEMENT,
-            tag: "view",
-            props: [],
-            children: []
-          }
-        ]
-      },
-      {
-        name: "multiple node",
-        input: `
+                }
+              ]
+            }
+          ]
+        },
+        {
+          name: "tag with children unicode",
+          input: `<view>một đoạn văn tiếng việt rất ngầu</view>`,
+          output: [
+            {
+              type: NodeTypes.ELEMENT,
+              tag: "view",
+              props: [],
+              children: [
+                {
+                  type: NodeTypes.EXPR,
+                  expr: {
+                    type: ExprTypes.CONSTANT,
+                    value: "một đoạn văn tiếng việt rất ngầu"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          name: "tag with props and with children with many text",
+          input: `<view class="blue">hello world</view>`,
+          output: [
+            {
+              type: NodeTypes.ELEMENT,
+              tag: "view",
+              props: [
+                {
+                  type: NodeTypes.ATTRIBUTE,
+                  name: "class",
+                  value: [
+                    {
+                      type: NodeTypes.EXPR,
+                      expr: {
+                        type: ExprTypes.CONSTANT,
+                        value: "blue"
+                      }
+                    }
+                  ]
+                }
+              ],
+              children: [
+                {
+                  type: NodeTypes.EXPR,
+                  expr: {
+                    type: ExprTypes.CONSTANT,
+                    value: "hello world"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          name: "tag with props and with nested children",
+          input: `<view class="blue">hello<span>world</span></view>`,
+          output: [
+            {
+              type: NodeTypes.ELEMENT,
+              tag: "view",
+              props: [
+                {
+                  type: NodeTypes.ATTRIBUTE,
+                  name: "class",
+                  value: [
+                    {
+                      type: NodeTypes.EXPR,
+                      expr: {
+                        type: ExprTypes.CONSTANT,
+                        value: "blue"
+                      }
+                    }
+                  ]
+                }
+              ],
+              children: [
+                {
+                  type: NodeTypes.EXPR,
+                  expr: {
+                    type: ExprTypes.CONSTANT,
+                    value: "hello"
+                  }
+                },
+                {
+                  type: NodeTypes.ELEMENT,
+                  tag: "span",
+                  props: [],
+                  children: [
+                    {
+                      type: NodeTypes.EXPR,
+                      expr: {
+                        type: ExprTypes.CONSTANT,
+                        value: "world"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          name: "skip comment",
+          input: `<!-- <view class="blue">hello<span>world</span></view> --><view />`,
+          output: [
+            {
+              type: NodeTypes.ELEMENT,
+              tag: "view",
+              props: [],
+              children: []
+            }
+          ]
+        },
+        {
+          name: "multiple node",
+          input: `
           <view>hello</view>
           <view></view>
           <view />`,
-        output: [
-          {
-            type: NodeTypes.ELEMENT,
-            tag: "view",
-            props: [],
-            children: [
-              {
-                type: NodeTypes.EXPR,
-                expr: {
-                  type: ExprTypes.CONSTANT,
-                  value: "hello"
+          output: [
+            {
+              type: NodeTypes.ELEMENT,
+              tag: "view",
+              props: [],
+              children: [
+                {
+                  type: NodeTypes.EXPR,
+                  expr: {
+                    type: ExprTypes.CONSTANT,
+                    value: "hello"
+                  }
                 }
-              }
-            ]
-          },
-          {
-            type: NodeTypes.ELEMENT,
-            tag: "view",
-            props: [],
-            children: []
-          },
-          {
-            type: NodeTypes.ELEMENT,
-            tag: "view",
-            props: [],
-            children: []
-          }
-        ]
-      },
-      {
-        name: "tag with attribute and directive without value",
-        input: `<view a tiki:else/>`,
-        output: [
-          {
-            type: NodeTypes.ELEMENT,
-            tag: "view",
-            children: [],
-            props: [
-              {
-                type: NodeTypes.ATTRIBUTE,
-                name: "a",
-                value: [
-                  {
-                    type: NodeTypes.EXPR,
-                    expr: {
-                      type: ExprTypes.CONSTANT,
-                      value: true
+              ]
+            },
+            {
+              type: NodeTypes.ELEMENT,
+              tag: "view",
+              props: [],
+              children: []
+            },
+            {
+              type: NodeTypes.ELEMENT,
+              tag: "view",
+              props: [],
+              children: []
+            }
+          ]
+        },
+        {
+          name: "tag with attribute and directive without value",
+          input: `<view a tiki:else/>`,
+          output: [
+            {
+              type: NodeTypes.ELEMENT,
+              tag: "view",
+              children: [],
+              props: [
+                {
+                  type: NodeTypes.ATTRIBUTE,
+                  name: "a",
+                  value: [
+                    {
+                      type: NodeTypes.EXPR,
+                      expr: {
+                        type: ExprTypes.CONSTANT,
+                        value: true
+                      }
                     }
-                  }
-                ]
-              },
-              {
-                type: NodeTypes.DIRECTIVE,
-                prefix: "tiki",
-                name: "else",
-                value: [
-                  {
-                    type: NodeTypes.EXPR,
-                    expr: {
-                      type: ExprTypes.CONSTANT,
-                      value: true
+                  ]
+                },
+                {
+                  type: NodeTypes.DIRECTIVE,
+                  prefix: "tiki",
+                  name: "else",
+                  value: [
+                    {
+                      type: NodeTypes.EXPR,
+                      expr: {
+                        type: ExprTypes.CONSTANT,
+                        value: true
+                      }
                     }
-                  }
-                ]
-              }
-            ]
-          }
-        ]
-      },
-      {
-        name: "tag name has -",
-        input: "<scroll-view></scroll-view>",
-        output: [
-          {
-            type: NodeTypes.ELEMENT,
-            tag: "scroll-view",
-            props: [],
-            children: []
-          }
-        ]
-      },
-      {
-        name: "self closing tag name has -",
-        input: "<scroll-view />",
-        output: [
-          {
-            type: NodeTypes.ELEMENT,
-            tag: "scroll-view",
-            props: [],
-            children: []
-          }
-        ]
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          name: "tag with prop value is empty",
+          input: `<view message="" tiki:a=""></view>`,
+          output: [
+            {
+              type: NodeTypes.ELEMENT,
+              tag: "view",
+              props: [
+                {
+                  type: NodeTypes.ATTRIBUTE,
+                  name: "message",
+                  value: [
+                    {
+                      type: NodeTypes.EXPR,
+                      expr: {
+                        type: ExprTypes.CONSTANT,
+                        value: ""
+                      }
+                    }
+                  ]
+                },
+                {
+                  type: NodeTypes.DIRECTIVE,
+                  prefix: "tiki",
+                  name: "a",
+                  value: [
+                    {
+                      type: NodeTypes.EXPR,
+                      expr: {
+                        type: ExprTypes.CONSTANT,
+                        value: ""
+                      }
+                    }
+                  ]
+                }
+              ],
+              children: []
+            }
+          ]
+        },
+        {
+          name: "tag name has -",
+          input: "<scroll-view></scroll-view>",
+          output: [
+            {
+              type: NodeTypes.ELEMENT,
+              tag: "scroll-view",
+              props: [],
+              children: []
+            }
+          ]
+        },
+        {
+          name: "self closing tag name has -",
+          input: "<scroll-view />",
+          output: [
+            {
+              type: NodeTypes.ELEMENT,
+              tag: "scroll-view",
+              props: [],
+              children: []
+            }
+          ]
+        }
+      ],
+      (input, output) => {
+        expect(parse(input).children).toEqual(output);
       }
-    ];
+    );
+  });
 
-    testCases.forEach(tc => {
-      it(tc.name, () => {
-        expect(parse(tc.input).children).toEqual(tc.output);
-      });
-    });
+  describe("edge case for attribute", () => {
+    runDescribeForTestCase(
+      "attribute with {",
+      [
+        {
+          name: "start with {",
+          input: `<import-sjs name="{ a" />`,
+          output: [
+            {
+              type: NodeTypes.ELEMENT,
+              tag: "import-sjs",
+              props: [
+                {
+                  type: NodeTypes.ATTRIBUTE,
+                  name: "name",
+                  value: [
+                    {
+                      type: NodeTypes.EXPR,
+                      expr: {
+                        type: ExprTypes.CONSTANT,
+                        value: "{ a"
+                      }
+                    }
+                  ]
+                }
+              ],
+              children: []
+            }
+          ]
+        },
+        {
+          name: "end with {",
+          input: `<import-sjs name="a }" />`,
+          output: [
+            {
+              type: NodeTypes.ELEMENT,
+              tag: "import-sjs",
+              props: [
+                {
+                  type: NodeTypes.ATTRIBUTE,
+                  name: "name",
+                  value: [
+                    {
+                      type: NodeTypes.EXPR,
+                      expr: {
+                        type: ExprTypes.CONSTANT,
+                        value: "a }"
+                      }
+                    }
+                  ]
+                }
+              ],
+              children: []
+            }
+          ]
+        },
+        {
+          name: "has many { in middle",
+          input: `<import-sjs name="a { b, c { d, e { e {"></import-sjs>`,
+          output: [
+            {
+              type: NodeTypes.ELEMENT,
+              tag: "import-sjs",
+              props: [
+                {
+                  type: NodeTypes.ATTRIBUTE,
+                  name: "name",
+                  value: [
+                    {
+                      type: NodeTypes.EXPR,
+                      expr: {
+                        type: ExprTypes.CONSTANT,
+                        value: "a { b, c { d, e { e {"
+                      }
+                    }
+                  ]
+                }
+              ],
+              children: []
+            }
+          ]
+        },
+        {
+          name: "has many { in middle",
+          input: `<import-sjs name="{moneyFormatter,moneyFormatter}" />`,
+          output: [
+            {
+              type: NodeTypes.ELEMENT,
+              tag: "import-sjs",
+              props: [
+                {
+                  type: NodeTypes.ATTRIBUTE,
+                  name: "name",
+                  value: [
+                    {
+                      type: NodeTypes.EXPR,
+                      expr: {
+                        type: ExprTypes.CONSTANT,
+                        value: "{moneyFormatter,moneyFormatter}"
+                      }
+                    }
+                  ]
+                }
+              ],
+              children: []
+            }
+          ],
+          only: true
+        }
+      ],
+      (input, output) => {
+        const root = parse(input);
+        console.log(root.children);
+        expect(root.children).toEqual(output);
+      }
+    );
   });
 
   describe("throw errors", () => {
